@@ -70,9 +70,9 @@ export function Input({
         >
           <HeadlessInput
             onChange={(e) => {
+              const value = e.target.value;
               onChange && onChange(e);
-              fieldOnChange(e);
-              mask && form.setValue(name, formatWithMask(e, mask));
+              fieldOnChange(mask ? formatWithMask(value, mask) : value);
             }}
             value={value || ""}
             className={clsx([
@@ -161,8 +161,7 @@ export function ColorInput({
             type="color"
             onChange={(e) => {
               onChange && onChange(e);
-              fieldOnChange(e);
-              mask && form.setValue(name, formatWithMask(e, mask));
+              fieldOnChange(e.target.value);
             }}
             value={value || ""}
             className={clsx([

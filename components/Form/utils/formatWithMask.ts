@@ -1,16 +1,18 @@
 export type MaskType = string | ((fieldValue: string) => string | null) | null;
-export const formatWithMask = (event: any, mask: MaskType) => {
+export const formatWithMask = (string: string, mask: MaskType) => {
+  const fieldValue = string;
+
   if (typeof mask === "function") {
-    mask = mask(event.target.value);
+    mask = mask(fieldValue);
   }
 
-  if (!mask) return event.target.value;
+  if (!mask) return fieldValue;
 
   let formattedValue = "";
   let inputIndex = 0;
   let maskIndex = 0;
   // Strip current formatting to get the raw value
-  const rawValue = event.target.value.replace(/[^0-9a-zA-Z]/g, "");
+  const rawValue = fieldValue.replace(/[^0-9a-zA-Z]/g, "");
 
   while (inputIndex < rawValue.length && maskIndex < mask.length) {
     const maskChar = mask[maskIndex];
@@ -40,5 +42,6 @@ export const formatWithMask = (event: any, mask: MaskType) => {
     }
     maskIndex++;
   }
+
   return formattedValue;
 };
