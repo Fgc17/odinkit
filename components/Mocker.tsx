@@ -12,7 +12,7 @@ function mockData<Fields extends FieldValues>({ data, form }: UseMockerProps<Fie
   for (const field of formFields) {
     const fieldPath = field as Path<Fields>;
 
-    let fieldValue = _data[fieldPath] || null;
+    let fieldValue = _data[fieldPath] ?? null;
 
     if (typeof fieldValue === "function") {
       fieldValue = fieldValue(form.getValues(fieldPath));
