@@ -10,7 +10,14 @@ interface ForProps<T> {
 export function For<T>({ each, children, identifier, fallback }: ForProps<T>) {
   if (!each || each?.length < 1) return fallback;
 
-  if (!identifier) return <>{each.map((element, index) => children(element, index))}</>;
+  if (!identifier)
+    return (
+      <>
+        {each.map((element, index) => (
+          <Fragment key={index}>{children(element, index)}</Fragment>
+        ))}
+      </>
+    );
 
   return (
     <>
