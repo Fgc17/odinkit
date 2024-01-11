@@ -21,28 +21,7 @@ import {
   useFormContext,
 } from "react-hook-form";
 import { ZodObject, ZodRawShape, ZodType, ZodTypeAny, z } from "zod";
-
-export const getEntryFromPath = (obj: any, path: string, extraKey: string = "") => {
-  const pathArray = path.split(".");
-
-  const entryValue = pathArray.reduce((acc, curr) => {
-    const nextAcc = acc && acc[curr];
-
-    if (!nextAcc) return null;
-
-    if (extraKey in nextAcc) {
-      return nextAcc[extraKey];
-    }
-
-    return nextAcc;
-  }, obj);
-
-  const entryKey = path.split(".").pop();
-  return {
-    entryKey,
-    entryValue,
-  };
-};
+import { getEntryFromPath } from "./utils/getEntryFromPath";
 
 export function Form<Fields extends FieldValues>(props: {
   children: React.ReactNode;
@@ -113,6 +92,7 @@ type FieldProps<Fields extends FieldValues> = HeadlessFieldProps & {
 function Field<Fields extends FieldValues>({
   className,
   enableAsterisk,
+  zodobject,
   ...props
 }: FieldProps<Fields> & {
   zodobject: ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>;
@@ -121,13 +101,13 @@ function Field<Fields extends FieldValues>({
   const form = useFormContext();
 
   const name = props["name"];
-  const zodField = getEntryFromPath(props.zodobject.shape, name, "shape").entryValue;
+  const zodField = getEntryFromPath(zodobject.shape, name, "shape").entryValue;
   const isRequired = enableAsterisk && !zodField?.isOptional();
 
   const fieldContextValue = {
     name,
     isRequired,
-    error: getEntryFromPath(form.formState.errors, name).entryValue,
+    error: getEntryFromPath(form.formState.errors, name).entryValue?.message,
   };
 
   return (
