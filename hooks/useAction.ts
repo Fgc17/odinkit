@@ -1,5 +1,4 @@
-"use client";
-import { ErrorResponse, SuccessResponse } from "@/app/api/_shared/utils/ActionResponse";
+import { ErrorResponse, SuccessResponse } from "odinkit/api/ActionResponse";
 import { useId } from "react";
 import useSWRMutation from "swr/mutation";
 
@@ -8,60 +7,66 @@ type FetcherResponse<T> = Promise<T>;
 interface UseActionParams<
   ArgumentType,
   DataReturnType,
-  FormatterReturnType,
-  ParserReturnType,
+  RequestParserReturnType,
+  ResponseParserReturnType,
 > {
-  defaultData?: ParserReturnType;
+  defaultData?: ResponseParserReturnType;
   redirect?: boolean;
   onError?: (error: string) => void;
-  onSuccess?: (res: SuccessResponse<ParserReturnType>) => void;
-  parser?: (arg: DataReturnType) => ParserReturnType;
-  formatter?: (arg: ArgumentType) => FormatterReturnType;
+  onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
+  responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
+  requestParser?: (arg: ArgumentType) => RequestParserReturnType;
   action: (
-    arg: FormatterReturnType | ArgumentType
+    arg: RequestParserReturnType | ArgumentType
   ) => Promise<SuccessResponse<DataReturnType> | ErrorResponse | void>;
 }
 
 export function useAction<
   ArgumentType,
   DataReturnType,
-  FormatterReturnType = ArgumentType,
-  ParserReturnType = DataReturnType,
+  RequestParserReturnType = ArgumentType,
+  ResponseParserReturnType = DataReturnType,
 >({
   defaultData,
   redirect,
   action,
   onSuccess,
   onError,
-  formatter,
-  parser,
-}: UseActionParams<ArgumentType, DataReturnType, FormatterReturnType, ParserReturnType>) {
+  requestParser,
+  responseParser,
+}: UseActionParams<
+  ArgumentType,
+  DataReturnType,
+  RequestParserReturnType,
+  ResponseParserReturnType
+>) {
   const id = useId();
 
   const fetcher = (
     arg: ArgumentType
-  ): FetcherResponse<SuccessResponse<ParserReturnType>> => {
-    const formattedArg = formatter ? formatter(arg) : arg;
+  ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> => {
+    const formattedArg = requestParser ? requestParser(arg) : arg;
 
     return action(formattedArg)
       .then((res) => {
-        if (res && "error" in res) {
-          throw res.message;
-        }
-        if (redirect) {
+        if (res && "error" in res) throw res.message;
+
+        if (redirect)
           return {
-            data: null as ParserReturnType,
+            data: null as ResponseParserReturnType,
             message: `Redirecionando...`,
           };
-        }
-        if (!res) {
-          throw "Resposta indefinida.";
-        }
-        if (!res.data) {
-          throw "Resposta sem dados.";
-        }
+
+        if (!res) throw "Resposta indefinida.";
+
+        if (!res.data) throw "Resposta sem dados.";
+
+        const parsedData = (
+          responseParser ? responseParser(res.data) : res.data
+        ) as ResponseParserReturnType;
+
         return {
-          data: (parser ? parser(res.data) : res.data) as ParserReturnType,
+          data: parsedData,
           pagination: res.pagination,
           message: res.message,
         };
@@ -72,7 +77,7 @@ export function useAction<
   };
 
   const mutation = useSWRMutation<
-    SuccessResponse<ParserReturnType>,
+    SuccessResponse<ResponseParserReturnType>,
     string,
     string,
     ArgumentType
@@ -83,7 +88,7 @@ export function useAction<
 
   const actionResult = {
     ...mutation,
-    data: (mutation?.data?.data || defaultData) as ParserReturnType,
+    data: (mutation?.data?.data || defaultData) as ResponseParserReturnType,
     pagination: mutation?.data?.pagination,
   };
 
