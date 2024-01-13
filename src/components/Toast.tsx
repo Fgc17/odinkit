@@ -1,5 +1,11 @@
 "use client";
-import React, { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
+import React, {
+  Dispatch,
+  Fragment,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
 import { Transition } from "@headlessui/react";
 import clsx from "clsx";
 import {
@@ -35,13 +41,21 @@ export const toastVariants = {
   alert: {
     bg: "bg-yellow-500",
     border: "border-yellow-700",
-    icon: <ExclamationCircleIcon className="h-6 w-6 text-black" aria-hidden="true" />,
+    icon: (
+      <ExclamationCircleIcon
+        className="h-6 w-6 text-black"
+        aria-hidden="true"
+      />
+    ),
   },
 };
 
 export type ToastVariantTypes = typeof toastVariants;
 
-const ToastContent: React.FC<ToastContentProps> = ({ toastElement, visible }) => {
+const ToastContent: React.FC<ToastContentProps> = ({
+  toastElement,
+  visible,
+}) => {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -77,7 +91,9 @@ const ToastContent: React.FC<ToastContentProps> = ({ toastElement, visible }) =>
               {toastVariants[toastElement.variant].icon}
             </div>
             <div className="ml-3 w-0 flex-1 pt-0.5">
-              <p className="text-sm font-medium text-black">{toastElement.title}</p>
+              <p className="text-sm font-medium text-black">
+                {toastElement.title}
+              </p>
               <p className="mt-1 text-sm text-black">{toastElement.message}</p>
             </div>
             <div className="ml-4 flex flex-shrink-0">

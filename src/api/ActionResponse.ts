@@ -7,20 +7,19 @@ export type SuccessResponse<T> = {
   message?: string | string[];
 };
 
-export type ExtractSuccessResponse<T extends (...args: any) => any> = Awaited<
-  ReturnType<T>
-> extends ActionResponseType<infer U>
-  ? U extends { data: infer D }
-    ? D
-    : U
-  : never;
+export type ExtractSuccessResponse<T extends (...args: any) => any> =
+  Awaited<ReturnType<T>> extends ActionResponseType<infer U>
+    ? U extends { data: infer D }
+      ? D
+      : U
+    : never;
 
 export interface ErrorResponse {
   message: string | string[];
   error: true;
 }
 
-export type ActionResponseType<T> = SuccessResponse<T> | ErrorResponse;
+export type ActionResponseType<T> = SuccessResponse<T> | ErrorResponse | void;
 
 export class ActionResponse {
   public static success<T>({
