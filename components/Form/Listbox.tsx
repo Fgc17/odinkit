@@ -12,6 +12,8 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import { Fragment } from "react";
+import { useFormContext } from "react-hook-form";
+import { useField } from "./Form";
 
 export function Listbox<T>({
   className,
@@ -27,6 +29,10 @@ export function Listbox<T>({
   "aria-label"?: string;
   children?: React.ReactNode;
 } & Omit<HeadlessListboxProps<typeof Fragment, T>, "multiple">) {
+  const form = useFormContext();
+
+  const field = useField();
+
   return (
     <HeadlessListbox {...props} multiple={false}>
       <HeadlessListboxButton
@@ -60,7 +66,9 @@ export function Listbox<T>({
           options={options}
           placeholder={
             placeholder && (
-              <span className="block truncate text-zinc-500">{placeholder}</span>
+              <span className="block truncate text-zinc-500">
+                {placeholder}
+              </span>
             )
           }
           className={clsx([
@@ -170,7 +178,9 @@ export function ListboxOption<T>({
     <HeadlessListboxOption as={Fragment} {...props}>
       {({ selectedOption }) => {
         if (selectedOption) {
-          return <div className={clsx(className, sharedClasses)}>{children}</div>;
+          return (
+            <div className={clsx(className, sharedClasses)}>{children}</div>
+          );
         }
 
         return (
@@ -221,7 +231,10 @@ export function ListboxLabel({
 }: React.ComponentPropsWithoutRef<"span">) {
   return (
     <span
-      className={clsx(className, "ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0")}
+      className={clsx(
+        className,
+        "ml-2.5 truncate first:ml-0 sm:ml-2 sm:first:ml-0"
+      )}
       {...props}
     />
   );
