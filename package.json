@@ -1,6 +1,9 @@
 {
   "name": "odinkit",
   "version": "0.0.3",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "postinstall": "on-env development pnpm link --dir /workspaces/pnpm/odinkit"
   },
