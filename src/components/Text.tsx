@@ -1,13 +1,16 @@
 import { clsx } from "clsx";
 import { Link } from "./Link";
 
-export function Text({ className, ...props }: React.ComponentPropsWithoutRef<"p">) {
+export function Text({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"p">) {
   return (
     <p
       {...props}
       data-slot="text"
       className={clsx(
-        "text-base/6 sm:text-sm/6 ",
+        "text-base/6 sm:text-sm/6",
         !props.color
           ? "text-zinc-500 dark:text-zinc-400"
           : `text-${props.color}-500 dark:text-${props.color}-400`,
@@ -44,7 +47,10 @@ export function Strong({
   );
 }
 
-export function Code({ className, ...props }: React.ComponentPropsWithoutRef<"code">) {
+export function Code({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"code">) {
   return (
     <code
       {...props}
