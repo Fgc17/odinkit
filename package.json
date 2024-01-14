@@ -2,13 +2,13 @@
   "name": "odinkit",
   "version": "0.0.2",
   "scripts": {
-    "postinstall": "on-env development pnpm link --global"
+    "postinstall": "on-env development pnpm link --dir /workspaces/pnpm/odinkit"
   },
   "files": [
     "src"
   ],
   "dependencies": {
-    "@ferstack/on-env": "0.0.1",
+    "@ferstack/on-env": "0.0.2",
     "@headlessui/react": "2.0.0-alpha.3",
     "@heroicons/react": "2.1.1",
     "@types/bcrypt": "^5.0.2",

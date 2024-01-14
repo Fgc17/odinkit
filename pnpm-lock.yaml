@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@ferstack/on-env':
-    specifier: 0.0.1
-    version: 0.0.1
+    specifier: 0.0.2
+    version: 0.0.2
   '@headlessui/react':
     specifier: 2.0.0-alpha.3
     version: 2.0.0-alpha.3(react-dom@18.2.0)(react@18.2.0)
@@ -276,8 +276,8 @@ packages:
       prettier: 2.8.8
     dev: true
 
-  /@ferstack/on-env@0.0.1:
-    resolution: {integrity: sha512-zt9ILgORUOQ9jhoTqZtEhz9YvD0uNDwNDKeFXc3QV1ou0+jehXwuLQTIHBFeZbl3qaejkai73W+bYNSdhwNulQ==}
+  /@ferstack/on-env@0.0.2:
+    resolution: {integrity: sha512-rdtM6NLsYJ0vBaO8rLnu5ME4P1QsWDIcCZGRYeovW6egsOWuKOn/bbZG4V2xCPv8e2z5v7SB3/hbEVoH8SfT/A==}
     hasBin: true
     dev: false
 
