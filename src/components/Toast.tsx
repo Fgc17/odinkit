@@ -38,6 +38,11 @@ export const toastVariants = {
     border: "border-red-700",
     icon: <XCircleIcon className="h-6 w-6 text-zinc-900" aria-hidden="true" />,
   },
+  white: {
+    bg: "bg-white",
+    border: "border-gray-050",
+    icon: <XCircleIcon className="h-6 w-6 text-zinc-900" aria-hidden="true" />,
+  },
   alert: {
     bg: "bg-yellow-500",
     border: "border-yellow-700",
