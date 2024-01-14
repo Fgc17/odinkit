@@ -1,6 +1,6 @@
 {
   "name": "odinkit",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "postinstall": "on-env development pnpm link --dir /workspaces/pnpm/odinkit"
   },
