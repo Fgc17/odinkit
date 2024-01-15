@@ -43,7 +43,5 @@ export async function fullTextSearch({
       LIMIT $2;
     `;
 
-  console.log(query);
-
   return query;
 }
