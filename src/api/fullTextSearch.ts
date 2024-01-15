@@ -3,6 +3,7 @@ export async function fullTextSearch({
   tableAlias,
   searchField,
   where,
+  select,
   joins,
   orderBy,
 }: {
@@ -10,6 +11,7 @@ export async function fullTextSearch({
   searchField: string[];
   tableAlias?: string;
   where?: string[] | null;
+  select?: string[][] | null;
   joins?: string[] | null;
   orderBy?: string[] | null;
 }) {
@@ -34,8 +36,10 @@ export async function fullTextSearch({
     ? orderBy.map((field) => `"${field}"`).join(".")
     : "id";
 
+  const sqlSelect = select ? select.flatMap(i => i.map((field) => `"${field}"`).join(".")).join(', ') : "*";
+
   const query = `
-      SELECT *
+      SELECT ${sqlSelect}
       FROM ${tableSql} ${tableAlias}
       ${sqlJoins}
       WHERE ${whereSql}
