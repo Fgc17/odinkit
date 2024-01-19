@@ -33,12 +33,19 @@ export function Table({
 } & React.ComponentPropsWithoutRef<"div">) {
   return (
     <TableContext.Provider
-      value={{ bleed, dense, grid, striped } as React.ContextType<typeof TableContext>}
+      value={
+        { bleed, dense, grid, striped } as React.ContextType<
+          typeof TableContext
+        >
+      }
     >
       <div className="flow-root">
         <div
           {...props}
-          className={clsx(className, "-mx-[--gutter] overflow-x-auto whitespace-nowrap")}
+          className={clsx(
+            className,
+            "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
+          )}
         >
           <div
             className={clsx(
@@ -58,22 +65,22 @@ export function TableHead({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"thead">) {
-  return (
-    <thead className={clsx(className, "text-zinc-500 dark:text-zinc-400")} {...props} />
-  );
+  return <thead className={clsx(className, "text-zinc-500 ")} {...props} />;
 }
 
 export function TableBody(props: React.ComponentPropsWithoutRef<"tbody">) {
   return <tbody {...props} />;
 }
 
-const TableRowContext = createContext<{ href?: string; target?: string; title?: string }>(
-  {
-    href: undefined,
-    target: undefined,
-    title: undefined,
-  }
-);
+const TableRowContext = createContext<{
+  href?: string;
+  target?: string;
+  title?: string;
+}>({
+  href: undefined,
+  target: undefined,
+  title: undefined,
+});
 
 export function TableRow({
   href,
@@ -91,17 +98,19 @@ export function TableRow({
 
   return (
     <TableRowContext.Provider
-      value={{ href, target, title } as React.ContextType<typeof TableRowContext>}
+      value={
+        { href, target, title } as React.ContextType<typeof TableRowContext>
+      }
     >
       <tr
         {...props}
         className={clsx(
           className,
           href &&
-            "has-[[data-row-link][data-focus]]:outline has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500 dark:focus-within:bg-white/[2.5%]",
-          striped && "even:bg-zinc-950/[2.5%] dark:even:bg-white/[2.5%]",
-          href && striped && "hover:bg-zinc-950/5 dark:hover:bg-white/5",
-          href && !striped && "hover:bg-zinc-950/[2.5%] dark:hover:bg-white/[2.5%]"
+            "/[2.5%] has-[[data-row-link][data-focus]]:outline has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500",
+          striped && "/[2.5%] even:bg-zinc-950/[2.5%]",
+          href && striped && "hover:bg-zinc-950/5 ",
+          href && !striped && "/[2.5%] hover:bg-zinc-950/[2.5%]"
         )}
       >
         {children}
@@ -121,8 +130,8 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] dark:border-b-white/10",
-        grid && "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
+        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
+        grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
         !bleed && "sm:first:pl-2 sm:last:pr-2"
       )}
     />
@@ -145,8 +154,8 @@ export function TableCell({
       className={clsx(
         className,
         "relative px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
-        !striped && "border-b border-zinc-950/5 dark:border-white/5",
-        grid && "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
+        !striped && "border-b border-zinc-950/5 ",
+        grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
         dense ? "py-2.5" : "py-4",
         !bleed && "sm:first:pl-2 sm:last:pr-2"
       )}

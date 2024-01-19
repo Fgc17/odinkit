@@ -20,7 +20,14 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form";
-import { ZodObject, ZodRawShape, ZodType, ZodTypeAny, z } from "zod";
+import {
+  ZodEffects,
+  ZodObject,
+  ZodRawShape,
+  ZodType,
+  ZodTypeAny,
+  z,
+} from "zod";
 import { getEntryFromPath } from "./utils/getEntryFromPath";
 
 export function Form<Fields extends FieldValues>(props: {
@@ -62,7 +69,7 @@ export function Legend({ ...props }: HeadlessLegendProps) {
       data-slot="legend"
       className={clsx(
         props.className,
-        "text-base/6 font-semibold text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-white"
+        "text-base/6 font-semibold text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 "
       )}
     />
   );
@@ -95,7 +102,9 @@ function Field<Fields extends FieldValues>({
   zodobject,
   ...props
 }: FieldProps<Fields> & {
-  zodobject: ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>;
+  zodobject:
+    | ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>
+    | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
   enableAsterisk: boolean;
 }) {
   const form = useFormContext();
@@ -132,11 +141,15 @@ export function createField<Fields extends FieldValues>({
   zodObject,
   enableAsterisk = false,
 }: {
-  zodObject: ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>;
+  zodObject:
+    | ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>
+    | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
   enableAsterisk?: boolean;
 }) {
   return (props: FieldProps<Fields>) => {
-    return <Field {...props} enableAsterisk={enableAsterisk} zodobject={zodObject} />;
+    return (
+      <Field {...props} enableAsterisk={enableAsterisk} zodobject={zodObject} />
+    );
   };
 }
 
@@ -153,7 +166,7 @@ export function Label({
       data-slot="label"
       className={clsx(
         className,
-        "select-none text-base/6 text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-white"
+        "select-none text-base/6 text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6"
       )}
     >
       <>
@@ -174,7 +187,7 @@ export function Description({
       data-slot="description"
       className={clsx(
         className,
-        "text-base/6 text-zinc-500 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-zinc-400"
+        "text-base/6 text-zinc-500 data-[disabled]:opacity-50 sm:text-sm/6 "
       )}
     />
   );
@@ -193,7 +206,7 @@ export function ErrorMessage({
       data-slot="error"
       className={clsx(
         className,
-        "text-base/6 text-red-600 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-red-500"
+        "text-xs text-red-600 data-[disabled]:opacity-50"
       )}
     >
       {error}

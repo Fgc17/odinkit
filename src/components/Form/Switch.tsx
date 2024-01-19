@@ -171,24 +171,24 @@ export function Switch({
         "transition duration-0 ease-in-out data-[changing]:duration-200",
 
         // Outline and background color in forced-colors mode so switch is still visible
-        "forced-colors:outline forced-colors:[--switch-bg:Highlight] dark:forced-colors:[--switch-bg:Highlight]",
+        ":[--switch-bg:Highlight] forced-colors:outline forced-colors:[--switch-bg:Highlight]",
 
         // Unchecked
-        "bg-zinc-200 ring-1 ring-inset ring-black/5 dark:bg-white/5 dark:ring-white/15",
+        "bg-zinc-200 ring-1 ring-inset ring-black/5  ",
 
         // Checked
-        "data-[checked]:bg-[--switch-bg] data-[checked]:ring-[--switch-bg-ring] dark:data-[checked]:bg-[--switch-bg] dark:data-[checked]:ring-[--switch-bg-ring]",
+        "-[checked]:bg-[--switch-bg] -[checked]:ring-[--switch-bg-ring] data-[checked]:bg-[--switch-bg] data-[checked]:ring-[--switch-bg-ring]",
 
         // Focus
         "focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500",
 
         // Hover
         "data-[hover]:data-[checked]:ring-[--switch-bg-ring] data-[hover]:ring-black/15",
-        "dark:data-[hover]:data-[checked]:ring-[--switch-bg-ring] dark:data-[hover]:ring-white/25",
+        "-[hover]:data-[checked]:ring-[--switch-bg-ring] -[hover]:ring-white/25",
 
         // Disabled
         "data-[disabled]:bg-zinc-200 data-[disabled]:data-[checked]:bg-zinc-200 data-[disabled]:opacity-50 data-[disabled]:data-[checked]:ring-black/5",
-        "dark:data-[disabled]:bg-white/15 dark:data-[disabled]:data-[checked]:bg-white/15 dark:data-[disabled]:data-[checked]:ring-white/15",
+        "-[disabled]:bg-white/15 -[disabled]:data-[checked]:bg-white/15 -[disabled]:data-[checked]:ring-white/15",
 
         // Color specific styles
         colors[color]

@@ -44,7 +44,11 @@ export function DropdownMenu({
   "anchor"
 >) {
   return (
-    <HeadlessTransition as={Fragment} leave="duration-100 ease-in" leaveTo="opacity-0">
+    <HeadlessTransition
+      as={Fragment}
+      leave="duration-100 ease-in"
+      leaveTo="opacity-0"
+    >
       <HeadlessMenuItems
         {...props}
         anchor={{
@@ -69,10 +73,10 @@ export function DropdownMenu({
           "overflow-y-auto",
 
           // Popover background
-          "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
+          "bg-white/75 backdrop-blur-xl",
 
           // Shadows
-          "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
+          "shadow-lg ring-1 ring-zinc-950/10",
 
           // Define grid at the menu level if subgrid is supported
           "supports-[grid-template-columns:subgrid]:grid supports-[grid-template-columns:subgrid]:grid-cols-[auto_1fr_1.5rem_0.5rem_auto]"
@@ -82,7 +86,9 @@ export function DropdownMenu({
   );
 }
 
-export function DropdownItem(props: { href?: string } & HeadlessMenuItemProps<"button">) {
+export function DropdownItem(
+  props: { href?: string } & HeadlessMenuItemProps<"button">
+) {
   return (
     <HeadlessMenuItem
       as={props.href ? Link : "button"}
@@ -95,7 +101,7 @@ export function DropdownItem(props: { href?: string } & HeadlessMenuItemProps<"b
         "group cursor-default rounded-lg px-3.5 py-2.5 focus:outline-none sm:px-3 sm:py-1.5",
 
         // Text styles
-        "text-left text-base/6 text-zinc-950 sm:text-sm/6 dark:text-white forced-colors:text-[CanvasText]",
+        "text-left text-base/6 text-zinc-950 sm:text-sm/6  forced-colors:text-[CanvasText]",
 
         // Focus
         "data-[focus]:bg-blue-500 data-[focus]:text-white",
@@ -111,7 +117,7 @@ export function DropdownItem(props: { href?: string } & HeadlessMenuItemProps<"b
 
         // Icon
         "[&>[data-slot=icon]]:col-start-1 [&>[data-slot=icon]]:row-start-1 [&>[data-slot=icon]]:mr-2.5 [&>[data-slot=icon]]:size-5 sm:[&>[data-slot=icon]]:mr-2 [&>[data-slot=icon]]:sm:size-4",
-        "[&>[data-slot=icon]]:text-zinc-500 [&>[data-slot=icon]]:data-[focus]:text-white [&>[data-slot=icon]]:dark:text-zinc-500 [&>[data-slot=icon]]:data-[focus]:dark:text-white"
+        "[&>[data-slot=icon]]:text-zinc-500 [&>[data-slot=icon]]:data-[focus]:text-white"
       )}
     />
   );
@@ -129,7 +135,10 @@ export function DropdownHeader({
   );
 }
 
-export function DropdownSection({ className, ...props }: HeadlessMenuSectionProps) {
+export function DropdownSection({
+  className,
+  ...props
+}: HeadlessMenuSectionProps) {
   return (
     <HeadlessMenuSection
       {...props}
@@ -142,25 +151,31 @@ export function DropdownSection({ className, ...props }: HeadlessMenuSectionProp
   );
 }
 
-export function DropdownHeading({ className, ...props }: HeadlessMenuHeadingProps) {
+export function DropdownHeading({
+  className,
+  ...props
+}: HeadlessMenuHeadingProps) {
   return (
     <HeadlessMenuHeading
       {...props}
       className={clsx(
         className,
-        "col-span-full grid grid-cols-[1fr,auto] gap-x-12 px-3.5 pb-1 pt-2 text-sm/5 font-medium text-zinc-500 sm:px-3 sm:text-xs/5 dark:text-zinc-400"
+        "col-span-full grid grid-cols-[1fr,auto] gap-x-12 px-3.5 pb-1 pt-2 text-sm/5 font-medium text-zinc-500 sm:px-3 sm:text-xs/5"
       )}
     />
   );
 }
 
-export function DropdownSeparator({ className, ...props }: HeadlessMenuSeparatorProps) {
+export function DropdownSeparator({
+  className,
+  ...props
+}: HeadlessMenuSeparatorProps) {
   return (
     <HeadlessMenuSeparator
       {...props}
       className={clsx(
         className,
-        "col-span-full mx-3.5 my-1 h-px border-0 bg-zinc-950/5 sm:mx-3 dark:bg-white/10 forced-colors:bg-[CanvasText]"
+        "col-span-full mx-3.5 my-1 h-px border-0 bg-zinc-950/5 sm:mx-3  forced-colors:bg-[CanvasText]"
       )}
     />
   );
@@ -177,14 +192,17 @@ export function DropdownLabel({ className, ...props }: HeadlessLabelProps) {
   );
 }
 
-export function DropdownDescription({ className, ...props }: HeadlessDescriptionProps) {
+export function DropdownDescription({
+  className,
+  ...props
+}: HeadlessDescriptionProps) {
   return (
     <HeadlessDescription
       data-slot="description"
       {...props}
       className={clsx(
         className,
-        "col-span-2 col-start-2 row-start-2 text-sm/5 text-zinc-500 group-data-[focus]:text-white sm:text-xs/5 dark:text-zinc-400 forced-colors:group-data-[focus]:text-[HighlightText]"
+        "col-span-2 col-start-2 row-start-2 text-sm/5 text-zinc-500 group-data-[focus]:text-white sm:text-xs/5 forced-colors:group-data-[focus]:text-[HighlightText]"
       )}
     />
   );
@@ -199,7 +217,10 @@ export function DropdownShortcut({
     <HeadlessDescription
       as="kbd"
       {...props}
-      className={clsx(className, "col-start-5 row-start-1 flex justify-self-end")}
+      className={clsx(
+        className,
+        "col-start-5 row-start-1 flex justify-self-end"
+      )}
     >
       {(Array.isArray(keys) ? keys : keys.split("")).map((char, index) => (
         <kbd

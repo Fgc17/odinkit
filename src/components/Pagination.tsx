@@ -8,7 +8,11 @@ export function Pagination({
   ...props
 }: React.ComponentPropsWithoutRef<"nav">) {
   return (
-    <nav aria-label={ariaLabel} {...props} className={clsx(className, "flex gap-x-2")} />
+    <nav
+      aria-label={ariaLabel}
+      {...props}
+      className={clsx(className, "flex gap-x-2")}
+    />
   );
 }
 
@@ -81,7 +85,9 @@ export function PaginationNext({
 }
 
 export function PaginationList({ children }: { children: React.ReactNode }) {
-  return <span className="hidden items-baseline gap-x-2 sm:flex">{children}</span>;
+  return (
+    <span className="hidden items-baseline gap-x-2 sm:flex">{children}</span>
+  );
 }
 
 export function PaginationPage({
@@ -101,7 +107,7 @@ export function PaginationPage({
       aria-current={current ? "page" : undefined}
       className={clsx(
         "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
-        current && "before:bg-zinc-950/5 dark:before:bg-white/10"
+        current && "before:bg-zinc-950/5 "
       )}
     >
       <span className="-mx-0.5">{children}</span>
@@ -113,7 +119,7 @@ export function PaginationGap() {
   return (
     <div
       aria-hidden="true"
-      className="w-[2.25rem] select-none text-center text-sm/6 font-semibold text-zinc-950 dark:text-white"
+      className="w-[2.25rem] select-none text-center text-sm/6 font-semibold text-zinc-950 "
     >
       &hellip;
     </div>

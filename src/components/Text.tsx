@@ -12,8 +12,8 @@ export function Text({
       className={clsx(
         "text-base/6 sm:text-sm/6",
         !props.color
-          ? "text-zinc-500 dark:text-zinc-400"
-          : `text-${props.color}-500 dark:text-${props.color}-400`,
+          ? "text-zinc-500 "
+          : `text-${props.color}-500 -${props.color}-400`,
         className
       )}
     />
@@ -28,7 +28,7 @@ export function TextLink({
     <Link
       {...props}
       className={clsx(
-        "text-zinc-950 underline decoration-zinc-950/50 data-[hover]:decoration-zinc-950 dark:text-white dark:decoration-white/50 dark:data-[hover]:decoration-white",
+        "-[hover]:decoration-white text-zinc-950 underline decoration-zinc-950/50   data-[hover]:decoration-zinc-950",
         className
       )}
     />
@@ -42,7 +42,7 @@ export function Strong({
   return (
     <strong
       {...props}
-      className={clsx(className, "font-medium text-zinc-950 dark:text-white")}
+      className={clsx(className, "font-medium text-zinc-950 ")}
     />
   );
 }
@@ -56,7 +56,7 @@ export function Code({
       {...props}
       className={clsx(
         className,
-        "rounded border border-zinc-950/10 bg-zinc-950/[2.5%] px-0.5 text-sm font-medium text-zinc-950 sm:text-[0.8125rem] dark:border-white/20 dark:bg-white/5 dark:text-white"
+        "rounded border border-zinc-950/10 bg-zinc-950/[2.5%] px-0.5 text-sm font-medium text-zinc-950 sm:text-[0.8125rem]   "
       )}
     />
   );
