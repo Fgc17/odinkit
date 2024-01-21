@@ -2,8 +2,30 @@
 
 import { clsx } from "clsx";
 import type React from "react";
-import { createContext, useContext, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import { Link } from "./Link";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFacetedMinMaxValues,
+  getPaginationRowModel,
+  getSortedRowModel,
+  FilterFn,
+  flexRender,
+  Pagination,
+  createColumnHelper,
+} from "@tanstack/react-table";
+import { rankItem } from "@tanstack/match-sorter-utils";
+import { For } from "./For";
 
 const TableContext = createContext<{
   bleed: boolean;
@@ -17,20 +39,71 @@ const TableContext = createContext<{
   striped: false,
 });
 
-export function Table({
+type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
+
+export function Table<Data>({
   bleed = false,
   dense = false,
   grid = false,
   striped = false,
   className,
   children,
+  data,
+  columns,
+  globalFilter,
+  setGlobalFilter,
   ...props
 }: {
   bleed?: boolean;
   dense?: boolean;
   grid?: boolean;
   striped?: boolean;
+  data: Data[];
+  columns: (
+    columnHelper: ColumnHelper<Data>
+  ) => (
+    | ReturnType<ColumnHelper<any>["accessor"]>
+    | ReturnType<ColumnHelper<any>["group"]>
+    | ReturnType<ColumnHelper<any>["group"]>
+  )[];
+  globalFilter?: string;
+  setGlobalFilter?: Dispatch<SetStateAction<string>>;
 } & React.ComponentPropsWithoutRef<"div">) {
+  const columnHelper = createColumnHelper<Data>();
+
+  const cols = columns(columnHelper);
+
+  const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+    const itemRank = rankItem(row.getValue(columnId), value);
+
+    addMeta({
+      itemRank,
+    });
+
+    return itemRank.passed;
+  };
+
+  const table = useReactTable({
+    data,
+    columns: cols,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    state: {
+      globalFilter,
+    },
+    pageCount: -1,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
+  });
+
   return (
     <TableContext.Provider
       value={
@@ -53,12 +126,70 @@ export function Table({
               !bleed && "sm:px-[--gutter]"
             )}
           >
-            <table className="min-w-full text-left text-sm/6">{children}</table>
+            <table className="min-w-full text-left text-sm/6">
+              <TableHead>
+                <For each={table.getHeaderGroups()} identifier="thead">
+                  {(headerGroup) => (
+                    <TableRow>
+                      <For each={headerGroup.headers} identifier="header">
+                        {(header) => (
+                          <TableHeader>
+                            <div
+                              {...{
+                                className: header.column.getCanSort()
+                                  ? "cursor-pointer select-none"
+                                  : "",
+                                onClick:
+                                  header.column.getToggleSortingHandler(),
+                              }}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {{
+                                asc: " 🔼",
+                                desc: " 🔽",
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </div>
+                          </TableHeader>
+                        )}
+                      </For>
+                    </TableRow>
+                  )}
+                </For>
+              </TableHead>
+              <TableBody>
+                <For each={table.getRowModel().rows} identifier="row">
+                  {(row) => (
+                    <TableRow>
+                      <For each={row.getVisibleCells()} identifier="cell">
+                        {(cell) => (
+                          <TableCell>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        )}
+                      </For>
+                    </TableRow>
+                  )}
+                </For>
+              </TableBody>
+            </table>
           </div>
         </div>
       </div>
     </TableContext.Provider>
   );
+  <TableHead>
+    <TableRow>
+      <TableHeader>Name</TableHeader>
+      <TableHeader>Email</TableHeader>
+      <TableHeader>Role</TableHeader>
+    </TableRow>
+  </TableHead>;
 }
 
 export function TableHead({

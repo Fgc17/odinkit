@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@repo/config": "workspace:*",
+    "@tanstack/react-table": "8.11.6",
+    "@tanstack/match-sorter-utils": "8.11.3",
     "@headlessui/react": "2.0.0-alpha.3",
     "@heroicons/react": "2.1.1",
     "@types/bcrypt": "^5.0.2",
