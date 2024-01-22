@@ -103,10 +103,25 @@ let styles = {
       "dark:[--btn-hover-overlay:theme(colors.zinc.950/5%)]",
       "[--btn-icon:theme(colors.zinc.400)] data-[active]:[--btn-icon:theme(colors.zinc.500)] data-[hover]:[--btn-icon:theme(colors.zinc.500)]",
     ],
+    gray: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.gray.600)] [--btn-border:theme(colors.gray.700/90%)]",
+      "dark:[--btn-hover-overlay:theme(colors.white/5%)]",
+      "[--btn-icon:theme(colors.gray.400)] data-[active]:[--btn-icon:theme(colors.gray.300)] data-[hover]:[--btn-icon:theme(colors.gray.300)]",
+    ],
     zinc: [
       "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.zinc.600)] [--btn-border:theme(colors.zinc.700/90%)]",
       "dark:[--btn-hover-overlay:theme(colors.white/5%)]",
       "[--btn-icon:theme(colors.zinc.400)] data-[active]:[--btn-icon:theme(colors.zinc.300)] data-[hover]:[--btn-icon:theme(colors.zinc.300)]",
+    ],
+    neutral: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.neutral.600)] [--btn-border:theme(colors.neutral.700/90%)]",
+      "dark:[--btn-hover-overlay:theme(colors.white/5%)]",
+      "[--btn-icon:theme(colors.neutral.400)] data-[active]:[--btn-icon:theme(colors.neutral.300)] data-[hover]:[--btn-icon:theme(colors.neutral.300)]",
+    ],
+    stone: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.stone.600)] [--btn-border:theme(colors.stone.700/90%)]",
+      "dark:[--btn-hover-overlay:theme(colors.white/5%)]",
+      "[--btn-icon:theme(colors.stone.400)] data-[active]:[--btn-icon:theme(colors.stone.300)] data-[hover]:[--btn-icon:theme(colors.stone.300)]",
     ],
     indigo: [
       "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.indigo.500)] [--btn-border:theme(colors.indigo.600/90%)]",
@@ -175,6 +190,10 @@ let styles = {
     rose: [
       "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.rose.500)] [--btn-border:theme(colors.rose.600/90%)]",
       "[--btn-icon:theme(colors.rose.300)] data-[active]:[--btn-icon:theme(colors.rose.200)] data-[hover]:[--btn-icon:theme(colors.rose.200)]",
+    ],
+    slate: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.slate.500)] [--btn-border:theme(colors.slate.600/90%)]",
+      "[--btn-icon:theme(colors.slate.300)] data-[active]:[--btn-icon:theme(colors.slate.200)] data-[hover]:[--btn-icon:theme(colors.slate.200)]",
     ],
   },
 };

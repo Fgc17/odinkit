@@ -20,6 +20,22 @@ export function Text({
   );
 }
 
+export function Title({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"h1">) {
+  return (
+    <h1
+      {...props}
+      data-slot="title"
+      className={clsx(
+        "text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight",
+        className
+      )}
+    />
+  );
+}
+
 export function TextLink({
   className,
   ...props
