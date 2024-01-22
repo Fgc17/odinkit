@@ -29,8 +29,8 @@ interface ToastType {
 
 export const toastVariants = {
   success: {
-    bg: "bg-lime-300",
-    border: "border-lime-400",
+    bg: "bg-emerald-400",
+    border: "border-emerald-500",
     icon: <CheckCircleIcon className="h-6 w-6 text-white" aria-hidden="true" />,
   },
   error: {
