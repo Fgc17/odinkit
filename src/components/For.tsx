@@ -2,7 +2,7 @@ import { Fragment } from "react";
 
 interface ForProps<T> {
   each: T[];
-  children: (item: T, index?: number) => JSX.Element;
+  children: (item: T, index: number) => JSX.Element;
   identifier?: string;
   fallback?: JSX.Element;
 }
