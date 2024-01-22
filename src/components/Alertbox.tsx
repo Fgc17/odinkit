@@ -54,11 +54,12 @@ export function Alertbox(props: {
   type: keyof typeof types;
   children: React.ReactNode;
   title?: string;
+  className?: string;
 }) {
   const type = types[props.type];
 
   return (
-    <div className={clsx("rounded-md p-4", type["bg-color"])}>
+    <div className={clsx("rounded-md p-4", type["bg-color"], props.className)}>
       <div className="flex">
         <div className="flex-shrink-0">{type.icon}</div>
         <div className="ml-3">

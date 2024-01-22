@@ -19,7 +19,9 @@ export function Steps({
   steps,
   topRef,
   stepRefs,
+  color,
 }: {
+  color?: string;
   steps: Step[];
   topRef: MutableRefObject<HTMLDivElement>;
   stepRefs: MutableRefObject<HTMLDivElement[]>;
@@ -36,7 +38,7 @@ export function Steps({
       >
         <Tab.List
           className={clsx(
-            "sticky top-0 z-40 -mx-3 mb-3 flex overflow-x-scroll bg-white  lg:mx-0 lg:overflow-x-auto"
+            "sticky top-0 z-10 -mx-3 mb-3 flex overflow-x-scroll bg-white  lg:mx-0 lg:overflow-x-auto"
           )}
           style={{ scrollbarWidth: "none" }}
         >
@@ -48,7 +50,7 @@ export function Steps({
                     className={clsx(
                       "mx-2 border-t-4 px-3 py-4 text-sm font-medium duration-200 *:ring-0 focus:ring-0",
                       selected
-                        ? "border-indigo-600 text-indigo-600"
+                        ? `border-${color}-600 text-${color}-600`
                         : "border-gray-200 text-gray-500"
                     )}
                     ref={(el) => {
