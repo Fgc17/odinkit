@@ -12,13 +12,13 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import {
-  useForm,
+  useForm as useReactHookForm,
   Path,
   FieldValues,
-  FormProvider,
-  useFormContext,
+  FormProvider as useReactHookFormProvider,
+  UseFormProps as useReactHookFormProps,
 } from "react-hook-form";
 import {
   ZodEffects,
@@ -28,20 +28,99 @@ import {
   ZodTypeAny,
   z,
 } from "zod";
-import { getEntryFromPath } from "./utils/getEntryFromPath";
+import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export function Form<Fields extends FieldValues>(props: {
-  children: React.ReactNode;
+type UseFormProps<Fields extends FieldValues> = Omit<
+  useReactHookFormProps<Fields>,
+  "resolver"
+> & {
+  fieldOptions?: {
+    enableAsterisk?: boolean;
+  };
+  schema:
+    | ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>
+    | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
+};
+
+type FieldOptions = {
+  enableAsterisk?: boolean;
+};
+
+type UseFormReturn<Fields extends FieldValues = FieldValues> = ReturnType<
+  typeof useForm<Fields>
+>;
+
+type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
+  FieldOptions & {
+    name: Path<Fields>;
+  };
+
+const FieldContext = createContext<{
+  error: string;
+  name: string;
+  isRequired: boolean;
+}>(null!);
+
+export function useField() {
+  return useContext(FieldContext);
+}
+
+const FormContext = createContext<UseFormReturn>(null!);
+
+export function useForm<Fields extends FieldValues>({
+  schema,
+  fieldOptions,
+  ...useReactHookFormProps
+}: UseFormProps<Fields>) {
+  type _Fields = Fields | z.infer<typeof schema>;
+  return {
+    schema,
+    createField: () =>
+      useMemo(
+        () => (props: FieldProps<_Fields>) => (
+          <Field {...fieldOptions} {...props} />
+        ),
+        []
+      ),
+    ...useReactHookForm<_Fields>({
+      ...useReactHookFormProps,
+      resolver: zodResolver(schema),
+    }),
+  };
+}
+
+export function useFormContext<Fields extends FieldValues>() {
+  return useContext(FormContext) as unknown as UseFormReturn<Fields>;
+}
+
+export function FormProvider<Fields extends FieldValues>({
+  children,
+  ...data
+}: UseFormReturn<Fields> & { children: React.ReactNode }) {
+  return (
+    <FormContext.Provider value={data as unknown as UseFormReturn}>
+      {children}
+    </FormContext.Provider>
+  );
+}
+
+export function Form<Fields extends FieldValues>({
+  onSubmit,
+  hform,
+  ...props
+}: Omit<React.ComponentProps<"form">, "onSubmit"> & {
   onSubmit: (data: Fields) => void;
-  hform: ReturnType<typeof useForm<Fields>>;
-  className?: string;
+  hform: UseFormReturn<Fields>;
 }) {
   return (
-    <FormProvider {...props.hform}>
+    <FormProvider {...hform}>
       <form
-        className={props.className}
-        onSubmit={props.hform?.handleSubmit((data) => props.onSubmit(data))}
-        children={props.children}
+        onSubmit={hform?.handleSubmit((data) => {
+          hform.trigger();
+          onSubmit(data);
+        })}
+        {...props}
       />
     </FormProvider>
   );
@@ -82,41 +161,27 @@ export function FieldGroup({
   return <div {...props} data-slot="control" className={clsx(className)} />;
 }
 
-const FieldContext = createContext<{
-  error: string;
-  name: string;
-  isRequired: boolean;
-}>(null!);
-
-export function useField() {
-  return useContext(FieldContext);
-}
-
-type FieldProps<Fields extends FieldValues> = HeadlessFieldProps & {
-  name: Path<Fields>;
-};
-
 function Field<Fields extends FieldValues>({
   className,
   enableAsterisk,
-  zodobject,
   ...props
-}: FieldProps<Fields> & {
-  zodobject:
-    | ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>
-    | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
-  enableAsterisk: boolean;
-}) {
+}: FieldProps<Fields>) {
   const form = useFormContext();
 
+  const {
+    formState: { errors },
+    schema,
+  } = form;
+
   const name = props["name"];
-  const zodField = getEntryFromPath(zodobject.shape, name, "shape").entryValue;
-  const isRequired = enableAsterisk && !zodField?.isOptional();
+  const zodField = getEntryFromPath(schema, name, "shape").entryValue;
+  const isRequired = enableAsterisk ?? !zodField?.isOptional();
+  const error = getEntryFromPath(errors, name).entryValue?.message;
 
   const fieldContextValue = {
     name,
     isRequired,
-    error: getEntryFromPath(form.formState.errors, name).entryValue?.message,
+    error: error,
   };
 
   return (
@@ -135,22 +200,6 @@ function Field<Fields extends FieldValues>({
       />
     </FieldContext.Provider>
   );
-}
-
-export function createField<Fields extends FieldValues>({
-  zodObject,
-  enableAsterisk = false,
-}: {
-  zodObject:
-    | ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>
-    | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
-  enableAsterisk?: boolean;
-}) {
-  return (props: FieldProps<Fields>) => {
-    return (
-      <Field {...props} enableAsterisk={enableAsterisk} zodobject={zodObject} />
-    );
-  };
 }
 
 export function Label({

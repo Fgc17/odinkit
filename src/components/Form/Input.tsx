@@ -3,10 +3,11 @@ import {
   type InputProps as HeadlessInputProps,
 } from "@headlessui/react";
 import { clsx } from "clsx";
-import { useField } from "./Form";
-import { Controller, useFormContext } from "react-hook-form";
-import { MaskType, formatWithMask } from "./utils/formatWithMask";
+import { useField, useFormContext } from "./Form";
+import { MaskType, formatWithMask } from "./_shared/utils/formatWithMask";
 import { ButtonSpinner, LoadingSpinner } from "../Spinners";
+import { Controller } from "react-hook-form";
+import { Span } from "./Span";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -25,6 +26,47 @@ const webkitCss = [
   "[&::-webkit-datetime-edit-millisecond-field]:p-0",
   "[&::-webkit-datetime-edit-meridiem-field]:p-0",
 ];
+
+export const inputSpanClasses = clsx([
+  // Basic layouts
+  `relative block w-full`,
+
+  // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
+  `before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white before:shadow`,
+
+  // Focus ring
+  `after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent 
+  focus-within:after:ring-2 has-[[data-invalid]]:after:ring-red-500 focus-within:after:ring-blue-500`,
+
+  // Disabled state
+  `has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none`,
+
+  // Invalid state
+  `before:has-[[data-invalid]]:shadow-red-500/10`,
+]);
+
+export const inputClasses = clsx(
+  // Basic layout
+  "relative mb-1 mt-[11px] block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:px-[calc(theme(spacing[3])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+
+  // Typography
+  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
+
+  // Border
+  "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
+
+  // Background color
+  "bg-transparent ",
+
+  // Hide default focus styles
+  "focus:outline-none",
+
+  // Invalid state
+  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
+
+  // Disabled state
+  "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20"
+);
 
 export function Input({
   className,
@@ -50,76 +92,39 @@ export function Input({
   const { name, error } = useField();
 
   return (
-    <Controller
-      name={name}
-      control={form.control}
-      render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
-        <span
-          data-keyslot="control"
-          className={clsx([
-            className,
-            // Basic layouts
-            "relative block w-full",
+    <Span className={clsx(className)}>
+      <Controller
+        name={name}
+        control={form.control}
+        render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
+          <>
+            <HeadlessInput
+              onChange={(e) => {
+                const value = e.target.value;
+                onChange && onChange(e);
+                fieldOnChange(mask ? formatWithMask(value, mask) : value);
+              }}
+              invalid={Boolean(error)}
+              value={value || ""}
+              className={clsx([
+                // Date classes
+                type && dateTypes.includes(type) && webkitCss,
+                inputClasses,
+              ])}
+              type={type}
+              {...props}
+              {...field}
+            />
 
-            // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-            "before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white before:shadow",
-
-            // Focus ring
-            "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent focus-within:after:ring-2 focus-within:after:ring-blue-500 has-[[data-invalid]]:after:ring-red-500",
-
-            // Disabled state
-            "has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none",
-
-            // Invalid state
-            "before:has-[[data-invalid]]:shadow-red-500/10",
-          ])}
-        >
-          <HeadlessInput
-            onChange={(e) => {
-              const value = e.target.value;
-              onChange && onChange(e);
-              fieldOnChange(mask ? formatWithMask(value, mask) : value);
-            }}
-            invalid={Boolean(error)}
-            value={value || ""}
-            className={clsx([
-              // Date classes
-              type && dateTypes.includes(type) && webkitCss,
-
-              // Basic layout
-              "relative mb-1 mt-[11px] block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:px-[calc(theme(spacing[3])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
-
-              // Typography
-              "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
-
-              // Border
-              "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
-
-              // Background color
-              "bg-transparent ",
-
-              // Hide default focus styles
-              "focus:outline-none",
-
-              // Invalid state
-              "",
-
-              // Disabled state
-              "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20",
-            ])}
-            type={type}
-            {...props}
-            {...field}
-          />
-
-          {loading && (
-            <div className="absolute right-2 top-2.5 text-white">
-              <ButtonSpinner />
-            </div>
-          )}
-        </span>
-      )}
-    />
+            {loading && (
+              <div className="absolute right-2 top-2.5 text-white">
+                <ButtonSpinner />
+              </div>
+            )}
+          </>
+        )}
+      />
+    </Span>
   );
 }
 
@@ -151,9 +156,6 @@ export function ColorInput({
 
             // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
             "before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white",
-
-            // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
-            "",
 
             // Focus ring
             "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg  after:ring-transparent sm:after:focus-within:ring-2 ",

@@ -9,6 +9,7 @@
     "directory": "src"
   },
   "dependencies": {
+    "@hookform/resolvers": "3.3.4",
     "@repo/config": "workspace:*",
     "@headlessui/react": "2.0.0-alpha.3",
     "@heroicons/react": "2.1.1",
