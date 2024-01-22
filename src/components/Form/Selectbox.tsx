@@ -154,7 +154,7 @@ interface SelectProps<Data> {
   className?: string;
   displayValueKey: Path<Data>;
   valueKey?: Path<Data>;
-  onChange: (value: Data) => void;
+  onChange?: (value: Data) => void;
   maxVisibleOptions?: keyof typeof selectDropdownHeights;
 }
 
