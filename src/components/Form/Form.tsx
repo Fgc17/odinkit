@@ -42,13 +42,9 @@ export function useForm<Fields extends FieldValues>({
   type _Fields = Fields | z.infer<typeof schema>;
   return {
     schema,
-    createField: () =>
-      useMemo(
-        () => (props: FieldProps<_Fields>) => (
-          <_ODINKIT_INTERNAL_Field {...fieldOptions} {...props} />
-        ),
-        []
-      ),
+    createField: () => (props: FieldProps<_Fields>) => (
+      <_ODINKIT_INTERNAL_Field {...fieldOptions} {...props} />
+    ),
     ...useReactHookForm<_Fields>({
       ...useReactHookFormProps,
       resolver: zodResolver(schema),

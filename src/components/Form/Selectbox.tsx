@@ -390,8 +390,12 @@ export function Select<
   onChange,
   displayValueKey,
   valueKey,
+  placeholder = "Selecionar",
   ...props
-}: HeadlessSelectProps & SelectProps<Data>) {
+}: HeadlessSelectProps &
+  SelectProps<Data> & {
+    placeholder?: string;
+  }) {
   const form = useFormContext();
 
   const { name } = useField();
@@ -420,6 +424,9 @@ export function Select<
             }}
             className={inputClasses}
           >
+            <option disabled value={""} className={clsx("py-2 pl-3 pr-9")}>
+              {placeholder}
+            </option>
             <For each={options}>
               {(item) => {
                 return (
