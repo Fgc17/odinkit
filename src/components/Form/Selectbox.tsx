@@ -439,6 +439,9 @@ export function Select<
             }}
             className={inputClasses}
           >
+            <option disabled value={""} className={clsx("py-2 pl-3 pr-9")}>
+              Selecionar
+            </option>
             <For each={options}>
               {(item) => {
                 return (
