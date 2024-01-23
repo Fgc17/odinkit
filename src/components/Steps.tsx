@@ -44,14 +44,15 @@ export function Steps({
         >
           <For each={steps} identifier="tabName">
             {(step, index) => (
-              <Tab className="grow">
+              <Tab className="grow" disabled={step.disabled}>
                 {({ selected }) => (
                   <div
                     className={clsx(
                       "mx-2 border-t-4 px-3 py-4 text-sm font-medium duration-200 *:ring-0 focus:ring-0",
                       selected
                         ? `border-${color}-600 text-${color}-600`
-                        : "border-gray-200 text-gray-500"
+                        : "border-gray-200 text-gray-500",
+                      step.disabled && "cursor-not-allowed opacity-50"
                     )}
                     ref={(el) => {
                       if (el) {

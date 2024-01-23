@@ -102,7 +102,13 @@ export function Input({
               onChange={(e) => {
                 const value = e.target.value;
                 onChange && onChange(e);
-                fieldOnChange(mask ? formatWithMask(value, mask) : value);
+                fieldOnChange(
+                  mask
+                    ? formatWithMask(value, mask)
+                    : type === "number"
+                      ? Number(value)
+                      : value
+                );
               }}
               invalid={Boolean(error)}
               value={value || ""}

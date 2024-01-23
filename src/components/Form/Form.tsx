@@ -47,9 +47,8 @@ type FieldOptions = {
   enableAsterisk?: boolean;
 };
 
-type UseFormReturn<Fields extends FieldValues = FieldValues> = ReturnType<
-  typeof useForm<Fields>
->;
+export type UseFormReturn<Fields extends FieldValues = FieldValues> =
+  ReturnType<typeof useForm<Fields>>;
 
 type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
