@@ -1,5 +1,5 @@
 import { redirect as _redirect } from "next/navigation";
-import { Pagination } from "./dto/read";
+import { Pagination } from "./IO/dto/read";
 
 export type SuccessResponse<T> = {
   data?: T;
