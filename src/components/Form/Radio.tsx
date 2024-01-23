@@ -26,33 +26,6 @@ export function RadioGroup({ className, ...props }: HeadlessRadioGroupProps) {
   );
 }
 
-export function RadioField({ className, ...props }: HeadlessFieldProps) {
-  return (
-    <HeadlessField
-      data-slot="field"
-      {...props}
-      className={clsx(
-        className,
-
-        // Base layout
-        "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
-
-        // Control layout
-        "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
-
-        // Label layout
-        "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
-
-        // Description layout
-        "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
-
-        // With description
-        "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
-      )}
-    />
-  );
-}
-
 let base = [
   // Basic layout
   "relative isolate flex size-[1.1875rem] shrink-0 rounded-full sm:size-[1.0625rem]",
@@ -62,9 +35,6 @@ let base = [
 
   // Background color when checked
   "before:group-data-[checked]:bg-[--radio-checked-bg]",
-
-  // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
-  "",
 
   // Background color applied to control in dark mode
   " -[checked]:bg-[--radio-checked-bg]",

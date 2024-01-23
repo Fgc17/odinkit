@@ -4,10 +4,10 @@ import {
 } from "@headlessui/react";
 import React, { useMemo, useState } from "react";
 import { Controller, useController, useFormContext } from "react-hook-form";
-import { useField } from "./Form";
 import { For } from "../For";
 import clsx from "clsx";
 import { FolderIcon } from "@heroicons/react/24/solid";
+import { useField } from "./Field";
 
 export function FileInput({
   children,
@@ -146,7 +146,9 @@ function FileCTA(props: {
 }) {
   return (
     <>
-      {props.fileIcon || <FolderIcon className="mx-auto h-12 w-12 text-gray-300" />}
+      {props.fileIcon || (
+        <FolderIcon className="mx-auto h-12 w-12 text-gray-300" />
+      )}
 
       <div className="mt-4 flex text-sm leading-6 text-gray-600">
         <label
@@ -158,8 +160,9 @@ function FileCTA(props: {
         <p className="pl-1">ou arraste</p>
       </div>
       <p className="text-xs leading-5 text-gray-600">
-        {props.fileTypes?.map((t) => t.split("/")[1].toUpperCase()).join(", ") ??
-          "Arquivos de qualquer tipo"}{" "}
+        {props.fileTypes
+          ?.map((t) => t?.split("/")?.[1]?.toUpperCase())
+          .join(", ") ?? "Arquivos de qualquer tipo"}{" "}
         de até {props.maxSize}MB
       </p>
     </>

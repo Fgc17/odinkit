@@ -9,6 +9,7 @@
     "directory": "src"
   },
   "dependencies": {
+    "dayjs": "1.11.10",
     "@hookform/resolvers": "3.3.4",
     "@repo/config": "workspace:*",
     "@tanstack/react-table": "8.11.6",

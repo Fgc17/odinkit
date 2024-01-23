@@ -1,7 +1,7 @@
 export function If<T>({
   if: condition,
   then,
-  else: _else,
+  else: _else = null,
 }: {
   if: T;
   then: React.ReactNode;

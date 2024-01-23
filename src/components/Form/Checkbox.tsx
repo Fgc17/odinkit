@@ -65,9 +65,6 @@ let base = [
   // Background color when checked
   "before:group-data-[checked]:bg-[--checkbox-checked-bg]",
 
-  // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
-  "",
-
   // Background color applied to control in dark mode
   " -[checked]:bg-[--checkbox-checked-bg]",
 
