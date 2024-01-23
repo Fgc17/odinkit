@@ -28,9 +28,8 @@ type UseFormProps<Fields extends FieldValues> = Omit<
     | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
 };
 
-type UseFormReturn<Fields extends FieldValues = FieldValues> = ReturnType<
-  typeof useForm<Fields>
->;
+export type UseFormReturn<Fields extends FieldValues = FieldValues> =
+  ReturnType<typeof useForm<Fields>>;
 
 const FormContext = createContext<UseFormReturn>(null!);
 
