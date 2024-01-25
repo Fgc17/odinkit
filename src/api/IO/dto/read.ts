@@ -7,7 +7,7 @@ const paginationDto = z.object({
   count: z.number().optional(),
 });
 
-export type Pagination = z.infer<typeof paginationDto>;
+export type PaginationDto = z.infer<typeof paginationDto>;
 
 export const readDto = <W extends ZodTypeAny>(where: W) =>
   z.object({

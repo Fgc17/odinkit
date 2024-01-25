@@ -1,4 +1,4 @@
-import { normalizePhone } from "../format";
+import { normalizePhone } from "../../../utils/format";
 
 export function phoneValidator(data: string) {
   const normalizedPhone = normalizePhone(data);
