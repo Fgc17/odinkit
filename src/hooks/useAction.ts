@@ -1,3 +1,5 @@
+// client
+
 import { ErrorResponse, SuccessResponse } from "../api/ActionResponse";
 import { useId } from "react";
 import useSWRMutation from "swr/mutation";

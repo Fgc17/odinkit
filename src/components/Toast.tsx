@@ -1,4 +1,5 @@
-"use client";
+// client
+
 import React, {
   Dispatch,
   Fragment,

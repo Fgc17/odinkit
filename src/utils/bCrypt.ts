@@ -1,3 +1,5 @@
+// server
+
 import bcrypt from "bcrypt";
 
 export async function hashInfo(info: string): Promise<string> {

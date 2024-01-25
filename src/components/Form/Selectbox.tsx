@@ -1,3 +1,5 @@
+// client
+
 import {
   Listbox as HeadlessListbox,
   ListboxButton as HeadlessListboxButton,
@@ -236,6 +238,7 @@ export function Combobox<Data extends { id: string | number }>({
             }
             onChange={(data: any) => {
               onChange && onChange(data as any);
+              setQuery("");
               fieldOnChange(data._combobox.value);
             }}
             ref={(el) => {
