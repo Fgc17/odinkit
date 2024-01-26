@@ -24,9 +24,17 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   MagnifyingGlassIcon,
+  XCircleIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { useState, useMemo, useRef, useEffect, Fragment } from "react";
+import {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  Fragment,
+  useCallback,
+} from "react";
 import { Path, Controller } from "react-hook-form";
 import { For } from "../For";
 import { inputClasses } from "./Input";
@@ -203,6 +211,13 @@ export function Combobox<Data extends { id: string | number }>({
     return options;
   }, [data, setData ? undefined : query]);
 
+  const fetchData = useCallback(
+    (arg: string = "") => {
+      setData && setData(arg);
+    },
+    [setData]
+  );
+
   const timeout = useRef(setTimeout(() => {}, 0));
 
   useEffect(() => {
@@ -214,121 +229,183 @@ export function Combobox<Data extends { id: string | number }>({
     }
   }, [options]);
 
+  useEffect(() => {
+    if (!options.length) {
+      fetchData();
+    }
+  }, []);
+
   const { __demoMode, value, ...rest } = props;
 
   const comboboxRef = useRef<HTMLElement | null>(null);
 
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
   return (
-    <Span>
+    <>
       <Controller
         name={name}
         control={form.control}
-        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
-          <HeadlessCombobox
-            {..._field}
-            {...rest}
-            as={"div"}
-            onKeyDown={(e) => {
-              if (e.key === "Tab") {
-                e.preventDefault();
+        render={({
+          field: { onChange: fieldOnChange, value, onBlur, ..._field },
+        }) => (
+          <Span
+            onBlur={(e) => {
+              const blurSource = e.relatedTarget as any;
+
+              if (blurSource) return;
+
+              onBlur();
+
+              const firstOption = options[0];
+              if (query && firstOption) {
+                onChange && onChange(firstOption as any);
+                fieldOnChange(firstOption?._combobox.value);
+                setQuery(firstOption?._combobox.displayValue);
               }
             }}
-            value={
-              options.find((i) => i._combobox.value === value)?._combobox || ""
-            }
-            onChange={(data: any) => {
-              onChange && onChange(data as any);
-              setQuery("");
-              fieldOnChange(data._combobox.value);
-            }}
-            ref={(el) => {
-              comboboxRef.current = el;
-            }}
           >
-            <Span>
-              <ComboboxInput
-                data-invalid={error ? "" : undefined}
-                className={clsx(inputClasses)}
-                onChange={async (event) => {
-                  clearTimeout(timeout.current);
-
-                  timeout.current = setTimeout(
-                    () => {
-                      setQuery(event.target.value);
-                      setData && setData(event.target.value);
-                    },
-                    setData ? debounce : 200
-                  );
-                }}
-                displayValue={(item: SelectOption) =>
-                  item.displayValue || query
+            <HeadlessCombobox
+              {..._field}
+              {...rest}
+              as={"div"}
+              onKeyDown={(e) => {
+                if (e.key === "Tab") {
+                  e.preventDefault();
                 }
-              />
-            </Span>
-
-            <ComboboxButton
-              className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-              onClick={() => setQuery("")}
+              }}
+              value={
+                options.find((i) => i._combobox.value === value)?._combobox ||
+                ""
+              }
+              onChange={(data: any) => {
+                comboboxRef.current?.blur();
+                inputRef.current?.blur();
+                onChange && onChange(data as any);
+                fieldOnChange(data._combobox.value);
+                setQuery(data._combobox.displayValue);
+              }}
+              ref={(el) => {
+                comboboxRef.current = el;
+              }}
             >
-              <MagnifyingGlassIcon className="size-5 text-zinc-500" />
-            </ComboboxButton>
-            <HeadlessTransition
-              as={Fragment}
-              beforeLeave={() => {}}
-              leave="transition-opacity duration-100 ease-in pointer-events-none"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <ComboboxOptions
-                as="div"
-                anchor={{
-                  to: "bottom start",
-                  offset: "var(--anchor-offset)",
-                  padding: "var(--anchor-padding)",
-                }}
-                style={{
-                  width: "194px",
-                }}
-                className={clsx(
-                  !options.length && "hidden",
+              <Span>
+                <ComboboxInput
+                  id={"combobox-input"}
+                  autoComplete="off"
+                  data-invalid={error ? "" : undefined}
+                  className={clsx(inputClasses)}
+                  onChange={async (event) => {
+                    clearTimeout(timeout.current);
 
-                  "absolute z-10 mt-1 rounded-md  bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm",
+                    timeout.current = setTimeout(
+                      () => {
+                        setQuery(event.target.value);
+                        fetchData(event.target.value);
+                      },
+                      setData ? debounce : 200
+                    );
+                  }}
+                  onFocus={() => {
+                    buttonRef.current?.click();
+                  }}
+                  displayValue={() => query}
+                  ref={(el) => {
+                    inputRef.current = el;
+                  }}
+                />
+              </Span>
 
-                  // Listbox z index
-                  "z-[50]",
+              {query ? (
+                <div
+                  className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+                  onClick={() => {
+                    setQuery("");
+                    fetchData();
+                  }}
+                >
+                  <XCircleIcon
+                    className={clsx(
+                      "size-5",
+                      error
+                        ? "text-red-500 hover:text-red-600"
+                        : " hover:text-zinc-600) text-zinc-500"
+                    )}
+                  />
+                </div>
+              ) : (
+                <ComboboxButton
+                  id={"combobox-search-button"}
+                  className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
+                  ref={(el) => {
+                    buttonRef.current = el;
+                  }}
+                >
+                  <MagnifyingGlassIcon className="size-5 text-zinc-500" />
+                </ComboboxButton>
+              )}
 
-                  // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
-                  "outline outline-1 outline-transparent focus:outline-none",
-
-                  // Handle scrolling when menu won't fit in viewport
-                  "overflow-y-scroll overscroll-contain",
-
-                  // Popover background
-                  "bg-white/75 backdrop-blur-xl",
-
-                  // Shadows
-                  "shadow-lg ring-1 ring-zinc-950/10"
-                )}
+              <HeadlessTransition
+                as={Fragment}
+                beforeLeave={() => {}}
+                leave="transition-opacity duration-100 ease-in pointer-events-none"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
               >
-                <For each={options}>
-                  {(i) => (
-                    <ComboboxOption
-                      key={i.id}
-                      value={i}
-                      style={{
-                        width: comboboxRef.current?.offsetWidth,
-                      }}
-                    >
-                      {children(i)}
-                    </ComboboxOption>
+                <ComboboxOptions
+                  as="div"
+                  anchor={{
+                    to: "bottom start",
+                    offset: "var(--anchor-offset)",
+                    padding: "var(--anchor-padding)",
+                  }}
+                  style={{
+                    width: "194px",
+                  }}
+                  className={clsx(
+                    !options.length && "hidden",
+
+                    "absolute z-10 mt-1 rounded-md  bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm",
+
+                    // Listbox z index
+                    "z-[50]",
+
+                    // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
+                    "outline outline-1 outline-transparent focus:outline-none",
+
+                    // Handle scrolling when menu won't fit in viewport
+                    "overflow-y-scroll overscroll-contain",
+
+                    // Popover background
+                    "bg-white/75 backdrop-blur-xl",
+
+                    // Shadows
+                    "shadow-lg ring-1 ring-zinc-950/10"
                   )}
-                </For>
-              </ComboboxOptions>
-            </HeadlessTransition>
-          </HeadlessCombobox>
+                >
+                  <For each={options}>
+                    {(i) => (
+                      <ComboboxOption
+                        id={`combobox-option-${i.id}`}
+                        key={i.id}
+                        value={i}
+                        style={{
+                          width: comboboxRef.current?.offsetWidth,
+                        }}
+                      >
+                        {children(i)}
+                      </ComboboxOption>
+                    )}
+                  </For>
+                </ComboboxOptions>
+              </HeadlessTransition>
+            </HeadlessCombobox>
+          </Span>
         )}
       />
-    </Span>
+    </>
   );
 }
 
