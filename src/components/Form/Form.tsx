@@ -1,3 +1,5 @@
+// client
+
 import type React from "react";
 import { createContext, useContext, useMemo } from "react";
 import {

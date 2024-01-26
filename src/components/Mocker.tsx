@@ -1,10 +1,19 @@
-"use client";
+// client
 /* eslint-disable @next/next/no-img-element */
+"use client";
 import { Fragment, useEffect, useState } from "react";
-import { FieldValues, UseFormReturn, Path, useFormContext } from "react-hook-form";
+import {
+  FieldValues,
+  UseFormReturn,
+  Path,
+  useFormContext,
+} from "react-hook-form";
 import { create } from "zustand";
 
-function mockData<Fields extends FieldValues>({ data, form }: UseMockerProps<Fields>) {
+function mockData<Fields extends FieldValues>({
+  data,
+  form,
+}: UseMockerProps<Fields>) {
   const _data = data();
 
   const formFields = Object.keys(_data);
@@ -24,7 +33,9 @@ function mockData<Fields extends FieldValues>({ data, form }: UseMockerProps<Fie
   form.trigger();
 }
 
-type MockerData<Fields extends FieldValues> = () => Partial<Record<Path<Fields>, any>>;
+type MockerData<Fields extends FieldValues> = () => Partial<
+  Record<Path<Fields>, any>
+>;
 type MockerForm<Fields extends FieldValues> = UseFormReturn<Fields>;
 
 interface MockerStore<Fields extends FieldValues = FieldValues> {
@@ -54,7 +65,9 @@ export function Mocker() {
     if (!form || !data) return;
     window.addEventListener("keydown", (e) => handleKeyDown(e, form, data));
     return () => {
-      window.removeEventListener("keydown", (e) => handleKeyDown(e, form, data));
+      window.removeEventListener("keydown", (e) =>
+        handleKeyDown(e, form, data)
+      );
     };
   }, [form, data]);
 
@@ -66,7 +79,9 @@ interface UseMockerProps<Fields extends FieldValues> {
   data: MockerData<Fields>;
 }
 
-export function useMocker<Fields extends FieldValues>(props: UseMockerProps<Fields>) {
+export function useMocker<Fields extends FieldValues>(
+  props: UseMockerProps<Fields>
+) {
   const mockerStore = useMockerStore();
 
   useEffect(() => {
