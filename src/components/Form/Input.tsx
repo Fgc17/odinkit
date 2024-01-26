@@ -202,3 +202,56 @@ export function ColorInput({
     />
   );
 }
+
+{
+  /* <Button type="button" color="white" onClick={() => setIsOpen(true)}>
+              Escolher Cor{" "}
+              <div
+                className={clsx(
+                  `bg-${form.watch("color")} h-5 w-5 rounded-full border border-gray-500`
+                )}
+              ></div>
+            </Button>
+            <Alert open={isOpen} onClose={setIsOpen}>
+              <AlertTitle>Escolha a cor primária</AlertTitle>
+              <AlertBody>
+                <div className="flex flex-col items-center">
+                  <For each={colors} identifier="colors">
+                    {(color) => (
+                      <div className="flex flex-grow">
+                        <For each={tones} identifier="tones">
+                          {(tone) => (
+                            <div
+                              className={clsx(
+                                "h-5 w-5",
+                                `bg-${color}-${tone}`,
+                                "hover:scale-150",
+                                "duration-300"
+                              )}
+                              onClick={() =>
+                                form.setValue("color", `${color}-${tone}`)
+                              }
+                            >
+                              {" "}
+                            </div>
+                          )}
+                        </For>
+                      </div>
+                    )}
+                  </For>
+                  <div
+                    onClick={() => form.setValue("color", `white`)}
+                    className={clsx("h-5 w-5", `bg-black`)}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue("color", `black`)}
+                    className={clsx("h-5 w-5", `border border-black bg-white`)}
+                  >
+                    {" "}
+                  </div>
+                </div>
+              </AlertBody>
+            </Alert> */
+}
