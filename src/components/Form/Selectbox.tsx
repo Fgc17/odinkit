@@ -227,7 +227,7 @@ export function Combobox<Data extends { id: string | number }>({
     } else {
       form.clearErrors(name);
     }
-  }, [options]);
+  }, [query, options]);
 
   useEffect(() => {
     if (!options.length) {
@@ -257,10 +257,10 @@ export function Combobox<Data extends { id: string | number }>({
 
               if (blurSource) return;
 
-              onBlur();
-
               const firstOption = options[0];
-              if (query && firstOption) {
+              if (query && !value && firstOption) {
+                console.log("blur");
+                onBlur();
                 onChange && onChange(firstOption as any);
                 fieldOnChange(firstOption?._combobox.value);
                 setQuery(firstOption?._combobox.displayValue);
@@ -281,8 +281,7 @@ export function Combobox<Data extends { id: string | number }>({
                 ""
               }
               onChange={(data: any) => {
-                comboboxRef.current?.blur();
-                inputRef.current?.blur();
+                console.log(data);
                 onChange && onChange(data as any);
                 fieldOnChange(data._combobox.value);
                 setQuery(data._combobox.displayValue);
@@ -293,7 +292,6 @@ export function Combobox<Data extends { id: string | number }>({
             >
               <Span>
                 <ComboboxInput
-                  id={"combobox-input"}
                   autoComplete="off"
                   data-invalid={error ? "" : undefined}
                   className={clsx(inputClasses)}
@@ -307,9 +305,6 @@ export function Combobox<Data extends { id: string | number }>({
                       },
                       setData ? debounce : 200
                     );
-                  }}
-                  onFocus={() => {
-                    buttonRef.current?.click();
                   }}
                   displayValue={() => query}
                   ref={(el) => {
@@ -331,19 +326,13 @@ export function Combobox<Data extends { id: string | number }>({
                       "size-5",
                       error
                         ? "text-red-500 hover:text-red-600"
-                        : " hover:text-zinc-600) text-zinc-500"
+                        : "text-zinc-500 hover:text-zinc-600"
                     )}
                   />
                 </div>
               ) : (
-                <ComboboxButton
-                  id={"combobox-search-button"}
-                  className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-                  ref={(el) => {
-                    buttonRef.current = el;
-                  }}
-                >
-                  <MagnifyingGlassIcon className="size-5 text-zinc-500" />
+                <ComboboxButton className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none">
+                  <MagnifyingGlassIcon className="size-5 text-zinc-500 hover:text-zinc-600" />
                 </ComboboxButton>
               )}
 
@@ -388,7 +377,6 @@ export function Combobox<Data extends { id: string | number }>({
                   <For each={options}>
                     {(i) => (
                       <ComboboxOption
-                        id={`combobox-option-${i.id}`}
                         key={i.id}
                         value={i}
                         style={{
