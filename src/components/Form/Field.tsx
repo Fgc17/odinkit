@@ -1,4 +1,5 @@
 // client
+"use client";
 
 import {
   Description as HeadlessDescription,
