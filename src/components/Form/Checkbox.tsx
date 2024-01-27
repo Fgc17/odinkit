@@ -8,6 +8,9 @@ import {
 } from "@headlessui/react";
 import { clsx } from "clsx";
 import type React from "react";
+import { Controller } from "react-hook-form";
+import { useFormContext } from "./Form";
+import { useField } from "./Field";
 
 export function CheckboxGroup({
   className,
@@ -142,36 +145,49 @@ export function Checkbox({
   color?: Color;
   className?: string;
 } & HeadlessCheckboxProps) {
+  const form = useFormContext();
+  const { name } = useField();
   return (
-    <HeadlessCheckbox
-      data-slot="control"
-      className={clsx(className, "group inline-flex focus:outline-none")}
-      {...props}
-    >
-      <span className={clsx([base, colors[color]])}>
-        <svg
-          className="size-4 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 sm:h-3.5 sm:w-3.5"
-          viewBox="0 0 14 14"
-          fill="none"
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
+        <HeadlessCheckbox
+          data-slot="control"
+          className={clsx(className, "group inline-flex focus:outline-none")}
+          onChange={(checked) => {
+            props.onChange && props.onChange(checked);
+            fieldOnChange(checked);
+          }}
+          {...props}
+          {...field}
         >
-          {/* Checkmark icon */}
-          <path
-            className="opacity-100 group-data-[indeterminate]:opacity-0"
-            d="M3 8L6 11L11 3.5"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* Indeterminate icon */}
-          <path
-            className="opacity-0 group-data-[indeterminate]:opacity-100"
-            d="M3 7H11"
-            strokeWidth={2}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
-    </HeadlessCheckbox>
+          <span className={clsx([base, colors[color]])}>
+            <svg
+              className="size-4 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 sm:h-3.5 sm:w-3.5"
+              viewBox="0 0 14 14"
+              fill="none"
+            >
+              {/* Checkmark icon */}
+              <path
+                className="opacity-100 group-data-[indeterminate]:opacity-0"
+                d="M3 8L6 11L11 3.5"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              {/* Indeterminate icon */}
+              <path
+                className="opacity-0 group-data-[indeterminate]:opacity-100"
+                d="M3 7H11"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+        </HeadlessCheckbox>
+      )}
+    />
   );
 }

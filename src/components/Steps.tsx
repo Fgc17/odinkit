@@ -27,6 +27,7 @@ export function Steps({
   stepRefs: MutableRefObject<HTMLDivElement[]>;
 }) {
   const { currentStep, setCurrentStep } = useSteps({});
+  const stepPanelRefs = useRef<HTMLDivElement[]>(null);
 
   return (
     <>
@@ -48,11 +49,16 @@ export function Steps({
                 {({ selected }) => (
                   <div
                     className={clsx(
-                      "mx-2 border-t-4 px-3 py-4 text-sm font-medium duration-200 *:ring-0 focus:ring-0",
+                      "border-t-4 px-3 py-4 text-sm font-medium duration-200 *:ring-0 focus:ring-0",
                       selected
                         ? `border-${color}-600 text-${color}-600`
                         : "border-gray-200 text-gray-500",
-                      step.disabled && "cursor-not-allowed opacity-50"
+                      step.disabled && "cursor-not-allowed opacity-50",
+                      index === 0
+                        ? "me-2 ms-1 lg:ms-0"
+                        : index === steps.length - 1
+                          ? "me-1 ms-2 lg:me-0"
+                          : "mx-2"
                     )}
                     ref={(el) => {
                       if (el) {
@@ -60,7 +66,17 @@ export function Steps({
                       }
                     }}
                     onClick={() => {
-                      if (topRef.current) scrollToElement(topRef.current, 0);
+                      if (topRef.current) {
+                        scrollToElement(
+                          topRef.current,
+                          ((stepPanelRefs?.current &&
+                            stepPanelRefs?.current[index]?.offsetHeight) ||
+                            0) > 500
+                            ? 0
+                            : 96
+                        );
+                      }
+
                       if (stepRefs.current[index])
                         scrollToElementX(stepRefs.current[index]!, 0);
                     }}
@@ -81,8 +97,8 @@ export function Steps({
         </Tab.List>
         <Tab.Panels>
           <For each={steps} identifier="tabContent">
-            {(step) => (
-              <Tab.Panel>
+            {(step, index) => (
+              <Tab.Panel as="div">
                 {({ selected }) => (
                   <Transition
                     show={selected}
@@ -93,7 +109,15 @@ export function Steps({
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                   >
-                    {step.content}
+                    <div
+                      ref={(el) => {
+                        if (el && stepPanelRefs?.current) {
+                          stepPanelRefs.current[index] = el;
+                        }
+                      }}
+                    >
+                      {step.content}
+                    </div>
                   </Transition>
                 )}
               </Tab.Panel>

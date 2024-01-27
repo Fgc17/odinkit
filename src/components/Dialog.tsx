@@ -13,6 +13,7 @@ import clsx from "clsx";
 import type React from "react";
 import { Fragment } from "react";
 import { Text } from "./Text";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
 const sizes = {
   xs: "sm:max-w-xs",
@@ -87,16 +88,31 @@ export function Dialog({
 
 export function DialogTitle({
   className,
+  onClose,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: React.ComponentPropsWithoutRef<"div"> & {
+  onClose?: (bool: boolean) => void;
+}) {
   return (
     <HeadlessDialogTitle
       {...props}
       className={clsx(
         className,
-        "text-balance text-lg/6 font-semibold text-zinc-950 sm:text-base/6"
+        "flex items-center justify-between text-balance text-lg/6 font-semibold text-zinc-950 sm:text-base/6"
       )}
-    />
+    >
+      {props.children}
+      {onClose && (
+        <button
+          type="button"
+          className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          onClick={() => onClose(false)}
+        >
+          <span className="sr-only">Close</span>
+          <XMarkIcon className="h-6 w-6" aria-hidden="true" />
+        </button>
+      )}
+    </HeadlessDialogTitle>
   );
 }
 
@@ -129,7 +145,7 @@ export function DialogActions({
       {...props}
       className={clsx(
         className,
-        "mt-8 flex flex-col-reverse items-center justify-end gap-3 *:w-full sm:flex-row sm:*:w-auto"
+        "mt-8 flex flex-col items-center justify-end gap-3 *:w-full sm:flex-row sm:*:w-auto"
       )}
     />
   );

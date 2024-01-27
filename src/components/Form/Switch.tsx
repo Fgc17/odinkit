@@ -101,6 +101,22 @@ let colors = {
     "[--switch-bg-ring:theme(colors.rose.600/90%)] [--switch-bg:theme(colors.rose.500)] dark:[--switch-bg-ring:transparent]",
     "[--switch:white] [--switch-ring:theme(colors.rose.600/90%)] [--switch-shadow:theme(colors.rose.900/20%)]",
   ],
+  slate: [
+    "[--switch-bg-ring:theme(colors.slate.600/90%)] [--switch-bg:theme(colors.slate.500)] dark:[--switch-bg-ring:transparent]",
+    "[--switch:white] [--switch-ring:theme(colors.slate.600/90%)] [--switch-shadow:theme(colors.slate.900/20%)]",
+  ],
+  gray: [
+    "[--switch-bg-ring:theme(colors.gray.600/90%)] [--switch-bg:theme(colors.gray.500)] dark:[--switch-bg-ring:transparent]",
+    "[--switch:white] [--switch-ring:theme(colors.gray.600/90%)] [--switch-shadow:theme(colors.gray.900/20%)]",
+  ],
+  neutral: [
+    "[--switch-bg-ring:theme(colors.neutral.600/90%)] [--switch-bg:theme(colors.neutral.500)] dark:[--switch-bg-ring:transparent]",
+    "[--switch:white] [--switch-ring:theme(colors.neutral.600/90%)] [--switch-shadow:theme(colors.neutral.900/20%)]",
+  ],
+  stone: [
+    "[--switch-bg-ring:theme(colors.stone.600/90%)] [--switch-bg:theme(colors.stone.500)] dark:[--switch-bg-ring:transparent]",
+    "[--switch:white] [--switch-ring:theme(colors.stone.600/90%)] [--switch-shadow:theme(colors.stone.900/20%)]",
+  ],
 };
 
 type Color = keyof typeof colors;
@@ -123,14 +139,13 @@ export function Switch({
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
         <HeadlessSwitch
+          defaultChecked={value}
           data-slot="control"
           onChange={(checked) => {
             props.onChange && props.onChange(checked);
             fieldOnChange(checked);
           }}
           className={clsx(
-            className,
-
             // Base styles
             "group relative isolate inline-flex h-6 w-10 cursor-default rounded-full p-[3px] sm:h-5 sm:w-8",
 
@@ -156,6 +171,8 @@ export function Switch({
             // Disabled
             "data-[disabled]:bg-zinc-200 data-[disabled]:data-[checked]:bg-zinc-200 data-[disabled]:opacity-50 data-[disabled]:data-[checked]:ring-black/5",
             "-[disabled]:bg-white/15 -[disabled]:data-[checked]:bg-white/15 -[disabled]:data-[checked]:ring-white/15",
+
+            className,
 
             // Color specific styles
             colors[color]

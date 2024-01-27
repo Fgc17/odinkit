@@ -9,6 +9,9 @@ import {
   type RadioProps as HeadlessRadioProps,
 } from "@headlessui/react";
 import { clsx } from "clsx";
+import { Controller } from "react-hook-form";
+import { useFormContext } from "./Form";
+import { useField } from "./Field";
 
 export function RadioGroup({ className, ...props }: HeadlessRadioGroupProps) {
   return (
@@ -112,22 +115,35 @@ export function Radio({
   className,
   ...props
 }: { color?: Color; className?: string } & HeadlessRadioProps) {
+  const form = useFormContext();
+  const { name } = useField();
   return (
-    <HeadlessRadio
-      data-slot="control"
-      {...props}
-      className={clsx(className, "group inline-flex focus:outline-none")}
-    >
-      <span className={clsx([base, colors[color]])}>
-        <span
-          className={clsx(
-            "size-full rounded-full border-[4.5px] border-transparent bg-[--radio-indicator] bg-clip-padding",
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
+        <HeadlessRadio
+          onChange={(e) => {
+            props.onChange && props.onChange(e);
+            fieldOnChange(e.target);
+            console.log(e);
+          }}
+          data-slot="control"
+          {...props}
+          className={clsx(className, "group inline-flex focus:outline-none")}
+        >
+          <span className={clsx([base, colors[color]])}>
+            <span
+              className={clsx(
+                "size-full rounded-full border-[4.5px] border-transparent bg-[--radio-indicator] bg-clip-padding",
 
-            // Forced colors mode
-            "forced-colors:border-[Canvas] forced-colors:group-data-[checked]:border-[Highlight]"
-          )}
-        />
-      </span>
-    </HeadlessRadio>
+                // Forced colors mode
+                "forced-colors:border-[Canvas] forced-colors:group-data-[checked]:border-[Highlight]"
+              )}
+            />
+          </span>
+        </HeadlessRadio>
+      )}
+    />
   );
 }
