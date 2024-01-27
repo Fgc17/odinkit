@@ -13,7 +13,7 @@ export function Container({
     <>
       <div
         className={clsx(
-          "relative rounded-xl bg-white  forced-colors:outline",
+          "relative",
           outline &&
             "shadow-[0px_0px_0px_1px_rgba(9,9,11,0.07),0px_2px_2px_0px_rgba(9,9,11,0.05)]",
           className

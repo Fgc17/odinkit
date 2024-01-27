@@ -205,7 +205,9 @@ export function Combobox<Data extends { id: string | number }>({
     const options = setData
       ? parsedData
       : parsedData.filter(({ _combobox: { displayValue } }) =>
-          String(displayValue).toLowerCase().includes(query.toLowerCase())
+          String(displayValue)
+            .toLowerCase()
+            .includes(String(query).toLowerCase())
         );
 
     return options;
@@ -243,6 +245,10 @@ export function Combobox<Data extends { id: string | number }>({
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  useEffect(() => {
+    setQuery("");
+  }, [form.formState.isSubmitSuccessful]);
+
   return (
     <>
       <Controller
@@ -259,7 +265,6 @@ export function Combobox<Data extends { id: string | number }>({
 
               const firstOption = options[0];
               if (query && !value && firstOption) {
-                console.log("blur");
                 onBlur();
                 onChange && onChange(firstOption as any);
                 fieldOnChange(firstOption?._combobox.value);
@@ -281,10 +286,9 @@ export function Combobox<Data extends { id: string | number }>({
                 ""
               }
               onChange={(data: any) => {
-                console.log(data);
+                setQuery(data._combobox.displayValue);
                 onChange && onChange(data as any);
                 fieldOnChange(data._combobox.value);
-                setQuery(data._combobox.displayValue);
               }}
               ref={(el) => {
                 comboboxRef.current = el;
@@ -306,7 +310,7 @@ export function Combobox<Data extends { id: string | number }>({
                       setData ? debounce : 200
                     );
                   }}
-                  displayValue={() => query}
+                  displayValue={(item: any) => query || item.displayValue}
                   ref={(el) => {
                     inputRef.current = el;
                   }}
@@ -318,6 +322,7 @@ export function Combobox<Data extends { id: string | number }>({
                   className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
                   onClick={() => {
                     setQuery("");
+                    fieldOnChange(undefined);
                     fetchData();
                   }}
                 >
