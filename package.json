@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "libuilder --watch ./libuilder.js",
-    "generate_index": "libuilder ./libuilder.js"
+    "postinstall": "libuilder ./libuilder.js"
   },
   "type": "module",
   "dependencies": {
