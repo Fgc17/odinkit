@@ -19,15 +19,21 @@ export function Pagination({
 export function PaginationPrevious({
   href = null,
   children = "Previous",
+  onClick,
+  disabled = false,
 }: {
+  onClick?: () => void;
   href?: string | null;
   children?: React.ReactNode;
+  disabled?: boolean;
 }) {
   return (
     <span className="grow basis-0">
       <Button
-        {...(href === null ? { disabled: true } : { href })}
+        onClick={onClick}
+        /* {...(href === null ? { disabled: true } : { href })} */
         plain
+        disabled={disabled}
         aria-label="Previous page"
       >
         <svg
@@ -53,15 +59,21 @@ export function PaginationPrevious({
 export function PaginationNext({
   href = null,
   children = "Next",
+  onClick,
+  disabled = false,
 }: {
+  onClick?: () => void;
+  disabled?: boolean;
   href?: string | null;
   children?: React.ReactNode;
 }) {
   return (
     <span className="flex grow basis-0 justify-end">
       <Button
-        {...(href === null ? { disabled: true } : { href })}
+        onClick={onClick}
+        /* {...(href === null ? { disabled: true } : { href })} */
         plain
+        disabled={disabled}
         aria-label="Next page"
       >
         {children}
@@ -84,9 +96,17 @@ export function PaginationNext({
   );
 }
 
-export function PaginationList({ children }: { children: React.ReactNode }) {
+export function PaginationList({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return (
-    <span className="hidden items-baseline gap-x-2 sm:flex">{children}</span>
+    <span className={clsx("hidden items-baseline gap-x-2 sm:flex", className)}>
+      {children}
+    </span>
   );
 }
 
@@ -94,20 +114,26 @@ export function PaginationPage({
   href,
   children,
   current = false,
+  onClick,
+  className,
 }: {
-  href: string;
+  href?: string;
   children: string;
   current?: boolean;
+  onClick?: () => void;
+  className?: string;
 }) {
   return (
     <Button
-      href={href}
+      href={href || "#"}
       plain
       aria-label={`Page ${children}`}
       aria-current={current ? "page" : undefined}
+      onClick={onClick}
       className={clsx(
         "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
-        current && "before:bg-zinc-950/5 "
+        current && "before:bg-zinc-950/5 ",
+        className
       )}
     >
       <span className="-mx-0.5">{children}</span>
