@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import type React from "react";
+import React, { useMemo } from "react";
 import {
   Dispatch,
   SetStateAction,
@@ -9,7 +9,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { Link } from "./Link";
+import { Link } from "../Link";
 import {
   useReactTable,
   getCoreRowModel,
@@ -21,11 +21,23 @@ import {
   getSortedRowModel,
   FilterFn,
   flexRender,
-  Pagination,
   createColumnHelper,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
-import { For } from "./For";
+import { For } from "../For";
+import {
+  Pagination,
+  PaginationGap,
+  PaginationList,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
+} from "../Pagination";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { Form, useForm } from "../Form/Form";
+import { z } from "zod";
+import { Input } from "../Form/Input";
+import Xlsx from "./Xlsx";
 
 const TableContext = createContext<{
   bleed: boolean;
@@ -39,7 +51,47 @@ const TableContext = createContext<{
   striped: false,
 });
 
+const tableSearchSchema = z.object({
+  globalFilter: z.string().optional(),
+});
+
 type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
+
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  setIsLoading,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  setIsLoading: Dispatch<boolean>;
+  debounce?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = React.useState(initialValue);
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [value, debounce, onChange]);
+
+  return (
+    <input
+      {...props}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
+}
 
 export function Table<Data>({
   bleed = false,
@@ -47,18 +99,23 @@ export function Table<Data>({
   grid = false,
   striped = false,
   className,
+  dataSetter,
   children,
   data,
   columns,
-  globalFilter,
-  setGlobalFilter,
+  xlsx,
   ...props
 }: {
+  xlsx?: {
+    fileName: string;
+    sheetName: string;
+  };
   bleed?: boolean;
   dense?: boolean;
   grid?: boolean;
   striped?: boolean;
   data: Data[];
+  dataSetter?: JSX.Element;
   columns: (
     columnHelper: ColumnHelper<Data>
   ) => (
@@ -66,10 +123,9 @@ export function Table<Data>({
     | ReturnType<ColumnHelper<any>["group"]>
     | ReturnType<ColumnHelper<any>["group"]>
   )[];
-  globalFilter?: string;
-  setGlobalFilter?: Dispatch<SetStateAction<string>>;
 } & React.ComponentPropsWithoutRef<"div">) {
   const columnHelper = createColumnHelper<Data>();
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const cols = columns(columnHelper);
 
@@ -92,7 +148,7 @@ export function Table<Data>({
     state: {
       globalFilter,
     },
-    pageCount: -1,
+    pageCount: data.length ? Math.ceil(data.length / 10) : 1,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -103,6 +159,9 @@ export function Table<Data>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
+
+  const form = useForm({ schema: tableSearchSchema, mode: "onChange" });
+  const Field = useMemo(() => form.createField(), []);
 
   return (
     <TableContext.Provider
@@ -120,6 +179,33 @@ export function Table<Data>({
             "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
           )}
         >
+          <div className="flex items-center justify-between gap-3">
+            <Form hform={form} className="flex-grow">
+              <Field name="globalFilter">
+                <Input
+                  onChange={(e) => {
+                    setGlobalFilter && setGlobalFilter(String(e.target.value));
+                  }}
+                  placeholder={`Procurar (ex: ${cols
+                    .map((c) => c.header)
+                    .slice(0, 3)
+                    .join(", ")})`}
+                />
+                {dataSetter}
+              </Field>
+            </Form>
+            {xlsx && (
+              <div className="mt-1.5">
+                <Xlsx
+                  data={data}
+                  columns={cols}
+                  fileName={xlsx.fileName}
+                  sheetName={xlsx.sheetName}
+                />
+              </div>
+            )}
+          </div>
+
           <div
             className={clsx(
               "inline-block min-w-full align-middle",
@@ -179,17 +265,58 @@ export function Table<Data>({
               </TableBody>
             </table>
           </div>
+          <Pagination className="my-2">
+            <PaginationPrevious
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+              href="#"
+            >
+              Anterior
+            </PaginationPrevious>
+            <PaginationList>
+              {
+                <For
+                  each={Array.from(
+                    { length: table.getPageCount() },
+                    (_, index) => index + 1
+                  )}
+                >
+                  {(page, index) => (
+                    <PaginationPage
+                      href="#"
+                      current={table.getState().pagination.pageIndex === index}
+                      onClick={() => table.setPageIndex(index)}
+                    >
+                      {String(page)}
+                    </PaginationPage>
+                  )}
+                </For>
+              }
+            </PaginationList>
+            <PaginationNext
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
+              href="#"
+            >
+              Próxima
+            </PaginationNext>
+          </Pagination>
         </div>
       </div>
     </TableContext.Provider>
   );
-  <TableHead>
-    <TableRow>
-      <TableHeader>Name</TableHeader>
-      <TableHeader>Email</TableHeader>
-      <TableHeader>Role</TableHeader>
-    </TableRow>
-  </TableHead>;
+}
+
+{
+  /* <PaginationPage href="?page=1">1</PaginationPage>
+              <PaginationPage href="?page=2">2</PaginationPage>
+              <PaginationPage href="?page=3" current>
+                3
+              </PaginationPage>
+              <PaginationPage href="?page=4">4</PaginationPage>
+              <PaginationGap />
+              <PaginationPage href="?page=65">65</PaginationPage>
+              <PaginationPage href="?page=66">66</PaginationPage> */
 }
 
 export function TableHead({
