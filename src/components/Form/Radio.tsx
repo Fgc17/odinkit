@@ -127,7 +127,6 @@ export function Radio({
           onChange={(e) => {
             props.onChange && props.onChange(e);
             fieldOnChange(e.target);
-            console.log(e);
           }}
           data-slot="control"
           {...props}

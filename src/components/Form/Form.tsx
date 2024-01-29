@@ -126,8 +126,6 @@ export function MultistepForm<
 
   const hasPrevStep = getPrevStep() === currentStep - 1;
 
-  console.log(hasNextStep, getNextStep(), currentStep);
-
   return (
     <FormProvider {...hform}>
       <form
