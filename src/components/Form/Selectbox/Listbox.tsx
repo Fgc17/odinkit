@@ -50,6 +50,7 @@ export function Listbox<Data extends { id: string | number }>({
   placeholder,
   autoFocus,
   data,
+  inputMode,
   valueKey,
   displayValueKey,
   "aria-label": ariaLabel,
@@ -63,6 +64,7 @@ export function Listbox<Data extends { id: string | number }>({
   > & {
     placeholder?: React.ReactNode;
     autoFocus?: boolean;
+    inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
     "aria-label"?: string;
   }) {
   const form = useFormContext();
@@ -116,6 +118,7 @@ export function Listbox<Data extends { id: string | number }>({
             <Span>
               <HeadlessListboxButton
                 autoFocus={autoFocus}
+                inputMode={inputMode}
                 data-slot="control"
                 aria-label={ariaLabel}
                 className={clsx(inputClasses, "w-full")}
