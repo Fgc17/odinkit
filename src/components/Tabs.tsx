@@ -5,6 +5,7 @@ import clsx from "clsx";
 export type TabItem = {
   title: string;
   content: React.ReactNode;
+  onClick?: () => void;
 };
 
 export function Tabs({
@@ -31,6 +32,7 @@ export function Tabs({
             <Tab>
               {({ selected }) => (
                 <div
+                  onClick={tab.onClick}
                   className={clsx(
                     "min-h-12",
                     "flex items-center border-b-2 px-3 font-medium duration-200 *:ring-0",
