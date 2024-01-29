@@ -2,11 +2,12 @@
 "use client";
 
 import type React from "react";
-import { createContext, useContext, useMemo } from "react";
+import { ReactNode, createContext, useContext, useMemo } from "react";
 import {
   useForm as useReactHookForm,
   FieldValues,
   UseFormProps as useReactHookFormProps,
+  Path,
 } from "react-hook-form";
 import {
   ZodEffects,
@@ -69,21 +70,39 @@ export function FormProvider<Fields extends FieldValues>({
   );
 }
 
-export function Form<Fields extends FieldValues>({
+export function Form<
+  Fields extends FieldValues,
+  Step extends string,
+  Steps extends Record<
+    Step,
+    {
+      fields: Path<Fields>[];
+      form: ReactNode;
+    }
+  >,
+>({
   onSubmit,
   hform,
+  multistep,
   ...props
 }: Omit<React.ComponentProps<"form">, "onSubmit"> & {
-  onSubmit: (data: Fields) => void;
   hform: UseFormReturn<Fields>;
+  onSubmit?: (data: Fields) => void;
+  multistep?: {
+    steps: Steps;
+    order: Step[];
+  };
 }) {
   return (
     <FormProvider {...hform}>
       <form
-        onSubmit={hform?.handleSubmit((data) => {
-          hform.trigger();
-          onSubmit(data);
-        })}
+        onSubmit={
+          onSubmit &&
+          hform?.handleSubmit((data) => {
+            hform.trigger();
+            onSubmit(data);
+          })
+        }
         {...props}
       />
     </FormProvider>
