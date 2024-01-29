@@ -116,7 +116,6 @@ export function Listbox<Data extends { id: string | number }>({
             <Span>
               <HeadlessListboxButton
                 autoFocus={autoFocus}
-                inputMode={inputMode}
                 data-slot="control"
                 aria-label={ariaLabel}
                 className={clsx(inputClasses, "w-full")}
