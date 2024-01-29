@@ -72,15 +72,14 @@ export function FormProvider<Fields extends FieldValues>({
 }
 
 export type MultistepFormChildrenProps<Step, Steps> = {
-  currentStepIndex: number;
-  stepCount: number;
-  currentStepKey: Step;
-  nextStep: number;
-  prevStep: number;
-  walk: (vector: number) => void;
+  hasNextStep: boolean;
+  hasPrevStep: boolean;
+  currentStep: number;
+  walk: StepStore["walk"];
+  dryWalk: StepStore["dryWalk"];
   steps: Steps;
+  order: Step[];
   isCurrentStepValid: boolean;
-  stepOrder: Step[];
 };
 
 export function MultistepForm<
@@ -107,26 +106,25 @@ export function MultistepForm<
   order: Step[];
   children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
 }) {
-  const { currentStep, getNextStep, getPrevStep, walk, stepCount } = useSteps({
-    currentStep: 0,
-    stepCount: order.length,
-  });
-
-  const currentStepKey = order[currentStep] as Step;
-
-  const currentStepIndex = currentStep;
-
-  const nextStep = getNextStep();
-
-  const prevStep = getPrevStep();
+  const { currentStep, getNextStep, getPrevStep, walk, dryWalk, stepCount } =
+    useSteps({
+      currentStep: 0,
+      stepCount: order.length,
+    });
 
   const isCurrentStepValid = useMemo(() => {
+    const currentStepKey = order[currentStep] as keyof typeof steps;
+
     const fields = steps[currentStepKey].fields;
 
     const formFields = fields.map((field) => hform.getFieldState(field));
 
     return formFields.every((field) => !field.invalid && field.isDirty);
   }, [hform.watch()]);
+
+  const hasNextStep = getNextStep() === currentStep + 1;
+
+  const hasPrevStep = getPrevStep() === currentStep - 1;
 
   return (
     <FormProvider {...hform}>
@@ -141,14 +139,13 @@ export function MultistepForm<
         {...props}
       >
         {children({
-          currentStepIndex,
-          currentStepKey,
-          stepCount,
-          nextStep,
-          prevStep,
+          hasNextStep,
+          hasPrevStep,
+          currentStep,
           walk,
+          dryWalk,
           steps,
-          stepOrder: order,
+          order,
           isCurrentStepValid,
         })}
       </form>
