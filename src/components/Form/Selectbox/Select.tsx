@@ -42,6 +42,7 @@ import { inputClasses } from "../Input";
 import { getEntryFromPath } from "../_shared/utils/getEntryFromPath";
 import { Span } from "../Span";
 import { useField } from "../Field";
+import { SelectOption, SelectProps } from "./types";
 export function Select<
   Data extends { id: string | number; [key: string]: any },
 >({
