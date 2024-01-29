@@ -24,7 +24,7 @@ const useStepStore = create<StepStore>()((set, get) => ({
   cyclic: false,
   dryWalk: (vector: number) => {
     const currentIndex = get().currentStep;
-    const maxIndex = get().stepCount;
+    const maxIndex = get().stepCount - 1;
     let newIndex;
 
     if (get().cyclic) {
