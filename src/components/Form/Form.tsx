@@ -2,7 +2,7 @@
 "use client";
 
 import type React from "react";
-import { ReactNode, createContext, useContext, useMemo } from "react";
+import { ReactNode, createContext, useContext, useMemo, useState } from "react";
 import {
   useForm as useReactHookForm,
   FieldValues,
@@ -19,6 +19,7 @@ import {
 } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
+import { StepStore, useSteps } from "../../hooks/useSteps";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
@@ -70,7 +71,19 @@ export function FormProvider<Fields extends FieldValues>({
   );
 }
 
-export function Form<
+export type MultistepFormChildrenProps<Step, Steps> = {
+  currentStepIndex: number;
+  stepCount: number;
+  currentStepKey: Step;
+  nextStep: number;
+  prevStep: number;
+  walk: (vector: number) => void;
+  steps: Steps;
+  isCurrentStepValid: boolean;
+  stepOrder: Step[];
+};
+
+export function MultistepForm<
   Fields extends FieldValues,
   Step extends string,
   Steps extends Record<
@@ -83,15 +96,73 @@ export function Form<
 >({
   onSubmit,
   hform,
-  multistep,
+  steps,
+  order,
+  children,
+  ...props
+}: Omit<React.ComponentProps<"form">, "onSubmit" | "children"> & {
+  hform: UseFormReturn<Fields>;
+  onSubmit?: (data: Fields) => void;
+  steps: Steps;
+  order: Step[];
+  children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
+}) {
+  const { currentStep, getNextStep, getPrevStep, walk, stepCount } = useSteps({
+    currentStep: 0,
+    stepCount: order.length,
+  });
+
+  const currentStepKey = order[currentStep] as Step;
+
+  const currentStepIndex = currentStep;
+
+  const nextStep = getNextStep();
+
+  const prevStep = getPrevStep();
+
+  const isCurrentStepValid = useMemo(() => {
+    const fields = steps[currentStepKey].fields;
+
+    const formFields = fields.map((field) => hform.getFieldState(field));
+
+    return formFields.every((field) => !field.invalid && field.isDirty);
+  }, [hform.watch()]);
+
+  return (
+    <FormProvider {...hform}>
+      <form
+        onSubmit={
+          onSubmit &&
+          hform?.handleSubmit((data) => {
+            hform.trigger();
+            onSubmit(data);
+          })
+        }
+        {...props}
+      >
+        {children({
+          currentStepIndex,
+          currentStepKey,
+          stepCount,
+          nextStep,
+          prevStep,
+          walk,
+          steps,
+          stepOrder: order,
+          isCurrentStepValid,
+        })}
+      </form>
+    </FormProvider>
+  );
+}
+
+export function Form<Fields extends FieldValues>({
+  onSubmit,
+  hform,
   ...props
 }: Omit<React.ComponentProps<"form">, "onSubmit"> & {
   hform: UseFormReturn<Fields>;
   onSubmit?: (data: Fields) => void;
-  multistep?: {
-    steps: Steps;
-    order: Step[];
-  };
 }) {
   return (
     <FormProvider {...hform}>
