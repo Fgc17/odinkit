@@ -1,4 +1,4 @@
-// client
+"use client"; // client
 
 import React, {
   Dispatch,

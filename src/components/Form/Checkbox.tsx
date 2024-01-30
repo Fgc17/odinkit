@@ -1,4 +1,5 @@
 // client
+"use client";
 
 import {
   Checkbox as HeadlessCheckbox,
@@ -8,9 +9,10 @@ import {
 } from "@headlessui/react";
 import { clsx } from "clsx";
 import type React from "react";
-import { Controller } from "react-hook-form";
+
 import { useFormContext } from "./Form";
 import { useField } from "./Field";
+import { Controller } from "react-hook-form";
 
 export function CheckboxGroup({
   className,

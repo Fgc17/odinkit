@@ -19,6 +19,8 @@
     "@tanstack/match-sorter-utils": "8.11.3",
     "@headlessui/react": "2.0.0-alpha.3",
     "@heroicons/react": "2.1.1",
+    "embla-carousel-react": "8.0.0-rc21",
+    "embla-carousel-autoplay": "8.0.0-rc21",
     "@types/bcrypt": "^5.0.2",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",

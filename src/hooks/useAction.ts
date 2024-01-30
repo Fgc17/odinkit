@@ -1,4 +1,4 @@
-// client
+"use client"; // client
 
 import { ErrorResponse, SuccessResponse } from "../api/ActionResponse";
 import { useId } from "react";
