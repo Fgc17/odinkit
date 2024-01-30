@@ -1,4 +1,5 @@
 // client
+"use client";
 /* eslint-disable @next/next/no-img-element */
 "use client";
 import { Fragment, useEffect, useState } from "react";

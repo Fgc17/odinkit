@@ -25,14 +25,14 @@ export const formatWithMask = (string: string, mask: MaskType) => {
 
     if (maskChar === "9") {
       // Placeholder for a digit
-      if (!/\d/.test(inputChar)) {
+      if (!/\d/.test(inputChar || "")) {
         break; // Break if input character is not a digit
       }
       formattedValue += inputChar;
       inputIndex++;
     } else if (maskChar === "a") {
       // Placeholder for a letter
-      if (!/[a-zA-Z]/.test(inputChar)) {
+      if (!/[a-zA-Z]/.test(inputChar || "")) {
         break; // Break if input character is not a letter
       }
       formattedValue += inputChar;

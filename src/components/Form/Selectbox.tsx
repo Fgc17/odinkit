@@ -25,15 +25,24 @@ import {
   CheckIcon,
   ChevronUpDownIcon,
   MagnifyingGlassIcon,
+  XCircleIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import { useState, useMemo, useRef, useEffect, Fragment } from "react";
+import {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  Fragment,
+  useCallback,
+} from "react";
 import { Path, Controller } from "react-hook-form";
 import { For } from "../For";
 import { inputClasses } from "./Input";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
 import { Span } from "./Span";
 import { useField } from "./Field";
+import { If } from "../If";
 
 const selectDropdownHeights = {
   1: "max-h-12",
@@ -95,7 +104,7 @@ const listInputSelectedOptionClasses = clsx(
   "relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[2.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
 
   // Set minimum height for when no value is selected
-  "min-h-11 sm:min-h-9",
+  "min-h-9",
 
   // Horizontal padding
   "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.7)-1px)] sm:pl-[calc(theme(spacing.3)-1px)]",
@@ -147,10 +156,11 @@ const selectboxOptionClasses = clsx(
   "[&>[data-slot=avatar]]:size-6 sm:[&>[data-slot=avatar]]:size-5"
 );
 
-interface SelectOption {
+interface SelectOption<T = any> {
   id: string;
   displayValue: string;
   value: string;
+  _?: T;
 }
 
 interface SelectProps<Data> {
@@ -172,12 +182,14 @@ export function Combobox<Data extends { id: string | number }>({
   maxVisibleOptions = 7,
   onChange,
   children,
+  inputMode,
   ...props
 }: {
+  children: (item: SelectOption<Data>) => React.ReactNode;
   debounce?: number;
   setData?: (query: string | undefined) => void;
   className?: string;
-  children: (item: Data) => React.ReactNode;
+  inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
 } & Omit<HeadlessComboboxProps<Data, any, any, any>, "children"> &
   SelectProps<Data>) {
   const form = useFormContext();
@@ -188,18 +200,20 @@ export function Combobox<Data extends { id: string | number }>({
 
   const options = useMemo(() => {
     const parsedData = (data || []).map((item) => ({
-      ...item,
-      _combobox: {
-        displayValue: getEntryFromPath(item, displayValueKey).entryValue,
-        value: valueKey ? getEntryFromPath(item, valueKey).entryValue : item.id,
-      },
+      _: item,
+      id: String(item.id),
+      displayValue: getEntryFromPath(item, displayValueKey).entryValue,
+      value: valueKey ? getEntryFromPath(item, valueKey).entryValue : item.id,
     }));
 
-    const options = setData
-      ? parsedData
-      : parsedData.filter(({ _combobox: { displayValue } }) =>
-          String(displayValue).toLowerCase().includes(query.toLowerCase())
-        );
+    const options =
+      setData || !query
+        ? parsedData
+        : parsedData.filter(({ displayValue }) =>
+            String(displayValue)
+              .toLowerCase()
+              .includes(String(query).toLowerCase())
+          );
 
     return options;
   }, [data, setData ? undefined : query]);
@@ -229,18 +243,11 @@ export function Combobox<Data extends { id: string | number }>({
             {..._field}
             {...rest}
             as={"div"}
-            onKeyDown={(e) => {
-              if (e.key === "Tab") {
-                e.preventDefault();
-              }
-            }}
-            value={
-              options.find((i) => i._combobox.value === value)?._combobox || ""
-            }
+            value={options.find((i) => i.value === value) || ""}
             onChange={(data: any) => {
-              onChange && onChange(data as any);
+              onChange && onChange(data._);
               setQuery("");
-              fieldOnChange(data._combobox.value);
+              fieldOnChange(data.value);
             }}
             ref={(el) => {
               comboboxRef.current = el;
@@ -248,8 +255,48 @@ export function Combobox<Data extends { id: string | number }>({
           >
             <Span>
               <ComboboxInput
+                autoComplete="off"
                 data-invalid={error ? "" : undefined}
                 className={clsx(inputClasses)}
+                inputMode={inputMode}
+                onKeyDown={(e) => {
+                  const ignore = ["Control", "Shift", "Alt"];
+                  console.log(e.key);
+                  if (ignore.includes(e.key)) {
+                    e.preventDefault();
+                  }
+
+                  if (e.key === "Enter" || e.key === "Return") {
+                    const data = options[0];
+                    if (data) {
+                      onChange && onChange(data._ as any);
+                      setQuery("");
+                      fieldOnChange(data.value);
+                    }
+                  }
+                }}
+                onBlur={(e) => {
+                  const allow = [
+                    "unknown",
+                    "headlessui-control",
+                    "headlessui-dialog",
+                  ];
+
+                  const blurSource = e.relatedTarget?.id || "unknown";
+
+                  console.log(blurSource);
+
+                  if (!allow.find((i) => blurSource?.includes(i))) return;
+
+                  if (query && options.length) {
+                    const data = options[0];
+                    if (data) {
+                      onChange && onChange(data as any);
+                      setQuery("");
+                      fieldOnChange(data.value);
+                    }
+                  }
+                }}
                 onChange={async (event) => {
                   clearTimeout(timeout.current);
 
@@ -269,7 +316,13 @@ export function Combobox<Data extends { id: string | number }>({
 
             <ComboboxButton
               className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-              onClick={() => setQuery("")}
+              onClick={() => {
+                if (setData) {
+                  setData("");
+                } else {
+                  setQuery("");
+                }
+              }}
             >
               <MagnifyingGlassIcon className="size-5 text-zinc-500" />
             </ComboboxButton>
@@ -293,10 +346,11 @@ export function Combobox<Data extends { id: string | number }>({
                 className={clsx(
                   !options.length && "hidden",
 
-                  "absolute z-10 mt-1 rounded-md  bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm",
-
                   // Listbox z index
                   "z-[50]",
+
+                  // Base styles
+                  "isolate w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-md pt-1",
 
                   // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
                   "outline outline-1 outline-transparent focus:outline-none",
@@ -343,8 +397,36 @@ export function ComboboxOption<Data>({
       {({ selected }) => {
         if (selected) {
           return (
-            <div className={clsx(className, selectboxOptionClasses)}>
-              {children}
+            <div
+              className={clsx(
+                // Basic layout
+                "group/option grid cursor-default grid-cols-[theme(spacing.4),1fr] items-baseline gap-x-1.5 py-1.5 ",
+
+                // Typography
+                "text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]",
+
+                // Focus
+                "outline-none data-[focus]:bg-blue-500 data-[focus]:text-white",
+
+                // Forced colors mode
+                "forced-color-adjust-none forced-colors:data-[focus]:bg-[Highlight] forced-colors:data-[focus]:text-[HighlightText]",
+
+                // Disabled
+                "data-[disabled]:opacity-50",
+
+                "pl-1"
+              )}
+            >
+              <CheckIcon className="relative hidden size-4 self-center stroke-current group-data-[selected]/option:inline " />
+              <span
+                className={clsx(
+                  className,
+                  selectboxOptionClasses,
+                  "col-start-2"
+                )}
+              >
+                {children}
+              </span>
             </div>
           );
         }
@@ -353,7 +435,7 @@ export function ComboboxOption<Data>({
           <div
             className={clsx(
               // Basic layout
-              "group/option grid cursor-default grid-cols-[theme(spacing.5),1fr] items-baseline gap-x-1.5 rounded-lg py-2.5 pl-2.5 pr-3.5 sm:grid-cols-[theme(spacing.4),1fr] sm:py-1.5 sm:pl-2 sm:pr-3",
+              "group/option grid cursor-default grid-cols-[theme(spacing.4),1fr] items-baseline gap-x-1.5 py-1.5 ",
 
               // Typography
               "text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]",
@@ -365,16 +447,14 @@ export function ComboboxOption<Data>({
               "forced-color-adjust-none forced-colors:data-[focus]:bg-[Highlight] forced-colors:data-[focus]:text-[HighlightText]",
 
               // Disabled
-              "data-[disabled]:opacity-50"
+              "data-[disabled]:opacity-50",
+
+              "pl-1"
             )}
           >
+            <div className="size-4" />
             <span
-              className={clsx(
-                className,
-                selectboxOptionClasses,
-                "col-start-1",
-                "col-span-2"
-              )}
+              className={clsx(className, selectboxOptionClasses, "col-start-2")}
             >
               {children}
             </span>
@@ -508,15 +588,14 @@ export function Listbox<
   // note: value of headlesslistbox must be the same as the listbox option for it to count as selected option
 
   return (
-    <Span>
-      <Controller
-        name={name}
-        control={form.control}
-        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
+        <Span>
           <HeadlessListbox
             as={"div"}
             onChange={(v: any) => {
-              console.log(`xd`, v);
               onChange && onChange(v);
               fieldOnChange(v._listbox.value);
             }}
@@ -559,10 +638,10 @@ export function Listbox<
                 }
                 className={clsx([
                   // Basic layout
-                  "relative block w-full appearance-none rounded-lg py-[calc(theme(spacing[2.5])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+                  "relative grid cursor-default items-baseline gap-x-1.5 rounded-lg py-1.5 pl-2 pr-3",
 
                   // Set minimum height for when no value is selected
-                  "min-h-11 sm:min-h-9",
+                  "min-h-9",
 
                   // Horizontal padding
                   "pl-[calc(theme(spacing[3.5])-1px)] pr-[calc(theme(spacing.7)-1px)] sm:pl-[calc(theme(spacing.3)-1px)]",
@@ -603,7 +682,7 @@ export function Listbox<
                 }}
                 className={clsx(
                   // Listbox z index
-                  "z-[50]",
+                  "z-[150]",
 
                   // Base styles
                   "isolate w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl p-1",
@@ -625,9 +704,9 @@ export function Listbox<
               </HeadlessListboxOptions>
             </HeadlessTransition>
           </HeadlessListbox>
-        )}
-      />
-    </Span>
+        </Span>
+      )}
+    />
   );
 }
 
@@ -651,7 +730,7 @@ export function ListboxOption<Data>({
           <div
             className={clsx(
               // Basic layout
-              "group/option grid cursor-default grid-cols-[theme(spacing.5),1fr] items-baseline gap-x-1.5 rounded-lg py-2.5 pl-2.5 pr-3.5 sm:grid-cols-[theme(spacing.4),1fr] sm:py-1.5 sm:pl-2 sm:pr-3",
+              "group/option grid cursor-default grid-cols-[theme(spacing.4),1fr] items-baseline gap-x-1.5 rounded-lg py-1.5 pl-2 pr-3",
 
               // Typography
               "text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]",
