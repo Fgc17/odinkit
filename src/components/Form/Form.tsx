@@ -88,6 +88,7 @@ export function MultistepForm<
   Steps extends Record<
     Step,
     {
+      refine?: (data: Fields) => boolean;
       fields: Path<Fields>[];
       form: ReactNode;
     }
@@ -119,7 +120,18 @@ export function MultistepForm<
 
     const formFields = fields.map((field) => hform.getFieldState(field));
 
-    return formFields.every((field) => !field.invalid && field.isDirty);
+    const preRefineValidationResult = formFields.every(
+      (field) => !field.invalid && field.isDirty
+    );
+
+    const refineFn = steps[currentStepKey].refine;
+    if (refineFn) {
+      const refineValidationResult = refineFn(hform.getValues());
+
+      return preRefineValidationResult && refineValidationResult;
+    }
+
+    return preRefineValidationResult;
   }, [hform.watch()]);
 
   const hasNextStep = getNextStep() === currentStep + 1;
