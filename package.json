@@ -8,7 +8,8 @@
     "./server": "./dist/index.server.ts"
   },
   "scripts": {
-    "dev": "libuilder --watch ./libuilder.js"
+    "dev": "libuilder --watch ./libuilder.js",
+    "postinstall": "libuilder ./libuilder.js"
   },
   "type": "module",
   "dependencies": {
