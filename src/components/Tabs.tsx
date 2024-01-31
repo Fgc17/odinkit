@@ -37,7 +37,7 @@ export function Tabs({
                     "min-h-12",
                     "flex items-center border-b-2 px-3 font-medium duration-200 *:ring-0",
                     selected
-                      ? `border-indigo-600 text-${color || "indigo"}-600`
+                      ? `border-${color || "indigo-600"} text-${color || "indigo-600"}`
                       : "border-gray-200 text-gray-500"
                   )}
                 >
