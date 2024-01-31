@@ -9,7 +9,7 @@ export interface SelectOption<T = any> {
 
 export interface SelectProps<Data> {
   data: Data[] | [];
-  children: (item: Data) => React.ReactNode;
+  children?: (item: Data) => React.ReactNode;
   className?: string;
   displayValueKey: Path<Data>;
   valueKey?: Path<Data>;

@@ -86,7 +86,11 @@ export function Select<
             }}
             className={inputClasses}
           >
-            <option disabled value={""} className={clsx("py-2 pl-3 pr-9")}>
+            <option
+              disabled
+              value={undefined}
+              className={clsx("py-2 pl-3 pr-9")}
+            >
               {placeholder}
             </option>
             <For each={options}>

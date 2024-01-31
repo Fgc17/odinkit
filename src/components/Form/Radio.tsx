@@ -105,9 +105,10 @@ export function RadioGroup({
     <Controller
       name={name}
       control={control}
-      render={({ field: { onChange: fieldOnChange, ..._field } }) => (
+      render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
         <HeadlessRadioGroup
           data-slot="control"
+          value={value || ""}
           onChange={(v) => {
             onChange && onChange(v);
             fieldOnChange(v);
@@ -128,11 +129,7 @@ export function RadioGroup({
   );
 }
 
-export function Radio({
-  color = "dark/zinc",
-  className,
-  ...props
-}: { color?: Color; className?: string } & HeadlessRadioProps) {
+export function RadioField({ children }: { children: React.ReactNode }) {
   return (
     <HeadlessRadioField
       className={clsx(
@@ -152,22 +149,32 @@ export function Radio({
         "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
       )}
     >
-      <HeadlessRadio
-        data-slot="control"
-        {...props}
-        className={clsx(className, "group inline-flex focus:outline-none")}
-      >
-        <span className={clsx([base, colors[color]])}>
-          <span
-            className={clsx(
-              "size-full rounded-full border-[4.5px] border-transparent bg-[--radio-indicator] bg-clip-padding",
-
-              // Forced colors mode
-              "forced-colors:border-[Canvas] forced-colors:group-data-[checked]:border-[Highlight]"
-            )}
-          />
-        </span>
-      </HeadlessRadio>
+      {children}
     </HeadlessRadioField>
+  );
+}
+
+export function Radio({
+  color = "dark/zinc",
+  className,
+  ...props
+}: { color?: Color; className?: string } & HeadlessRadioProps) {
+  return (
+    <HeadlessRadio
+      data-slot="control"
+      {...props}
+      className={clsx(className, "group inline-flex focus:outline-none")}
+    >
+      <span className={clsx([base, colors[color]])}>
+        <span
+          className={clsx(
+            "size-full rounded-full border-[4.5px] border-transparent bg-[--radio-indicator] bg-clip-padding",
+
+            // Forced colors mode
+            "forced-colors:border-[Canvas] forced-colors:group-data-[checked]:border-[Highlight]"
+          )}
+        />
+      </span>
+    </HeadlessRadio>
   );
 }

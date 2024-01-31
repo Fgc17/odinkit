@@ -187,7 +187,6 @@ export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
   className,
   enableAsterisk,
   variant = "default",
-  children,
   ...props
 }: FieldProps<Fields>) {
   const form = useFormContext();
