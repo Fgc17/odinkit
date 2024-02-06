@@ -56,8 +56,7 @@ export function Listbox<Data extends { id: string | number }>({
   onChange,
   children,
   ...props
-}: SelectProps<Data> &
-  Omit<
+}: SelectProps<Data> & { children: (item: Data) => React.ReactNode } & Omit<
     HeadlessListboxProps<typeof Fragment, Data>,
     "multiple" | "children" | "name" | "onChange"
   > & {

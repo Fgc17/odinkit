@@ -59,12 +59,13 @@ export function Combobox<Data extends { id: string | number }>({
   inputMode,
   ...props
 }: {
+  children: (item: Data) => React.ReactNode;
   debounce?: number;
   setData?: (query: string | undefined) => void;
   className?: string;
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
-} & Omit<HeadlessComboboxProps<Data, any, any, any>, "children"> &
-  SelectProps<Data>) {
+} & SelectProps<Data> &
+  Omit<HeadlessComboboxProps<Data, any, any, any>, "children">) {
   const form = useFormContext();
 
   const { name, error } = useField();
