@@ -88,9 +88,9 @@ export function MultistepForm<
   Steps extends Record<
     Step,
     {
-      refine?: (data: Fields) => boolean;
       fields: Path<Fields>[];
       form: ReactNode;
+      refine?: (data: Fields) => boolean;
     }
   >,
 >({
