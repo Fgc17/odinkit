@@ -11,7 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { scrollToElement } from "../utils/scroll";
 import clsx from "clsx";
 
-export default function DisclosureAccordion({
+export function DisclosureAccordion({
   children,
   title,
   scrollToContent,

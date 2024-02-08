@@ -2,7 +2,14 @@
 "use client";
 
 import type React from "react";
-import { ReactNode, createContext, useContext, useMemo, useState } from "react";
+import {
+  ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   useForm as useReactHookForm,
   FieldValues,
@@ -20,6 +27,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
 import { StepStore, useSteps } from "../../hooks/useSteps";
+import { set } from "lodash";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
@@ -89,6 +97,7 @@ export function MultistepForm<
     Step,
     {
       fields: Path<Fields>[];
+      conditions?: Path<Fields>[];
       form: ReactNode;
     }
   >,
@@ -106,11 +115,18 @@ export function MultistepForm<
   order: Step[];
   children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
 }) {
-  const { currentStep, getNextStep, getPrevStep, walk, dryWalk, stepCount } =
-    useSteps({
-      currentStep: 0,
-      stepCount: order.length,
-    });
+  const {
+    currentStep,
+    getNextStep,
+    getPrevStep,
+    walk,
+    dryWalk,
+    stepCount,
+    setStepCount,
+  } = useSteps({
+    currentStep: 0,
+    stepCount: Object.values(steps).filter((s: any) => s.form).length,
+  });
 
   const isCurrentStepValid = useMemo(() => {
     const currentStepKey = order[currentStep] as keyof typeof steps;
@@ -119,8 +135,19 @@ export function MultistepForm<
 
     const formFields = fields.map((field) => hform.getFieldState(field));
 
-    return formFields.every((field) => !field.invalid && field.isDirty);
+    return (
+      formFields.every((field) => !field.invalid) &&
+      fields.every((field) => hform.getValues(field))
+    );
   }, [hform.watch()]);
+
+  useEffect(
+    () => setStepCount(Object.values(steps).filter((s: any) => s.form).length),
+    Object.values(steps)
+      .flatMap((s: any) => s.conditions)
+      .filter((s) => s)
+      .map((s) => hform.watch(s))
+  );
 
   const hasNextStep = getNextStep() === currentStep + 1;
 
