@@ -80,18 +80,14 @@ export function Select<
         render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
           <HeadlessSelect
             {...props}
-            defaultValue={value}
+            defaultValue={value || ""}
             onChange={(event) => {
               onChange && onChange(event);
               fieldOnChange(event.target.value);
             }}
             className={inputClasses}
           >
-            <option
-              value={undefined}
-              disabled
-              className={clsx("py-2 pl-3 pr-9")}
-            >
+            <option value={""} disabled className={clsx("py-2 pl-3 pr-9")}>
               {placeholder}
             </option>
             <For each={options}>

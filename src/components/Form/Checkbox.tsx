@@ -154,6 +154,7 @@ export function Checkbox({
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
         <HeadlessCheckbox
+          defaultChecked={value}
           data-slot="control"
           className={clsx(className, "group inline-flex focus:outline-none")}
           onChange={(checked) => {
