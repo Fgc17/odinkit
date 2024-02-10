@@ -59,12 +59,13 @@ export function Combobox<Data extends { id: string | number }>({
   inputMode,
   ...props
 }: {
+  children: (item: Data) => React.ReactNode;
   debounce?: number;
   setData?: (query: string | undefined) => void;
   className?: string;
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
-} & Omit<HeadlessComboboxProps<Data, any, any, any>, "children"> &
-  SelectProps<Data>) {
+} & SelectProps<Data> &
+  Omit<HeadlessComboboxProps<Data, any, any, any>, "children">) {
   const form = useFormContext();
 
   const { name, error } = useField();
@@ -91,8 +92,6 @@ export function Combobox<Data extends { id: string | number }>({
     return options;
   }, [data, setData ? undefined : query]);
 
-  const timeout = useRef(setTimeout(() => {}, 0));
-
   useEffect(() => {
     if (query && !options.length) {
       form.setValue(name, "invalid");
@@ -103,6 +102,8 @@ export function Combobox<Data extends { id: string | number }>({
   }, [options]);
 
   const { __demoMode, value, ...rest } = props;
+
+  const timeout = useRef(setTimeout(() => {}, 0));
 
   const comboboxRef = useRef<HTMLElement | null>(null);
 
@@ -120,7 +121,6 @@ export function Combobox<Data extends { id: string | number }>({
             onChange={(_: any) => {
               const data: SelectOption<Data> = _;
               onChange && onChange(data?._);
-              setQuery("");
               fieldOnChange(data.value);
             }}
             ref={(el) => {
@@ -132,23 +132,6 @@ export function Combobox<Data extends { id: string | number }>({
                 autoComplete="off"
                 data-invalid={error ? "" : undefined}
                 className={clsx(inputClasses)}
-                inputMode={inputMode}
-                onKeyDown={(e) => {
-                  const ignore = ["Control", "Shift", "Alt"];
-
-                  if (ignore.includes(e.key)) {
-                    e.preventDefault();
-                  }
-
-                  if (e.key === "Enter" || e.key === "Return") {
-                    const data = options[0];
-                    if (data) {
-                      onChange && onChange(data._ as any);
-                      setQuery("");
-                      fieldOnChange(data.value);
-                    }
-                  }
-                }}
                 onBlur={(e) => {
                   const allow = [
                     "unknown",
@@ -164,9 +147,16 @@ export function Combobox<Data extends { id: string | number }>({
                     const data = options[0];
                     if (data) {
                       onChange && onChange(data as any);
-                      setQuery("");
                       fieldOnChange(data.value);
                     }
+                  }
+                }}
+                inputMode={inputMode}
+                onKeyDown={(e) => {
+                  const ignore = ["Control", "Shift", "Alt", "Tab"];
+
+                  if (ignore.includes(e.key)) {
+                    e.preventDefault();
                   }
                 }}
                 onChange={async (event) => {
@@ -180,9 +170,7 @@ export function Combobox<Data extends { id: string | number }>({
                     setData ? debounce : 200
                   );
                 }}
-                displayValue={(item: SelectOption) =>
-                  item.displayValue || query
-                }
+                displayValue={(item: SelectOption) => item.displayValue}
               />
             </Span>
 
@@ -257,7 +245,6 @@ export function ComboboxOption<Data>({
             </>
           ) : (
             <>
-              {" "}
               <div className="size-4" />
               <span className={clsx(className, classes.optionChildren)}>
                 {children}
