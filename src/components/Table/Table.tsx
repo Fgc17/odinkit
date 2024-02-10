@@ -98,6 +98,8 @@ export function Table<Data>({
   dense = false,
   grid = false,
   striped = false,
+  search = true,
+  pagination = true,
   className,
   dataSetter,
   children,
@@ -106,6 +108,8 @@ export function Table<Data>({
   xlsx,
   ...props
 }: {
+  search?: boolean;
+  pagination?: boolean;
   xlsx?: {
     fileName: string;
     sheetName: string;
@@ -180,20 +184,23 @@ export function Table<Data>({
           )}
         >
           <div className="flex items-center justify-between gap-3">
-            <Form hform={form} className="flex-grow">
-              <Field name="globalFilter">
-                <Input
-                  onChange={(e) => {
-                    setGlobalFilter && setGlobalFilter(String(e.target.value));
-                  }}
-                  placeholder={`Procurar (ex: ${cols
-                    .map((c) => c.header)
-                    .slice(0, 3)
-                    .join(", ")})`}
-                />
-                {dataSetter}
-              </Field>
-            </Form>
+            {search && (
+              <Form hform={form} className="flex-grow">
+                <Field name="globalFilter">
+                  <Input
+                    onChange={(e) => {
+                      setGlobalFilter &&
+                        setGlobalFilter(String(e.target.value));
+                    }}
+                    placeholder={`Procurar (ex: ${cols
+                      .map((c) => c.header)
+                      .slice(0, 3)
+                      .join(", ")})`}
+                  />
+                  {dataSetter}
+                </Field>
+              </Form>
+            )}
             {xlsx && (
               <div className="mt-1.5">
                 <Xlsx
@@ -265,42 +272,46 @@ export function Table<Data>({
               </TableBody>
             </table>
           </div>
-          <Pagination className="my-2">
-            <PaginationPrevious
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
-              href="#"
-            >
-              Anterior
-            </PaginationPrevious>
-            <PaginationList>
-              {
-                <For
-                  each={Array.from(
-                    { length: table.getPageCount() },
-                    (_, index) => index + 1
-                  )}
-                >
-                  {(page, index) => (
-                    <PaginationPage
-                      href="#"
-                      current={table.getState().pagination.pageIndex === index}
-                      onClick={() => table.setPageIndex(index)}
-                    >
-                      {String(page)}
-                    </PaginationPage>
-                  )}
-                </For>
-              }
-            </PaginationList>
-            <PaginationNext
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.nextPage()}
-              href="#"
-            >
-              Próxima
-            </PaginationNext>
-          </Pagination>
+          {pagination && (
+            <Pagination className="my-2">
+              <PaginationPrevious
+                disabled={!table.getCanPreviousPage()}
+                onClick={() => table.previousPage()}
+                href="#"
+              >
+                Anterior
+              </PaginationPrevious>
+              <PaginationList>
+                {
+                  <For
+                    each={Array.from(
+                      { length: table.getPageCount() },
+                      (_, index) => index + 1
+                    )}
+                  >
+                    {(page, index) => (
+                      <PaginationPage
+                        href="#"
+                        current={
+                          table.getState().pagination.pageIndex === index
+                        }
+                        onClick={() => table.setPageIndex(index)}
+                      >
+                        {String(page)}
+                      </PaginationPage>
+                    )}
+                  </For>
+                }
+              </PaginationList>
+              <PaginationNext
+                disabled={!table.getCanNextPage()}
+                onClick={() => table.nextPage()}
+                href="#"
+              >
+                Próxima
+              </PaginationNext>
+            </Pagination>
+          )}
         </div>
       </div>
     </TableContext.Provider>

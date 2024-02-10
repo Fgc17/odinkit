@@ -114,12 +114,12 @@ export function RadioGroup({
             fieldOnChange(v);
           }}
           className={clsx(
-            className,
             // Basic groups
-            "space-y-3 [&_[data-slot=label]]:font-normal",
+            "[&_[data-slot=label]]:font-normal",
 
             // With descriptions
-            "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
+            "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
+            className
           )}
           {...props}
           {..._field}
@@ -129,24 +129,38 @@ export function RadioGroup({
   );
 }
 
-export function RadioField({ children }: { children: React.ReactNode }) {
+export function RadioField({
+  children,
+  custom,
+  className,
+}: {
+  children: React.ReactNode;
+  custom?: boolean;
+  className?: string;
+}) {
   return (
     <HeadlessRadioField
       className={clsx(
         // Base layout
-        "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
+        !custom &&
+          "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
 
         // Control layout
-        "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
+        !custom &&
+          "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
 
         // Label layout
-        "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
+        !custom &&
+          "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
 
         // Description layout
-        "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
+        !custom &&
+          "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
 
         // With description
-        "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
+        !custom &&
+          "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
+        className
       )}
     >
       {children}

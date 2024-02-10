@@ -6,11 +6,12 @@ import {
   type InputProps as HeadlessInputProps,
 } from "@headlessui/react";
 import React, { useMemo, useState } from "react";
-import { Controller, useController, useFormContext } from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { For } from "../For";
 import clsx from "clsx";
 import { FolderIcon } from "@heroicons/react/24/solid";
 import { useField } from "./Field";
+import { useFormContext } from "./Form";
 
 export function FileInput({
   children,
@@ -25,75 +26,75 @@ export function FileInput({
   const form = useFormContext();
   const { name } = useField();
 
-  const {
-    field,
-    fieldState: { invalid, isTouched, isDirty },
-    formState: { touchedFields, dirtyFields },
-  } = useController({
-    name: name,
-    control: form.control,
-    rules: { required: true },
-    defaultValue: [],
-  });
-
-  const decodedImages = useMemo(
-    () => Array.from(field.value).map((img: any) => URL.createObjectURL(img)),
-    [field.value]
-  );
-
-  const removeImage = (index: number) => {
-    const images = Array.from(field.value);
-    images.splice(index, 1);
-    field.onChange({
-      target: {
-        value: images,
-      },
-    });
-  };
-
   return (
-    <div className={clsx(className)}>
-      <div
-        onDrop={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const { files } = e.dataTransfer;
-          field.onChange({
+    <Controller
+      name={name}
+      control={form.control}
+      render={({ field: { onChange: fieldOnChange, value, ...field } }) => {
+        const removeImage = (index: number) => {
+          const images = Array.from(value);
+          images.splice(index, 1);
+          fieldOnChange({
             target: {
-              value: files,
+              value: images,
             },
           });
-        }}
-        onDragOver={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }}
-      >
-        <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-6">
-          <div className="text-center">
-            {field.value.length > 0 ? (
-              <FileList images={decodedImages} removeImage={removeImage} />
-            ) : (
-              <FileCTA
-                fileIcon={props.fileIcon}
-                fileTypes={props.fileTypes}
-                maxSize={props.maxSize}
-              />
-            )}
+        };
+
+        const decodedImages = useMemo(
+          () =>
+            Array.from(value || "").map((img: any) => URL.createObjectURL(img)),
+          [value]
+        );
+        return (
+          <div className={clsx(className)}>
+            <div
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const { files } = e.dataTransfer;
+                fieldOnChange({
+                  target: {
+                    value: files,
+                  },
+                });
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-6">
+                <div className="text-center">
+                  {value && value.length > 0 ? (
+                    <FileList
+                      images={decodedImages}
+                      removeImage={removeImage}
+                    />
+                  ) : (
+                    <FileCTA
+                      fileIcon={props.fileIcon}
+                      fileTypes={props.fileTypes}
+                      maxSize={props.maxSize}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+            <input
+              hidden
+              id="file-upload"
+              type="file"
+              {...field}
+              accept={props.fileTypes?.join(",")}
+              name={field.name}
+              value={value?.filename || ""}
+              onChange={(e) => fieldOnChange(e.target.files)}
+            />
           </div>
-        </div>
-      </div>
-      <input
-        hidden
-        id="file-upload"
-        type="file"
-        {...field}
-        accept={props.fileTypes?.join(",")}
-        name={field.name}
-        value={field.value.filename}
-        onChange={(e) => field.onChange(e.target.files)}
-      />
-    </div>
+        );
+      }}
+    />
   );
 }
 

@@ -1,3 +1,4 @@
+"use client";
 import { Tab } from "@headlessui/react";
 import { For } from "./For";
 import clsx from "clsx";
@@ -29,7 +30,7 @@ export function Tabs({
       >
         <For each={tabs} identifier="tabName">
           {(tab) => (
-            <Tab>
+            <Tab as="button" className={"grow lg:grow-0"}>
               {({ selected }) => (
                 <div
                   onClick={tab.onClick}
