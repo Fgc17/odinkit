@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 
 export const option = clsx(
   // Basic layout
-  "flex grid cursor-default items-center h-full py-1.5 sm:py-0.5",
+  "flex grid cursor-default items-center h-full py-0.5 sm:py-0.5 rounded-lg m-0.5",
 
   // Typography
   "text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]",
@@ -32,7 +32,7 @@ export const options = clsx(
   "z-[150]",
 
   // Base styles
-  "isolate w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-md pt-1",
+  "isolate w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-md",
 
   // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
   "outline outline-1 outline-transparent focus:outline-none",
