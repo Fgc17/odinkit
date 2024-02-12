@@ -13,6 +13,14 @@ export function formatPhone(data: string) {
   return `(${DDD}) ${firstPart}-${secondPart}`;
 }
 
+export function formatCPF(data: string) {
+  const firstPart = data.slice(0, 3);
+  const secondPart = data.slice(3, 6);
+  const thirdPart = data.slice(6, 9);
+  const fourthPart = data.slice(9);
+  return `${firstPart}.${secondPart}.${thirdPart}-${fourthPart}`;
+}
+
 export function toProperCase(input: string): string | undefined {
   if (!input) return;
   return input
