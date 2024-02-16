@@ -8,7 +8,8 @@
     "./server": "./dist/index.server.ts"
   },
   "scripts": {
-    "dev": "libuilder --watch ./libuilder.js"
+    "dev": "libuilder --watch ./libuilder.js",
+    "postinstall": "libuilder ./libuilder.js"
   },
   "type": "module",
   "dependencies": {
@@ -30,6 +31,9 @@
     "react-hook-form": "^7.49.3",
     "react-hot-toast": "^2.4.1",
     "typescript": "5.3.2",
+    "@tinymce/tinymce-react": "^3.10.0",
+    "tinymce": "^6.8.3",
+    "fs-extra": "^11.2.0",
     "zod": "3.21.0",
     "zustand": "^4.4.7",
     "react-dom": "^18.2.0",
@@ -38,7 +42,8 @@
     "chart.js": "4.4.1",
     "lodash": "^4.17.21",
     "@types/lodash": "^4.14.202",
-    "@ferstack/libuilderjs": "4.2.0"
+    "@ferstack/libuilderjs": "4.2.0",
+    "xlsx": "0.18.5"
   },
   "peerDependencies": {
     "next": "14.1.0"

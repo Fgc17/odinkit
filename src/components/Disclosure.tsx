@@ -50,7 +50,12 @@ export function DisclosureAccordion({
                   "flex w-full items-center justify-between text-left text-gray-900"
                 )}
               >
-                <span className="text-sm font-medium text-gray-900">
+                <span
+                  className={clsx(
+                    "text-sm font-medium",
+                    open && "text-emerald-600"
+                  )}
+                >
                   {title}
                 </span>
                 <span className="ml-6 flex h-7 items-center">

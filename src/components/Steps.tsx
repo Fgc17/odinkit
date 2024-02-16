@@ -51,7 +51,7 @@ export function Steps({
                     className={clsx(
                       "border-t-4 px-3 py-4 text-sm font-medium duration-200 *:ring-0 focus:ring-0",
                       selected
-                        ? `border-${color}-600 text-${color}-600`
+                        ? `border-${color} text-${color}`
                         : "border-gray-200 text-gray-500",
                       step.disabled && "cursor-not-allowed opacity-50",
                       index === 0

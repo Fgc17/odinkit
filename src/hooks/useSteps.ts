@@ -1,60 +1,55 @@
 // client
 "use client";
 
-import {
-  useState,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useId,
-} from "react";
+import { useEffect, useId } from "react";
 import { create } from "zustand";
 
-interface StepStore {
+export type StepStore = {
   stepCount: number;
-  setStepCount: (stepCount: number) => void;
   currentStep: number;
   cyclic: boolean;
-  setCurrentStep: (currentStep: number) => void;
   walk: (vector: number) => void;
-}
+  dryWalk: (vector: number) => number;
+  setStepCount: (stepCount: number) => void;
+  getPrevStep: () => number;
+  getNextStep: () => number;
+  setCurrentStep: (currentStep: number) => void;
+};
 
-const useStepStore = create<StepStore>()((set) => ({
+const useStepStore = create<StepStore>()((set, get) => ({
   stepCount: 0,
   currentStep: 0,
   setStepCount: (stepCount: number) => set({ stepCount }),
   setCurrentStep: (currentStep: number) => set({ currentStep }),
   cyclic: false,
-  walk: (vector: number) =>
-    set((state) => {
-      const currentIndex = state.currentStep;
+  dryWalk: (vector: number) => {
+    const currentIndex = get().currentStep;
+    const maxIndex = get().stepCount - 1;
+    let newIndex;
 
-      const maxIndex = state.stepCount;
-
-      if (!state.cyclic) {
-        if (currentIndex + vector < 0) {
-          return { currentStep: 0 };
-        }
-
-        if (currentIndex + vector > maxIndex) {
-          return { currentStep: maxIndex };
-        }
-      } else {
-        if (currentIndex + vector < 0) {
-          const netWalk = maxIndex - Math.abs(currentIndex + vector);
-          return { currentStep: netWalk };
-        }
-
-        if (currentIndex + vector > maxIndex) {
-          const netWalk = currentIndex + vector - maxIndex;
-
-          return { currentStep: netWalk };
-        }
+    if (get().cyclic) {
+      newIndex = (currentIndex + vector + maxIndex + 1) % (maxIndex + 1);
+    } else {
+      newIndex = currentIndex + vector;
+      if (newIndex < 0) {
+        newIndex = 0;
+      } else if (newIndex > maxIndex) {
+        newIndex = maxIndex;
       }
+    }
 
-      return { currentStep: state.currentStep + vector };
-    }),
+    return newIndex;
+  },
+  walk: (vector: number) => {
+    const newIndex = get().dryWalk(vector);
+    set({ currentStep: newIndex });
+  },
+  getPrevStep: () => {
+    return get().dryWalk(-1);
+  },
+  getNextStep: () => {
+    return get().dryWalk(1);
+  },
 }));
 
 export function useSteps({
