@@ -237,6 +237,7 @@ export function Table<Data>({
                         setGlobalFilter(String(e.target.value));
                     }}
                     placeholder={`Procurar (ex: ${cols
+                      .filter((c) => c.enableGlobalFilter)
                       .map((c) => c.header)
                       .slice(0, 3)
                       .join(", ")})`}

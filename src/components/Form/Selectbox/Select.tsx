@@ -80,7 +80,7 @@ export function Select<
         render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
           <HeadlessSelect
             {...props}
-            value={value || ""}
+            defaultValue={value || ""}
             onChange={(event) => {
               onChange && onChange(event);
               fieldOnChange(event.target.value);

@@ -1,3 +1,21 @@
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+export function normalize(data: string) {
+  return data.replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+}
+
+export function date(
+  date: string | Date,
+  format: string,
+  localTime: boolean = false
+) {
+  return dayjs(date).utc(localTime).format(format);
+}
+
 export function normalizeEmail(data: string) {
   return data.toLowerCase();
 }
@@ -19,6 +37,12 @@ export function formatCPF(data: string) {
   const thirdPart = data.slice(6, 9);
   const fourthPart = data.slice(9);
   return `${firstPart}.${secondPart}.${thirdPart}-${fourthPart}`;
+}
+
+export function formatCEP(data: string) {
+  const firstPart = data.slice(0, 5);
+  const secondPart = data.slice(5);
+  return `${firstPart}-${secondPart}`;
 }
 
 export function toProperCase(input: string): string | undefined {

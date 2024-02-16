@@ -97,7 +97,7 @@ export function MultistepForm<
     Step,
     {
       fields: Path<Fields>[];
-      conditions?: Path<Fields>[];
+      conditions?: any[];
       form: ReactNode;
       refine?: (data: Fields) => boolean;
     }
@@ -134,10 +134,13 @@ export function MultistepForm<
 
     const fields = steps[currentStepKey].fields;
 
-    const formFields = fields.map((field) => hform.getFieldState(field));
+    const formFields = fields.map((field) => ({
+      ...hform.getFieldState(field),
+      name: field,
+    }));
 
     const preRefineValidationResult = formFields.every(
-      (field) => !field.invalid && field.isDirty
+      (field) => !field.invalid && hform.getValues(field.name)
     );
 
     const refineFn = steps[currentStepKey].refine;
