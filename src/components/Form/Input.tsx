@@ -12,6 +12,7 @@ import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
 import { Span } from "./Span";
 import { useField } from "./Field";
+import { useRef } from "react";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -59,9 +60,11 @@ export function Input({
   mask,
   onChange,
   loading,
+  debounce = 0,
   type = "text",
   ...props
 }: {
+  debounce?: number;
   type?:
     | "email"
     | "number"
@@ -76,6 +79,7 @@ export function Input({
 } & HeadlessInputProps) {
   const form = useFormContext();
   const { name, error } = useField();
+  const timeout = useRef(setTimeout(() => {}, 0));
 
   return (
     <Span className={clsx(className)}>
