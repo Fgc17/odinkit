@@ -93,6 +93,50 @@ function DebouncedInput({
   );
 }
 
+export function TableMock({
+  bleed = false,
+  dense = false,
+  grid = false,
+  striped = false,
+  className,
+  children,
+  ...props
+}: {
+  bleed?: boolean;
+  dense?: boolean;
+  grid?: boolean;
+  striped?: boolean;
+} & React.ComponentPropsWithoutRef<"div">) {
+  return (
+    <TableContext.Provider
+      value={
+        { bleed, dense, grid, striped } as React.ContextType<
+          typeof TableContext
+        >
+      }
+    >
+      <div className="flow-root">
+        <div
+          {...props}
+          className={clsx(
+            className,
+            "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
+          )}
+        >
+          <div
+            className={clsx(
+              "inline-block min-w-full align-middle",
+              !bleed && "sm:px-[--gutter]"
+            )}
+          >
+            <table className="min-w-full text-left text-sm/6">{children}</table>
+          </div>
+        </div>
+      </div>
+    </TableContext.Provider>
+  );
+}
+
 export function Table<Data>({
   bleed = false,
   dense = false,
@@ -193,6 +237,7 @@ export function Table<Data>({
                         setGlobalFilter(String(e.target.value));
                     }}
                     placeholder={`Procurar (ex: ${cols
+                      .filter((c) => c.enableGlobalFilter)
                       .map((c) => c.header)
                       .slice(0, 3)
                       .join(", ")})`}

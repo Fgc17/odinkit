@@ -41,7 +41,8 @@ const fieldVariants = {
   ),
   switch: clsx(
     // Base layout
-    "grid grid-cols-[1fr_auto] items-center gap-x-8 gap-y-1 sm:grid-cols-[1fr_auto]",
+    "grid grid-cols-[1fr_auto]",
+    "items-center gap-x-8 gap-y-1 sm:grid-cols-[1fr_auto]",
 
     // Control layout
     "[&>[data-slot=control]]:col-start-2 [&>[data-slot=control]]:self-center",

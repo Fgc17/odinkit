@@ -1,7 +1,11 @@
-import { useFormContext } from "react-hook-form";
+//client
+"use client";
 import { useField } from "../Field";
 import { useMemo } from "react";
-import { For } from "@/components/For";
+import { For } from "../../../components/For";
+import { useFormContext } from "../Form";
+import { fileFormats } from "./FileFormat";
+import { getFileExtension, getFileMime } from "./utils";
 
 export function ImageList() {
   const form = useFormContext();
@@ -10,14 +14,19 @@ export function ImageList() {
 
   const images = Array.from(form.watch(field.name));
 
-  const decodedImages = useMemo(
-    () => images.map((img: any) => URL.createObjectURL(img)),
+  const filePreview = useMemo(
+    () =>
+      images.map((file: any) => {
+        return getFileMime(file) === "image"
+          ? URL.createObjectURL(file)
+          : fileFormats[getFileExtension(file)] ?? "";
+      }),
     [images]
   );
 
   if (!images) return null;
 
-  const removeImage = (index: number) => {
+  const removeFile = (index: number) => {
     const images = Array.from(form.getValues(field.name));
     images.splice(index, 1);
     form.setValue(field.name, images);
@@ -25,7 +34,7 @@ export function ImageList() {
 
   return (
     <div className="mt-3 flex gap-4">
-      <For each={decodedImages} identifier="images">
+      <For each={filePreview} identifier="images">
         {(image, index) => (
           <div className="relative inline-block" key={`k-${index}`}>
             <img
@@ -37,7 +46,7 @@ export function ImageList() {
             <div
               className="absolute left-0 top-0 h-6 w-6 rounded-full transition duration-150 ease-in-out hover:scale-125"
               onClick={() => {
-                removeImage(index as number);
+                removeFile(index as number);
               }}
             >
               <svg

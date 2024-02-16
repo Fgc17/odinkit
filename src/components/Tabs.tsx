@@ -2,6 +2,7 @@
 import { Tab } from "@headlessui/react";
 import { For } from "./For";
 import clsx from "clsx";
+import { useEffect, useRef, useState } from "react";
 
 export type TabItem = {
   title: string;
@@ -18,12 +19,15 @@ export function Tabs({
   color?: string;
   className?: string;
 }) {
+  const elementRef = useRef<HTMLDivElement>(null);
+
   return (
     <Tab.Group as={"div"}>
       <Tab.List
+        ref={elementRef}
         className={clsx(
           className,
-          "z-10 flex min-h-12 overflow-x-scroll bg-white  lg:mx-0 lg:overflow-x-auto"
+          "z-10 flex min-h-12 overflow-x-scroll bg-white duration-200 lg:mx-0 lg:overflow-x-auto"
         )}
         as="div"
         style={{ scrollbarWidth: "none" }}
@@ -38,7 +42,7 @@ export function Tabs({
                     "min-h-12",
                     "flex items-center border-b-2 px-3 font-medium duration-200 *:ring-0",
                     selected
-                      ? `border-${color || "indigo-600"} text-${color || "indigo-600"}`
+                      ? `border-${color || "indigo-600"} text-indigo-600`
                       : "border-gray-200 text-gray-500"
                   )}
                 >
