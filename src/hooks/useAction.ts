@@ -15,6 +15,7 @@ interface UseActionParams<
 > {
   defaultData?: ResponseParserReturnType;
   redirect?: boolean;
+  formData?: boolean;
   onError?: (error: string) => void;
   onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
   responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
@@ -22,6 +23,24 @@ interface UseActionParams<
   action: (
     arg: RequestParserReturnType | ArgumentType
   ) => Promise<SuccessResponse<DataReturnType> | ErrorResponse | void>;
+}
+
+function objectToFormData(obj: Record<string, any>): FormData {
+  const formData = new FormData();
+
+  Object.keys(obj).forEach((key) => {
+    const value = obj[key];
+
+    if (value instanceof File) {
+      formData.append(key, value);
+    } else if (typeof value === "object" || Array.isArray(value)) {
+      formData.append(key, JSON.stringify(value));
+    } else {
+      formData.append(key, value);
+    }
+  });
+
+  return formData;
 }
 
 export function useAction<
@@ -32,6 +51,7 @@ export function useAction<
 >({
   defaultData,
   redirect,
+  formData,
   action,
   onSuccess,
   onError,
@@ -68,8 +88,15 @@ export function useAction<
           responseParser ? responseParser(res.data) : res.data
         ) as ResponseParserReturnType;
 
+        let parsedFormData;
+        if (formData) {
+          parsedFormData = objectToFormData(
+            parsedData as Record<string, any>
+          ) as ResponseParserReturnType;
+        }
+
         return {
-          data: parsedData,
+          data: formData ? parsedFormData : parsedData,
           pagination: res.pagination,
           message: res.message,
         };

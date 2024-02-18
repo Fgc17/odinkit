@@ -71,3 +71,17 @@ export function maskEmail(email: string) {
 
   return `${maskedUsername}@${maskedDomainName}.${domainExtension}`;
 }
+
+export function maskPhone(phone: string) {
+  return phone.slice(0, 5) + "*".repeat(phone.length - 5);
+}
+
+export function maskCPF(cpf: string) {
+  return cpf.slice(0, 3) + "*".repeat(cpf.length - 3);
+}
+
+export function isUUID(uuid: string) {
+  return uuid.match(
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+  );
+}

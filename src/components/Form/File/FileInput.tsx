@@ -17,9 +17,9 @@ type FileInputContextProps = {
   maxSize: number;
   maxFiles: number;
   inputId: string;
-  onChange: (files: FileList) => void;
+  onChange: (files: File[]) => void;
   onError?: (error: string) => void;
-  validate: (file: FileList) => boolean | Promise<boolean>;
+  validate: (files: File[]) => boolean | Promise<boolean>;
 };
 
 export const FileInputContext = React.createContext<FileInputContextProps>({
@@ -54,7 +54,7 @@ export function FileInput({
   maxSize: number;
   maxFiles: number;
   dragging?: boolean;
-  onChange?: (files: FileList) => void;
+  onChange?: (files: File[]) => void;
   onError?: (error: string[] | string) => void;
   validate?: (
     file: File
@@ -69,7 +69,13 @@ export function FileInput({
     const error = form.formState.errors[name]?.message;
 
     if (error) {
-      const parsedError = JSON.parse(error as string);
+      let parsedError;
+      try {
+        parsedError = JSON.parse(error as string);
+      } catch (error) {
+        parsedError = error;
+      }
+      console.log(error);
 
       props.onError?.(parsedError as any);
     }
@@ -80,14 +86,12 @@ export function FileInput({
       name={name}
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => {
-        const onChange = (files: FileList) => {
+        const onChange = (files: File[]) => {
           fieldOnChange([...(value ?? []), ...files]);
           props.onChange?.(files);
         };
 
-        const validate = async (files: FileList) => {
-          const fileArray = Array.from(files);
-
+        const validate = async (files: File[]) => {
           if (files?.length + value?.length > props.maxFiles) {
             form.setError?.(name, {
               message: JSON.stringify("Número máximo de arquivos excedido"),
@@ -96,7 +100,7 @@ export function FileInput({
           }
 
           if (
-            fileArray.some(
+            files.some(
               (file) => !props.fileTypes.includes(getFileExtension(file))
             )
           ) {
@@ -106,18 +110,20 @@ export function FileInput({
             return false;
           }
 
-          for (const file of fileArray) {
-            const fileValidation = await props.validate?.(file);
+          if (props.validate) {
+            for (const file of files) {
+              const fileValidation = await props.validate?.(file);
 
-            if (
-              typeof fileValidation === "string" ||
-              typeof fileValidation === "object"
-            ) {
-              form.setError(name, {
-                message: JSON.stringify(fileValidation) ?? "Arquivo inválido",
-              });
+              if (
+                typeof fileValidation === "string" ||
+                typeof fileValidation === "object"
+              ) {
+                form.setError(name, {
+                  message: JSON.stringify(fileValidation) ?? "Arquivo inválido",
+                });
 
-              return false;
+                return false;
+              }
             }
           }
 
@@ -149,14 +155,12 @@ export function FileInput({
                 value={""}
                 onChange={async (e) => {
                   const files = e.target.files;
-
                   if (!files?.length) return;
-
-                  const isValid = await validate(files);
-
+                  const filesArray = Array.from(files);
+                  const isValid = await validate(filesArray);
                   if (!isValid) return;
 
-                  onChange(files);
+                  onChange(filesArray);
                 }}
               />
             </div>

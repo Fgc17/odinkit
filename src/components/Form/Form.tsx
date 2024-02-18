@@ -155,10 +155,7 @@ export function MultistepForm<
 
   useEffect(
     () => setStepCount(Object.values(steps).filter((s: any) => s.form).length),
-    Object.values(steps)
-      .flatMap((s: any) => s.conditions)
-      .filter((s) => s)
-      .map((s) => hform.watch(s))
+    [steps]
   );
 
   const hasNextStep = getNextStep() === currentStep + 1;
