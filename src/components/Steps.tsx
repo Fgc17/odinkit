@@ -39,7 +39,7 @@ export function Steps({
       >
         <Tab.List
           className={clsx(
-            "sticky top-0 z-10 -mx-3 mb-3 flex overflow-x-scroll bg-white  lg:mx-0 lg:overflow-x-auto"
+            "sticky top-0 z-10 -mx-3 mb-3 flex overflow-x-scroll bg-white shadow-md lg:mx-0  lg:overflow-x-auto lg:shadow-none"
           )}
           style={{ scrollbarWidth: "none" }}
         >

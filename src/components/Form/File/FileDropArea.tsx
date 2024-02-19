@@ -30,11 +30,11 @@ export function FileDropArea({
 
           if (!files?.length) return;
 
-          const isValid = await fileInput.validate(files);
+          const isValid = await fileInput.validate(files as any);
 
           if (!isValid) return;
 
-          fileInput.onChange(files);
+          fileInput.onChange(files as any);
         },
         onDragOver: (e) => {
           e.preventDefault();
@@ -61,9 +61,8 @@ export function FileDropArea({
                   <p className="pl-1">ou arraste</p>
                 </div>
                 <p className="text-xs leading-5 text-gray-600">
-                  {fileInput.fileTypes
-                    ?.map((t) => t?.split("/")?.[1]?.toUpperCase())
-                    .join(", ") ?? "Arquivos de qualquer tipo"}{" "}
+                  {fileInput.fileTypes.join(", ") ??
+                    "Arquivos de qualquer tipo"}{" "}
                   de até {fileInput.maxSize}MB
                 </p>
               </>

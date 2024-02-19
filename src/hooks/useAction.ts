@@ -19,28 +19,10 @@ interface UseActionParams<
   onError?: (error: string) => void;
   onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
   responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
-  requestParser?: (arg: ArgumentType) => RequestParserReturnType;
+  requestParser?: (arg: ArgumentType) => Promise<RequestParserReturnType>;
   action: (
     arg: RequestParserReturnType | ArgumentType
   ) => Promise<SuccessResponse<DataReturnType> | ErrorResponse | void>;
-}
-
-function objectToFormData(obj: Record<string, any>): FormData {
-  const formData = new FormData();
-
-  Object.keys(obj).forEach((key) => {
-    const value = obj[key];
-
-    if (value instanceof File) {
-      formData.append(key, value);
-    } else if (typeof value === "object" || Array.isArray(value)) {
-      formData.append(key, JSON.stringify(value));
-    } else {
-      formData.append(key, value);
-    }
-  });
-
-  return formData;
 }
 
 export function useAction<
@@ -51,7 +33,6 @@ export function useAction<
 >({
   defaultData,
   redirect,
-  formData,
   action,
   onSuccess,
   onError,
@@ -65,10 +46,10 @@ export function useAction<
 >) {
   const id = useId();
 
-  const fetcher = (
+  async function fetcher(
     arg: ArgumentType
-  ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> => {
-    const formattedArg = requestParser ? requestParser(arg) : arg;
+  ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> {
+    const formattedArg = requestParser ? await requestParser(arg) : arg;
 
     return action(formattedArg)
       .then((res) => {
@@ -88,15 +69,8 @@ export function useAction<
           responseParser ? responseParser(res.data) : res.data
         ) as ResponseParserReturnType;
 
-        let parsedFormData;
-        if (formData) {
-          parsedFormData = objectToFormData(
-            parsedData as Record<string, any>
-          ) as ResponseParserReturnType;
-        }
-
         return {
-          data: formData ? parsedFormData : parsedData,
+          data: parsedData,
           pagination: res.pagination,
           message: res.message,
         };
@@ -104,7 +78,7 @@ export function useAction<
       .catch((error) => {
         throw error;
       });
-  };
+  }
 
   const mutation = useSWRMutation<
     SuccessResponse<ResponseParserReturnType>,
