@@ -155,8 +155,7 @@ export function Table<Data>({
   search?: boolean;
   pagination?: boolean;
   xlsx?: {
-    fileName: string;
-    sheetName: string;
+    data: any[];
   };
   bleed?: boolean;
   dense?: boolean;
@@ -248,12 +247,7 @@ export function Table<Data>({
             )}
             {xlsx && (
               <div className="mt-1.5">
-                <Xlsx
-                  data={data}
-                  columns={cols}
-                  fileName={xlsx.fileName}
-                  sheetName={xlsx.sheetName}
-                />
+                <Xlsx data={xlsx.data} />
               </div>
             )}
           </div>

@@ -19,7 +19,9 @@ interface UseActionParams<
   onError?: (error: string) => void;
   onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
   responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
-  requestParser?: (arg: ArgumentType) => Promise<RequestParserReturnType>;
+  requestParser?: (
+    arg: ArgumentType
+  ) => Promise<RequestParserReturnType> | RequestParserReturnType;
   action: (
     arg: RequestParserReturnType | ArgumentType
   ) => Promise<SuccessResponse<DataReturnType> | ErrorResponse | void>;
