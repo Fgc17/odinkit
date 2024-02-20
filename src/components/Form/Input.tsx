@@ -12,6 +12,11 @@ import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
 import { Span } from "./Span";
 import { useField } from "./Field";
+import { Button } from "../Button";
+import { Alert, AlertBody, AlertTitle } from "../Alert";
+import { For } from "../For";
+import { useState } from "react";
+import { colors, tones } from "./_shared/utils/colors";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -133,97 +138,32 @@ export function ColorInput({
 } & HeadlessInputProps) {
   const form = useFormContext();
   const { name } = useField();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Controller
       name={name}
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
-        <span
-          data-keyslot="control"
-          className={clsx([
-            className,
-            // Basic layouts
-            "relative block",
-
-            // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-            "before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white",
-
-            // Focus ring
-            "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg  after:ring-transparent sm:after:focus-within:ring-2 ",
-
-            // Disabled state
-            "has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none",
-
-            // Invalid state
-            "before:has-[[data-invalid]]:shadow-red-500/10",
-          ])}
-        >
-          <HeadlessInput
-            type="color"
-            onChange={(e) => {
-              onChange && onChange(e);
-              fieldOnChange(e.target.value);
-            }}
-            value={value || ""}
-            className={clsx([
-              // Date classes
-              props.type && dateTypes.includes(props.type) && webkitCss,
-
-              // Basic layout
-              "relative mb-1 mt-[11px] block min-h-16 min-w-16 cursor-pointer appearance-none rounded-full px-1 py-1",
-
-              // Typography
-              "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
-
-              // Border
-              "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
-
-              // Background color
-              "bg-transparent ",
-
-              // Hide default focus styles
-              "focus:outline-none",
-
-              // Invalid state
-              "data-[invalid]: data-[invalid]:data-[hover]: data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
-
-              // Disabled state
-              "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20",
-            ])}
-            {...props}
-            {...field}
-          />
-
-          {loading && (
-            <div className="absolute right-2 top-2.5 text-white">
-              <ButtonSpinner />
-            </div>
-          )}
-        </span>
-      )}
-    />
-  );
-}
-
-{
-  /* <Button type="button" color="white" onClick={() => setIsOpen(true)}>
-              Escolher Cor{" "}
-              <div
-                className={clsx(
-                  `bg-${form.watch("color")} h-5 w-5 rounded-full border border-gray-500`
-                )}
-              ></div>
-            </Button>
-            <Alert open={isOpen} onClose={setIsOpen}>
-              <AlertTitle>Escolha a cor primária</AlertTitle>
-              <AlertBody>
-                <div className="flex flex-col items-center">
-                  <For each={colors} identifier="colors">
-                    {(color) => (
-                      <div className="flex flex-grow">
-                        <For each={tones} identifier="tones">
-                          {(tone) => (
+        <>
+          <div className="flex size-16 items-center justify-center rounded-full border border-slate-200">
+            <div
+              className={clsx("size-14 rounded-full border", `bg-${value}`)}
+              onClick={() => setIsOpen(true)}
+            />
+          </div>
+          <Alert open={isOpen} onClose={setIsOpen}>
+            <AlertTitle>Escolha a cor primária</AlertTitle>
+            <AlertBody>
+              <div className="flex flex-col items-center">
+                <For each={colors} identifier="colors">
+                  {(color) => (
+                    <div className="flex flex-grow">
+                      <For each={tones} identifier="tones">
+                        {(tone) => {
+                          if (color === "white" || color === "dark")
+                            return <></>;
+                          return (
                             <div
                               className={clsx(
                                 "h-5 w-5",
@@ -232,29 +172,45 @@ export function ColorInput({
                                 "duration-300"
                               )}
                               onClick={() =>
-                                form.setValue("color", `${color}-${tone}`)
+                                form.setValue(name, `${color}-${tone}`)
                               }
-                            >
-                              {" "}
-                            </div>
-                          )}
-                        </For>
-                      </div>
-                    )}
-                  </For>
+                            ></div>
+                          );
+                        }}
+                      </For>
+                    </div>
+                  )}
+                </For>
+                <div className="flex">
+                  {" "}
                   <div
-                    onClick={() => form.setValue("color", `white`)}
-                    className={clsx("h-5 w-5", `bg-black`)}
+                    onClick={() => form.setValue(name, `white`)}
+                    className={clsx(
+                      "h-5 w-5",
+                      `bg-black`,
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
                   >
                     {" "}
                   </div>
                   <div
-                    onClick={() => form.setValue("color", `black`)}
-                    className={clsx("h-5 w-5", `border border-black bg-white`)}
+                    onClick={() => form.setValue(name, `black`)}
+                    className={clsx(
+                      "h-5 w-5",
+                      `border border-slate-200 bg-white`,
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
                   >
                     {" "}
                   </div>
                 </div>
-              </AlertBody>
-            </Alert> */
+              </div>
+            </AlertBody>
+          </Alert>
+        </>
+      )}
+    />
+  );
 }
