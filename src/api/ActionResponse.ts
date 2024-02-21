@@ -35,15 +35,15 @@ export class ActionResponse {
     return { data, pagination, message };
   }
 
-  public static error(message: unknown = "Operação falhou"): ErrorResponse {
-    if (typeof message != "string" && !Array.isArray(message)) {
+  public static error(message: any = "Operação falhou"): ErrorResponse {
+    /* if (typeof message != "string" && !Array.isArray(message)) {
       message = "Operação falhou";
-    }
+    } */
 
     if (Array.isArray(message)) {
       message = message.join(", ");
     }
 
-    return { message: message as string, error: true };
+    return { message: message, error: true };
   }
 }
