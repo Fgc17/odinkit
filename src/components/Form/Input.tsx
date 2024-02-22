@@ -13,10 +13,14 @@ import { Controller } from "react-hook-form";
 import { Span } from "./Span";
 import { useField } from "./Field";
 import { Button } from "../Button";
-import { Alert, AlertBody, AlertTitle } from "../Alert";
+import { Alert, AlertActions, AlertBody, AlertTitle } from "../Alert";
 import { For } from "../For";
-import { useState } from "react";
-import { colors, tones } from "./_shared/utils/colors";
+import { useEffect, useState } from "react";
+import {
+  twColor,
+  twColorPalette,
+  twShade,
+} from "../../constants/twColorPalette";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -139,6 +143,20 @@ export function ColorInput({
   const form = useFormContext();
   const { name } = useField();
   const [isOpen, setIsOpen] = useState(false);
+  const [previewHex, setPreviewHex] = useState("");
+
+  useEffect(() => {
+    const colorToParse = form.watch(name).split("_");
+
+    const color = colorToParse[0] as twColor;
+    const shade = (colorToParse[1] ? "-" + colorToParse[1] : "") as twShade;
+
+    if (!shade) {
+      return setPreviewHex((twColorPalette as any)[color][""]);
+    } else {
+      return setPreviewHex((twColorPalette as any)[color][shade]);
+    }
+  }, [form.watch(name)]);
 
   return (
     <Controller
@@ -148,31 +166,41 @@ export function ColorInput({
         <>
           <div className="flex size-16 items-center justify-center rounded-full border border-slate-200">
             <div
-              className={clsx("size-14 rounded-full border", `bg-${value}`)}
+              style={{ backgroundColor: previewHex }}
+              className={clsx("size-14 rounded-full border")}
               onClick={() => setIsOpen(true)}
             />
           </div>
-          <Alert open={isOpen} onClose={setIsOpen}>
+          <Alert size="xs" open={isOpen} onClose={setIsOpen}>
             <AlertTitle>Escolha a cor primária</AlertTitle>
             <AlertBody>
               <div className="flex flex-col items-center">
-                <For each={colors} identifier="colors">
-                  {(color) => (
-                    <div className="flex flex-grow">
-                      <For each={tones} identifier="tones">
-                        {(tone) => {
-                          if (color === "white" || color === "dark")
+                <For each={Object.entries(twColorPalette)} identifier="colors">
+                  {([color, shades]) => (
+                    <div className="flex">
+                      <For each={Object.entries(shades)} identifier="tones">
+                        {([shade, hex]) => {
+                          if (
+                            color === "white" ||
+                            color === "dark" ||
+                            color === "dark/white" ||
+                            color === "black" ||
+                            color === "dark/zinc"
+                          )
                             return <></>;
                           return (
                             <div
+                              style={{ backgroundColor: hex }}
                               className={clsx(
                                 "h-5 w-5",
-                                `bg-${color}-${tone}`,
-                                "hover:scale-150",
+                                "hover:scale-150 hover:cursor-pointer",
                                 "duration-300"
                               )}
                               onClick={() =>
-                                form.setValue(name, `${color}-${tone}`)
+                                form.setValue(
+                                  name,
+                                  `${color}_${shade.replace("-", "")}`
+                                )
                               }
                             ></div>
                           );
@@ -186,8 +214,44 @@ export function ColorInput({
                   <div
                     onClick={() => form.setValue(name, `white`)}
                     className={clsx(
-                      "h-5 w-5",
-                      `bg-black`,
+                      "h-5 w-5 cursor-pointer",
+                      `border border-slate-200 bg-white`,
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, "dark_white")}
+                    style={{
+                      backgroundColor: twColorPalette["dark/white"][""],
+                    }}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, "dark_zinc")}
+                    style={{ backgroundColor: twColorPalette["dark/zinc"][""] }}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
+
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, "dark")}
+                    style={{ backgroundColor: twColorPalette["dark"][""] }}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
                       "hover:scale-150",
                       "duration-300"
                     )}
@@ -197,8 +261,8 @@ export function ColorInput({
                   <div
                     onClick={() => form.setValue(name, `black`)}
                     className={clsx(
-                      "h-5 w-5",
-                      `border border-slate-200 bg-white`,
+                      "h-5 w-5 cursor-pointer",
+                      `bg-black`,
                       "hover:scale-150",
                       "duration-300"
                     )}
@@ -208,6 +272,9 @@ export function ColorInput({
                 </div>
               </div>
             </AlertBody>
+            <AlertActions>
+              <Button onClick={() => setIsOpen(false)}>Salvar</Button>
+            </AlertActions>
           </Alert>
         </>
       )}
