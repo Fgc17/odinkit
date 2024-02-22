@@ -8,6 +8,7 @@ import useSWRMutation from "swr/mutation";
 type FetcherResponse<T> = Promise<T>;
 
 interface UseActionParams<
+  PrepareType,
   ArgumentType,
   DataReturnType,
   RequestParserReturnType,
@@ -16,6 +17,7 @@ interface UseActionParams<
   defaultData?: ResponseParserReturnType;
   redirect?: boolean;
   formData?: boolean;
+  prepare?: (arg: PrepareType) => Promise<ArgumentType> | ArgumentType;
   onError?: (error: string) => void;
   onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
   responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
@@ -28,6 +30,7 @@ interface UseActionParams<
 }
 
 export function useAction<
+  PrepareType,
   ArgumentType,
   DataReturnType,
   RequestParserReturnType = ArgumentType,
@@ -36,11 +39,13 @@ export function useAction<
   defaultData,
   redirect,
   action,
+  prepare,
   onSuccess,
   onError,
   requestParser,
   responseParser,
 }: UseActionParams<
+  PrepareType,
   ArgumentType,
   DataReturnType,
   RequestParserReturnType,
@@ -49,9 +54,15 @@ export function useAction<
   const id = useId();
 
   async function fetcher(
-    arg: ArgumentType
+    arg: PrepareType
   ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> {
-    const formattedArg = requestParser ? await requestParser(arg) : arg;
+    const preparedArg = prepare
+      ? await prepare(arg)
+      : (arg as any as ArgumentType);
+
+    const formattedArg = requestParser
+      ? await requestParser(preparedArg)
+      : preparedArg;
 
     return action(formattedArg)
       .then((res) => {
@@ -86,7 +97,7 @@ export function useAction<
     SuccessResponse<ResponseParserReturnType>,
     string,
     string,
-    ArgumentType
+    PrepareType
   >(id, (url: string, { arg }) => fetcher(arg), {
     onSuccess: (data) => onSuccess && onSuccess(data),
     onError: (error) => onError && onError(error),

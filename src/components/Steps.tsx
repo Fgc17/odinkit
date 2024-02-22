@@ -48,11 +48,12 @@ export function Steps({
               <Tab className="grow" disabled={step.disabled}>
                 {({ selected }) => (
                   <div
+                    style={{
+                      borderColor: selected ? color : "gray",
+                      color: selected ? color : "gray",
+                    }}
                     className={clsx(
                       "border-t-4 px-3 py-4 text-sm font-medium duration-200 *:ring-0 focus:ring-0",
-                      selected
-                        ? `border-${color} text-${color}`
-                        : "border-gray-200 text-gray-500",
                       step.disabled && "cursor-not-allowed opacity-50",
                       index === 0
                         ? "me-2 ms-1 lg:ms-0"
