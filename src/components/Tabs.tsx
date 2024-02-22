@@ -12,11 +12,9 @@ export type TabItem = {
 
 export function Tabs({
   tabs,
-  color,
   className,
 }: {
   tabs: TabItem[];
-  color?: string;
   className?: string;
 }) {
   const elementRef = useRef<HTMLDivElement>(null);
