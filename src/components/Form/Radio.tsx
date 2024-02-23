@@ -62,6 +62,8 @@ let colors = {
   white:
     "[--radio-checked-bg:theme(colors.white)] [--radio-checked-border:theme(colors.zinc.950/15%)] [--radio-checked-indicator:theme(colors.zinc.900)]",
   dark: "[--radio-checked-bg:theme(colors.zinc.900)] [--radio-checked-border:theme(colors.zinc.950/90%)] [--radio-checked-indicator:theme(colors.white)]",
+  black:
+    "[--radio-checked-bg:theme(colors.zinc.900)] [--radio-checked-border:theme(colors.zinc.950/90%)] [--radio-checked-indicator:theme(colors.white)]",
   zinc: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.zinc.600)] [--radio-checked-border:theme(colors.zinc.700/90%)]",
   red: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.red.600)] [--radio-checked-border:theme(colors.red.700/90%)]",
   orange:
@@ -88,7 +90,14 @@ let colors = {
   fuchsia:
     "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.fuchsia.500)] [--radio-checked-border:theme(colors.fuchsia.600/90%)]",
   pink: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.pink.500)] [--radio-checked-border:theme(colors.pink.600/90%)]",
+  gray: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.gray.500)] [--radio-checked-border:theme(colors.gray.600/90%)]",
   rose: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.rose.500)] [--radio-checked-border:theme(colors.rose.600/90%)]",
+  slate:
+    "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.slate.500)] [--radio-checked-border:theme(colors.slate.600/90%)]",
+  neutral:
+    "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.neutral.500)] [--radio-checked-border:theme(colors.neutral.600/90%)]",
+  stone:
+    "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.stone.500)] [--radio-checked-border:theme(colors.stone.600/90%)]",
 };
 
 type Color = keyof typeof colors;
