@@ -15,7 +15,7 @@ export type ExtractSuccessResponse<T extends (...args: any) => any> =
     : never;
 
 export interface ErrorResponse {
-  message: string | string[];
+  message: string;
   error: true;
 }
 
@@ -35,7 +35,7 @@ export class ActionResponse {
     return { data, pagination, message };
   }
 
-  public static error(message: any = "Operação falhou"): ErrorResponse {
+  public static error(message: unknown = "Operação falhou"): ErrorResponse {
     /* if (typeof message != "string" && !Array.isArray(message)) {
       message = "Operação falhou";
     } */
@@ -44,6 +44,6 @@ export class ActionResponse {
       message = message.join(", ");
     }
 
-    return { message: message, error: true };
+    return { message: JSON.stringify(message), error: true };
   }
 }
