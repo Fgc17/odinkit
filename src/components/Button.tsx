@@ -8,6 +8,7 @@ import {
 import { clsx } from "clsx";
 import React from "react";
 import { Link } from "./Link";
+import { ButtonSpinner } from "./Spinners";
 
 let styles = {
   base: [
@@ -210,13 +211,21 @@ type ButtonProps = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
-) & { children: React.ReactNode } & (
+) & { children: React.ReactNode; loading?: boolean } & (
     | HeadlessButtonProps
     | React.ComponentPropsWithoutRef<typeof Link>
   );
 
 export const Button = React.forwardRef(function Button(
-  { color, outline, plain, className, children, ...props }: ButtonProps,
+  {
+    color,
+    outline,
+    plain,
+    className,
+    children,
+    loading,
+    ...props
+  }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   let classes = clsx(
@@ -240,10 +249,16 @@ export const Button = React.forwardRef(function Button(
   ) : (
     <HeadlessButton
       {...props}
+      disabled={loading || props.disabled}
       className={clsx(classes, "cursor-pointer")}
       ref={ref}
     >
-      <TouchTarget>{children}</TouchTarget>
+      <TouchTarget>
+        <div className="flex items-center gap-2">
+          {children}
+          {loading && <ButtonSpinner />}
+        </div>
+      </TouchTarget>
     </HeadlessButton>
   );
 });
