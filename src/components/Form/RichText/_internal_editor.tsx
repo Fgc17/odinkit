@@ -1,4 +1,4 @@
-// client
+// private & client
 "use client";
 import {
   Input as HeadlessInput,
@@ -51,7 +51,7 @@ if (typeof window !== "undefined") {
   require("tinymce/plugins/wordcount");
   require("tinymce/plugins/emoticons/js/emojis");
   require("tinymce/plugins/help/js/i18n/keynav/pt_BR");
-  require("../../../../static/pt_BR.js");
+  require("./tiny/pt_BR");
 }
 
 // Editor styles
@@ -59,7 +59,7 @@ import "tinymce/skins/ui/oxide/skin.min.css";
 import "tinymce/skins/content/default/content.min.css";
 import "tinymce/skins/content/default/content.css";
 
-export default function TinyMCEEditor({
+export default function _Internal_Editor({
   className,
   onChange,
   loading,
