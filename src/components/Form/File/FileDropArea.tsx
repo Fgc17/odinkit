@@ -30,11 +30,13 @@ export function FileDropArea({
 
           if (!files?.length) return;
 
-          const isValid = await fileInput.validate(files as any);
+          const filesArray = Array.from(files);
+
+          const isValid = await fileInput.validate(filesArray);
 
           if (!isValid) return;
 
-          fileInput.onChange(files as any);
+          fileInput.onChange(filesArray);
         },
         onDragOver: (e) => {
           e.preventDefault();

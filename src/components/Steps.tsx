@@ -2,26 +2,28 @@
 import { Tab, Transition } from "@headlessui/react";
 import { For } from "./For";
 import clsx from "clsx";
-import { BottomNavigation } from "./BottomNavigation";
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import React, { MutableRefObject, useRef } from "react";
 import { scrollToElement, scrollToElementX } from "../utils/scroll";
-import { Button } from "./Button";
 import { useSteps } from "../hooks/useSteps";
+import Link from "next/link";
 
 export interface Step {
-  content: React.ReactNode;
   title: string;
+  content?: React.ReactNode;
+  href?: string;
   description?: string;
   disabled?: boolean;
 }
 
 export function Steps({
   steps,
+  ssr,
   topRef,
   stepRefs,
   color,
 }: {
   color?: string;
+  ssr?: boolean;
   steps: Step[];
   topRef: MutableRefObject<HTMLDivElement>;
   stepRefs: MutableRefObject<HTMLDivElement[]>;
@@ -35,7 +37,10 @@ export function Steps({
       <Tab.Group
         as={"div"}
         selectedIndex={currentStep}
-        onChange={setCurrentStep}
+        onChange={(index) => {
+          console.log(index);
+          setCurrentStep(index);
+        }}
       >
         <Tab.List
           className={clsx(
@@ -96,35 +101,37 @@ export function Steps({
             )}
           </For>
         </Tab.List>
-        <Tab.Panels>
-          <For each={steps} identifier="tabContent">
-            {(step, index) => (
-              <Tab.Panel as="div">
-                {({ selected }) => (
-                  <Transition
-                    show={selected}
-                    enter="transition-opacity duration-500"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="transition-opacity duration-150"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <div
-                      ref={(el) => {
-                        if (el && stepPanelRefs?.current) {
-                          stepPanelRefs.current[index] = el;
-                        }
-                      }}
+        {!ssr && (
+          <Tab.Panels>
+            <For each={steps} identifier="tabContent">
+              {(step, index) => (
+                <Tab.Panel as="div">
+                  {({ selected }) => (
+                    <Transition
+                      show={selected}
+                      enter="transition-opacity duration-500"
+                      enterFrom="opacity-0"
+                      enterTo="opacity-100"
+                      leave="transition-opacity duration-150"
+                      leaveFrom="opacity-100"
+                      leaveTo="opacity-0"
                     >
-                      {step.content}
-                    </div>
-                  </Transition>
-                )}
-              </Tab.Panel>
-            )}
-          </For>
-        </Tab.Panels>
+                      <div
+                        ref={(el) => {
+                          if (el && stepPanelRefs?.current) {
+                            stepPanelRefs.current[index] = el;
+                          }
+                        }}
+                      >
+                        {step.content}
+                      </div>
+                    </Transition>
+                  )}
+                </Tab.Panel>
+              )}
+            </For>
+          </Tab.Panels>
+        )}
       </Tab.Group>
     </>
   );
