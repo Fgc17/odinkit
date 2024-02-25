@@ -1,9 +1,9 @@
 // client
 "use client";
 import dynamic from "next/dynamic";
-import { LoadingSpinner } from "../Spinners";
+import { LoadingSpinner } from "../../Spinners";
 
-export const TinyMCE = dynamic(() => import("./TinyMCE/Editor"), {
+export const RichTextEditor = dynamic(() => import("./_internal_editor"), {
   ssr: false,
   loading: () => (
     <div className="flex justify-center">

@@ -5,11 +5,7 @@ import { getFileExtension, getFileMime } from "./utils";
 import { fileFormats } from "./FileFormat";
 import Image from "next/image";
 
-export default function FileImagePreview({
-  defaultValue,
-}: {
-  defaultValue?: string;
-}) {
+export function FileImagePreview({ defaultValue }: { defaultValue?: string }) {
   const form = useFormContext();
 
   const field = useField();
