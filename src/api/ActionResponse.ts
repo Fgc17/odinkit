@@ -44,6 +44,8 @@ export class ActionResponse {
       message = message.join(", ");
     }
 
+    if (typeof message === "string") return { message, error: true };
+
     return { message: JSON.stringify(message), error: true };
   }
 }
