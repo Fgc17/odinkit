@@ -13,9 +13,11 @@ export type TabItem = {
 export function Tabs({
   tabs,
   className,
+  color,
 }: {
   tabs: TabItem[];
   className?: string;
+  color?: string;
 }) {
   const elementRef = useRef<HTMLDivElement>(null);
 
@@ -36,12 +38,13 @@ export function Tabs({
               {({ selected }) => (
                 <div
                   onClick={tab.onClick}
+                  style={{
+                    color: selected ? color : "#6b7280",
+                    borderColor: selected ? color : "#6b7280",
+                  }}
                   className={clsx(
                     "min-h-12",
-                    "flex items-center justify-center border-b-2 px-1 font-medium duration-200 *:ring-0 lg:px-3",
-                    selected
-                      ? `border-indigo-600 text-indigo-600`
-                      : "border-gray-200 text-gray-500"
+                    "flex items-center justify-center border-b-2 px-1 font-medium duration-200 *:ring-0 lg:px-3"
                   )}
                 >
                   <span className="mx-2">{tab.title}</span>

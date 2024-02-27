@@ -24,6 +24,10 @@ export function normalizePhone(data: string) {
   return data?.replace(/[^0-9]/g, "");
 }
 
+export function normalizeDocument(data: string) {
+  return data?.replace(/[^a-zA-Z0-9]/g, "");
+}
+
 export function formatPhone(data: string) {
   const DDD = data.split("").slice(0, 2).join("");
   const firstPart = data.slice(2, 7);

@@ -106,6 +106,7 @@ export function Input({
                 );
               }}
               invalid={Boolean(error)}
+              disabled={loading}
               value={value || ""}
               className={clsx([
                 // Date classes
@@ -118,7 +119,7 @@ export function Input({
             />
 
             {loading && (
-              <div className="absolute right-2 top-2.5 text-white">
+              <div className="absolute right-2 top-2.5 text-gray-400">
                 <ButtonSpinner />
               </div>
             )}
