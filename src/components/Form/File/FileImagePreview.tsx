@@ -4,8 +4,15 @@ import { useFormContext } from "../Form";
 import { getFileExtension, getFileMime } from "./utils";
 import { fileFormats } from "./FileFormat";
 import Image from "next/image";
+import clsx from "clsx";
 
-export function FileImagePreview({ defaultValue }: { defaultValue?: string }) {
+export function FileImagePreview({
+  defaultValue,
+  className,
+}: {
+  defaultValue?: string;
+  className?: string;
+}) {
   const form = useFormContext();
 
   const field = useField();
@@ -27,7 +34,7 @@ export function FileImagePreview({ defaultValue }: { defaultValue?: string }) {
     <div className="relative flex justify-center">
       <img
         alt="imagem"
-        className="rounded-md"
+        className={clsx("rounded-md", className)}
         src={filePreview?.length ? filePreview[0] : defaultValue}
       />
     </div>

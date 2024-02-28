@@ -95,7 +95,7 @@ export function Select<
                 return (
                   <option
                     key={item.id}
-                    value={item.value}
+                    value={item.value || ""}
                     className={clsx("py-2 pl-3 pr-9")}
                   >
                     {item.displayValue}

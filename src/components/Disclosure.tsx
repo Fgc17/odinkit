@@ -18,8 +18,10 @@ export function DisclosureAccordion({
   defaultOpen,
   disabled,
   className,
+  color,
 }: {
   children: React.ReactNode;
+  color?: string;
   title: string;
   scrollToContent?: boolean;
   defaultOpen?: boolean;
@@ -50,12 +52,7 @@ export function DisclosureAccordion({
                   "flex w-full items-center justify-between text-left text-gray-900"
                 )}
               >
-                <span
-                  className={clsx(
-                    "text-sm font-medium",
-                    open && "text-emerald-600"
-                  )}
-                >
+                <span style={{ color }} className={clsx("text-sm font-medium")}>
                   {title}
                 </span>
                 <span className="ml-6 flex h-7 items-center">

@@ -56,9 +56,7 @@ export function FileInput({
   dragging?: boolean;
   onChange?: (files: File[]) => void;
   onError?: (error: string[] | string) => void;
-  validate?: (
-    file: File
-  ) => (string | string[] | boolean) | Promise<string | string[] | boolean>;
+  validate?: (file: File) => boolean | Promise<boolean>;
 } & Omit<HeadlessInputProps, "onChange" | "onError">) {
   const form = useFormContext();
   const { name } = useField();
@@ -112,16 +110,12 @@ export function FileInput({
 
           if (props.validate) {
             for (const file of files) {
-              const fileValidation = await props.validate?.(file);
-
-              if (
-                typeof fileValidation === "string" ||
-                typeof fileValidation === "object"
-              ) {
-                form.setError(name, {
-                  message: JSON.stringify(fileValidation) ?? "Arquivo inválido",
+              try {
+                await props.validate?.(file);
+              } catch (err) {
+                form.setError?.(name, {
+                  message: JSON.stringify(err),
                 });
-
                 return false;
               }
             }
