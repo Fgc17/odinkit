@@ -7,6 +7,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useId,
   useMemo,
   useState,
 } from "react";
@@ -27,12 +28,12 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
 import { StepStore, useSteps } from "../../hooks/useSteps";
-import { set } from "lodash";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
   "resolver"
 > & {
+  id?: string;
   fieldOptions?: {
     enableAsterisk?: boolean;
   };
@@ -49,10 +50,15 @@ const FormContext = createContext<UseFormReturn>(null!);
 export function useForm<Fields extends FieldValues>({
   schema,
   fieldOptions,
+  id,
   ...useReactHookFormProps
 }: UseFormProps<Fields>) {
   type _Fields = Fields | z.infer<typeof schema>;
+
+  const _id = useId();
+
   return {
+    id: id ?? _id,
     schema,
     createField: () => (props: FieldProps<_Fields>) => (
       <_ODINKIT_INTERNAL_Field {...fieldOptions} {...props} />
@@ -204,9 +210,10 @@ export function Form<Fields extends FieldValues>({
           onSubmit &&
           hform?.handleSubmit((data) => {
             hform.trigger();
-            onSubmit(data);
+            return onSubmit(data);
           })
         }
+        id={hform.id}
         {...props}
       />
     </FormProvider>
