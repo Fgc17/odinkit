@@ -13,6 +13,7 @@ import { Controller } from "react-hook-form";
 import { Span } from "./Span";
 import { useField } from "./Field";
 import { Button } from "../Button";
+import { Button as HeadlessButton } from "@headlessui/react";
 import { Alert, AlertActions, AlertBody, AlertTitle } from "../Alert";
 import { For } from "../For";
 import { useEffect, useState } from "react";
@@ -21,6 +22,8 @@ import {
   twColorPalette,
   twShade,
 } from "../../constants/twColorPalette";
+import { EyeIcon } from "@heroicons/react/20/solid";
+import { EyeSlashIcon } from "@heroicons/react/24/solid";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -84,6 +87,7 @@ export function Input({
   mask?: MaskType;
 } & HeadlessInputProps) {
   const form = useFormContext();
+  const [showPassword, setShowPassword] = useState(!(type === "password"));
   const { name, error } = useField();
 
   return (
@@ -113,10 +117,29 @@ export function Input({
                 type && dateTypes.includes(type) && webkitCss,
                 inputClasses,
               ])}
-              type={type}
+              type={
+                type === "password"
+                  ? showPassword
+                    ? "text"
+                    : "password"
+                  : type
+              }
               {...props}
               {...field}
             />
+
+            {type === "password" && (
+              <HeadlessButton
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2 top-[0.5rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="size-5" />
+                ) : (
+                  <EyeIcon className="size-5" />
+                )}
+              </HeadlessButton>
+            )}
 
             {loading && (
               <div className="absolute right-2 top-2.5 text-gray-400">

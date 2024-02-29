@@ -8,9 +8,9 @@ import useSWRMutation from "swr/mutation";
 type FetcherResponse<T> = Promise<T>;
 
 interface UseActionParams<
-  PrepareType,
   ArgumentType,
   DataReturnType,
+  PrepareType,
   RequestParserReturnType,
   ResponseParserReturnType,
 > {
@@ -30,9 +30,9 @@ interface UseActionParams<
 }
 
 export function useAction<
-  PrepareType,
   ArgumentType,
   DataReturnType,
+  PrepareType = ArgumentType,
   RequestParserReturnType = ArgumentType,
   ResponseParserReturnType = DataReturnType,
 >({
@@ -45,9 +45,9 @@ export function useAction<
   requestParser,
   responseParser,
 }: UseActionParams<
-  PrepareType,
   ArgumentType,
   DataReturnType,
+  PrepareType,
   RequestParserReturnType,
   ResponseParserReturnType
 >) {
