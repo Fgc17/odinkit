@@ -17,14 +17,10 @@ import {
   UseFormProps as useReactHookFormProps,
   Path,
 } from "react-hook-form";
-import {
-  ZodEffects,
-  ZodObject,
-  ZodRawShape,
-  ZodType,
-  ZodTypeAny,
-  z,
-} from "zod";
+import { ZodEffects, ZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
+
+import { z } from "../../utils/zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
 import { StepStore, useSteps } from "../../hooks/useSteps";
@@ -53,16 +49,23 @@ export type MultistepFormChildrenProps<Step, Steps> = {
   isCurrentStepValid: boolean;
 };
 
-export type FormProps<Fields extends FieldValues> = Omit<React.ComponentProps<"form">, "onSubmit"> & {
+export type FormProps<Fields extends FieldValues> = Omit<
+  React.ComponentProps<"form">,
+  "onSubmit" | "id"
+> & {
   hform: UseFormReturn<Fields>;
   onSubmit?: (data: Fields) => void;
-}
+};
 
-export type MultistepFormProps<Fields extends FieldValues, Steps, Step> = FormProps<Fields> & {
+export type MultistepFormProps<
+  Fields extends FieldValues,
+  Steps,
+  Step,
+> = FormProps<Fields> & {
   steps: Steps;
   order: Step[];
   children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
-}
+};
 
 export type UseFormReturn<Fields extends FieldValues = FieldValues> =
   ReturnType<typeof useForm<Fields>>;
@@ -106,8 +109,6 @@ export function FormProvider<Fields extends FieldValues>({
     </FormContext.Provider>
   );
 }
-
-
 
 export function MultistepForm<
   Fields extends FieldValues,
@@ -178,15 +179,15 @@ export function MultistepForm<
   return (
     <Form hform={hform} {...props}>
       {children({
-          hasNextStep,
-          hasPrevStep,
-          currentStep,
-          walk,
-          dryWalk,
-          steps,
-          order,
-          isCurrentStepValid,
-        })}
+        hasNextStep,
+        hasPrevStep,
+        currentStep,
+        walk,
+        dryWalk,
+        steps,
+        order,
+        isCurrentStepValid,
+      })}
     </Form>
   );
 }
@@ -195,7 +196,7 @@ export function Form<Fields extends FieldValues>({
   onSubmit,
   hform,
   ...props
-}: FormProps<Fields> ) {
+}: FormProps<Fields>) {
   return (
     <FormProvider {...hform}>
       <form

@@ -1,4 +1,5 @@
-import { ZodTypeAny, z } from "zod";
+import { z } from "../../../utils/zod";
+import { ZodTypeAny } from "zod";
 
 const paginationDto = z.object({
   take: z.number().optional(),

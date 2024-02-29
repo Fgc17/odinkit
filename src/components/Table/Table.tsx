@@ -35,7 +35,7 @@ import {
 } from "../Pagination";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { Form, useForm } from "../Form/Form";
-import { z } from "zod";
+import { z } from "../../utils/zod";
 import { Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
 

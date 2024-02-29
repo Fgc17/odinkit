@@ -19,6 +19,7 @@ import { createContext, useContext, useMemo } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
 import { useFormContext } from "./Form";
+import { getZodFields, z } from "../../utils/zod";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
@@ -116,8 +117,12 @@ export function FieldGroup({
 export function Label({
   className,
   children,
+  enableAsterisk = true,
   ...props
-}: { className?: string } & HeadlessLabelProps) {
+}: {
+  className?: string;
+  enableAsterisk?: boolean;
+} & HeadlessLabelProps) {
   const { isRequired } = useField();
 
   return (
@@ -130,7 +135,10 @@ export function Label({
       )}
     >
       <>
-        {children} {isRequired && <span className="text-red-600">*</span>}
+        {children}{" "}
+        {enableAsterisk && isRequired && (
+          <span className="text-red-600">*</span>
+        )}
       </>
     </HeadlessLabel>
   );
@@ -174,7 +182,7 @@ export function ErrorMessage({
   );
 }
 
-const FieldContext = createContext<{
+export const FieldContext = createContext<{
   error: string;
   name: string;
   isRequired: boolean;
@@ -186,7 +194,7 @@ export function useField() {
 
 export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
   className,
-  enableAsterisk,
+  enableAsterisk = true,
   variant = "default",
   ...props
 }: FieldProps<Fields>) {
@@ -198,8 +206,10 @@ export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
   } = form;
 
   const name = props["name"];
-  const zodField = getEntryFromPath(schema, name, "shape").entryValue;
-  const isRequired = enableAsterisk ?? !zodField?.isOptional();
+
+  const zodField = getZodFields(schema)[name];
+
+  const isRequired = Boolean(enableAsterisk) && !zodField?.isOptional();
   const error = getEntryFromPath(errors, name).entryValue?.message;
 
   const fieldContextValue = {
