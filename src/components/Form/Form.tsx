@@ -42,6 +42,28 @@ type UseFormProps<Fields extends FieldValues> = Omit<
     | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
 };
 
+export type MultistepFormChildrenProps<Step, Steps> = {
+  hasNextStep: boolean;
+  hasPrevStep: boolean;
+  currentStep: number;
+  walk: StepStore["walk"];
+  dryWalk: StepStore["dryWalk"];
+  steps: Steps;
+  order: Step[];
+  isCurrentStepValid: boolean;
+};
+
+export type FormProps<Fields extends FieldValues> = Omit<React.ComponentProps<"form">, "onSubmit"> & {
+  hform: UseFormReturn<Fields>;
+  onSubmit?: (data: Fields) => void;
+}
+
+export type MultistepFormProps<Fields extends FieldValues, Steps, Step> = FormProps<Fields> & {
+  steps: Steps;
+  order: Step[];
+  children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
+}
+
 export type UseFormReturn<Fields extends FieldValues = FieldValues> =
   ReturnType<typeof useForm<Fields>>;
 
@@ -85,16 +107,7 @@ export function FormProvider<Fields extends FieldValues>({
   );
 }
 
-export type MultistepFormChildrenProps<Step, Steps> = {
-  hasNextStep: boolean;
-  hasPrevStep: boolean;
-  currentStep: number;
-  walk: StepStore["walk"];
-  dryWalk: StepStore["dryWalk"];
-  steps: Steps;
-  order: Step[];
-  isCurrentStepValid: boolean;
-};
+
 
 export function MultistepForm<
   Fields extends FieldValues,
@@ -115,13 +128,7 @@ export function MultistepForm<
   order,
   children,
   ...props
-}: Omit<React.ComponentProps<"form">, "onSubmit" | "children"> & {
-  hform: UseFormReturn<Fields>;
-  onSubmit?: (data: Fields) => void;
-  steps: Steps;
-  order: Step[];
-  children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
-}) {
+}: MultistepFormProps<Fields, Steps, Step>) {
   const {
     currentStep,
     getNextStep,
@@ -169,18 +176,8 @@ export function MultistepForm<
   const hasPrevStep = getPrevStep() === currentStep - 1;
 
   return (
-    <FormProvider {...hform}>
-      <form
-        onSubmit={
-          onSubmit &&
-          hform?.handleSubmit((data) => {
-            hform.trigger();
-            onSubmit(data);
-          })
-        }
-        {...props}
-      >
-        {children({
+    <Form hform={hform} {...props}>
+      {children({
           hasNextStep,
           hasPrevStep,
           currentStep,
@@ -190,8 +187,7 @@ export function MultistepForm<
           order,
           isCurrentStepValid,
         })}
-      </form>
-    </FormProvider>
+    </Form>
   );
 }
 
@@ -199,10 +195,7 @@ export function Form<Fields extends FieldValues>({
   onSubmit,
   hform,
   ...props
-}: Omit<React.ComponentProps<"form">, "onSubmit"> & {
-  hform: UseFormReturn<Fields>;
-  onSubmit?: (data: Fields) => void;
-}) {
+}: FormProps<Fields> ) {
   return (
     <FormProvider {...hform}>
       <form
