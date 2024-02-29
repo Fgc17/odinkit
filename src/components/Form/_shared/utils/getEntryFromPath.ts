@@ -1,4 +1,8 @@
-export const getEntryFromPath = (obj: any, path: string, extraKey: string = "") => {
+export const getEntryFromPath = (
+  obj: any,
+  path: string,
+  extraKey: string = ""
+) => {
   const pathArray = path.split(".");
 
   const entryValue = pathArray.reduce((acc, curr) => {

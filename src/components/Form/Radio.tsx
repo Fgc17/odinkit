@@ -12,7 +12,7 @@ import {
 import { clsx } from "clsx";
 import { Controller } from "react-hook-form";
 import { useFormContext } from "./Form";
-import { useField } from "./Field";
+import { FieldContext, Label, useField } from "./Field";
 
 let base = [
   // Basic layout
@@ -147,33 +147,42 @@ export function RadioField({
   custom?: boolean;
   className?: string;
 }) {
+  const field = useField();
+
+  const fieldContext = {
+    ...field,
+    isRequired: false,
+  };
+
   return (
-    <HeadlessRadioField
-      className={clsx(
-        // Base layout
-        !custom &&
-          "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
+    <FieldContext.Provider value={fieldContext}>
+      <HeadlessRadioField
+        className={clsx(
+          // Base layout
+          !custom &&
+            "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
 
-        // Control layout
-        !custom &&
-          "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
+          // Control layout
+          !custom &&
+            "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
 
-        // Label layout
-        !custom &&
-          "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
+          // Label layout
+          !custom &&
+            "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
 
-        // Description layout
-        !custom &&
-          "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
+          // Description layout
+          !custom &&
+            "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
 
-        // With description
-        !custom &&
-          "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
-        className
-      )}
-    >
-      {children}
-    </HeadlessRadioField>
+          // With description
+          !custom &&
+            "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
+          className
+        )}
+      >
+        {children}
+      </HeadlessRadioField>
+    </FieldContext.Provider>
   );
 }
 

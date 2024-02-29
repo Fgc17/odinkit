@@ -11,11 +11,11 @@ import {
 } from "react-hook-form";
 import { create } from "zustand";
 
-function mockData<Fields extends FieldValues>({
+async function mockData<Fields extends FieldValues>({
   data,
   form,
 }: UseMockerProps<Fields>) {
-  const _data = data();
+  const _data = await data();
 
   const formFields = Object.keys(_data);
 
@@ -34,9 +34,10 @@ function mockData<Fields extends FieldValues>({
   form.trigger();
 }
 
-type MockerData<Fields extends FieldValues> = () => Partial<
-  Record<Path<Fields>, any>
->;
+type MockerData<Fields extends FieldValues> = () =>
+  | Partial<Record<Path<Fields>, any>>
+  | Promise<Partial<Record<Path<Fields>, any>>>;
+
 type MockerForm<Fields extends FieldValues> = UseFormReturn<Fields>;
 
 interface MockerStore<Fields extends FieldValues = FieldValues> {
@@ -56,20 +57,26 @@ const useMockerStore = create<MockerStore>()((set) => ({
 export function Mocker() {
   const { form, data } = useMockerStore();
 
-  const handleKeyDown = (event: KeyboardEvent, form: any, data: any) => {
+  const handleKeyDown = async (event: KeyboardEvent, form: any, data: any) => {
     if (event.ctrlKey && event.key === "1") {
-      mockData({ form, data });
+      await mockData({ form, data });
     }
   };
 
   useEffect(() => {
-    if (!form || !data) return;
-    window.addEventListener("keydown", (e) => handleKeyDown(e, form, data));
-    return () => {
-      window.removeEventListener("keydown", (e) =>
-        handleKeyDown(e, form, data)
+    (async () => {
+      if (!form || !data) return;
+      window.addEventListener(
+        "keydown",
+        async (e) => await handleKeyDown(e, form, data)
       );
-    };
+      return () => {
+        window.removeEventListener(
+          "keydown",
+          async (e) => await handleKeyDown(e, form, data)
+        );
+      };
+    })();
   }, [form, data]);
 
   return <Fragment />;
@@ -86,8 +93,13 @@ export function useMocker<Fields extends FieldValues>(
   const mockerStore = useMockerStore();
 
   useEffect(() => {
-    mockerStore.setData(props.data);
-    mockerStore.setForm(props.form as any);
+    if (!mockerStore.form) {
+      mockerStore.setForm(props.form as any);
+    }
+
+    if (!mockerStore.data) {
+      mockerStore.setData(props.data);
+    }
   }, []);
 
   return mockerStore;

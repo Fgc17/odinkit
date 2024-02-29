@@ -6,6 +6,7 @@ import { FileInputContext } from "./FileInput";
 import { useFormContext } from "../Form";
 import { useField } from "../Field";
 import { getFileExtension } from "./utils";
+import clsx from "clsx";
 
 export function FileDropArea({
   fileIcon,
@@ -18,9 +19,7 @@ export function FileDropArea({
 }) {
   const fileInput = useContext(FileInputContext);
 
-  const form = useFormContext();
-
-  const { name } = useField();
+  const { error } = useField();
 
   return (
     <div
@@ -48,19 +47,33 @@ export function FileDropArea({
       className="flex grow"
     >
       {
-        <div className="mt-3 flex grow items-center justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-6">
-          <div className="text-center">
+        <div
+          className={clsx(
+            "mt-3 flex grow items-center justify-center rounded-lg border border-dashed px-6 py-6",
+            error ? ["border-red-300", "border-2"] : "border-gray-300"
+          )}
+        >
+          <div
+            className={clsx(
+              "text-center",
+              error && "*:text-red-400 hover:text-red-500"
+            )}
+          >
             {render ?? (
               <>
                 {fileIcon || (
-                  <FolderIcon className="mx-auto h-12 w-12 text-gray-300" />
+                  <FolderIcon
+                    className={clsx("mx-auto h-12 w-12 text-gray-300")}
+                  />
                 )}
 
                 <div className="mt-4 flex text-sm leading-6 text-gray-600">
                   <label
                     htmlFor={fileInput.inputId}
                     style={{ color }}
-                    className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 hover:text-emerald-500"
+                    className={clsx(
+                      "relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 "
+                    )}
                   >
                     <span>Envie um arquivo</span>
                   </label>

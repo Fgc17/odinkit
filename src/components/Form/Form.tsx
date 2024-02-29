@@ -17,14 +17,10 @@ import {
   UseFormProps as useReactHookFormProps,
   Path,
 } from "react-hook-form";
-import {
-  ZodEffects,
-  ZodObject,
-  ZodRawShape,
-  ZodType,
-  ZodTypeAny,
-  z,
-} from "zod";
+import { ZodEffects, ZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
+
+import { z } from "../../utils/zod";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
 import { StepStore, useSteps } from "../../hooks/useSteps";
@@ -61,10 +57,11 @@ export type FormProps<Fields extends FieldValues> = Omit<
   onSubmit?: (data: Fields) => void;
 };
 
-export type MultistepFormProps<Fields extends FieldValues, Steps, Step> = Omit<
-  FormProps<Fields>,
-  "children"
-> & {
+export type MultistepFormProps<
+  Fields extends FieldValues,
+  Steps,
+  Step,
+> = FormProps<Fields> & {
   steps: Steps;
   order: Step[];
   children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
