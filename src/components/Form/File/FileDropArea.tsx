@@ -10,7 +10,9 @@ import { getFileExtension } from "./utils";
 export function FileDropArea({
   fileIcon,
   render,
+  color,
 }: {
+  color?: string;
   fileIcon?: ReactNode;
   render?: ReactNode;
 }) {
@@ -57,7 +59,8 @@ export function FileDropArea({
                 <div className="mt-4 flex text-sm leading-6 text-gray-600">
                   <label
                     htmlFor={fileInput.inputId}
-                    className="relative cursor-pointer rounded-md font-semibold text-emerald-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 hover:text-emerald-500"
+                    style={{ color }}
+                    className="relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 hover:text-emerald-500"
                   >
                     <span>Envie um arquivo</span>
                   </label>
