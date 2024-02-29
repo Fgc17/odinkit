@@ -36,10 +36,7 @@ export function Steps({
       <Tab.Group
         as={"div"}
         selectedIndex={currentStep}
-        onChange={(index) => {
-          console.log(index);
-          setCurrentStep(index);
-        }}
+        onChange={(index) => setCurrentStep(index)}
       >
         <Tab.List
           className={clsx(

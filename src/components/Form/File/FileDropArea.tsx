@@ -43,9 +43,10 @@ export function FileDropArea({
           e.stopPropagation();
         },
       }}
+      className="flex grow"
     >
       {
-        <div className="flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-6">
+        <div className="mt-3 flex grow items-center justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-6">
           <div className="text-center">
             {render ?? (
               <>
