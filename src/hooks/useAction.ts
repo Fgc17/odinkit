@@ -88,6 +88,7 @@ export function useAction<
           message: res.message,
         };
       })
+      .then((data) => onSuccess && onSuccess(data))
       .catch((err) => {
         onError && onError(err);
         return err;
@@ -100,7 +101,7 @@ export function useAction<
     string,
     PrepareType
   >(id, async (url: string, { arg }) => await fetcher(arg), {
-    onSuccess: (data) => onSuccess && onSuccess(data),
+    onSuccess: (data) => null,
     onError: (error) => null,
   });
 

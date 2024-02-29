@@ -177,7 +177,7 @@ export function MultistepForm<
   const hasPrevStep = getPrevStep() === currentStep - 1;
 
   return (
-    <Form hform={hform} {...props}>
+    <Form hform={hform} onSubmit={onSubmit} {...props}>
       {children({
         hasNextStep,
         hasPrevStep,

@@ -107,6 +107,8 @@ let colors = {
   white:
     "[--checkbox-check:theme(colors.zinc.900)] [--checkbox-checked-bg:theme(colors.white)] [--checkbox-checked-border:theme(colors.zinc.950/15%)]",
   dark: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.900)] [--checkbox-checked-border:theme(colors.zinc.950/90%)]",
+  black:
+    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.900)] [--checkbox-checked-border:theme(colors.zinc.950/90%)]",
   zinc: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.600)] [--checkbox-checked-border:theme(colors.zinc.700/90%)]",
   red: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.red.600)] [--checkbox-checked-border:theme(colors.red.700/90%)]",
   orange:
@@ -134,6 +136,13 @@ let colors = {
     "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.fuchsia.500)] [--checkbox-checked-border:theme(colors.fuchsia.600/90%)]",
   pink: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.pink.500)] [--checkbox-checked-border:theme(colors.pink.600/90%)]",
   rose: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.rose.500)] [--checkbox-checked-border:theme(colors.rose.600/90%)]",
+  gray: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.gray.500)] [--checkbox-checked-border:theme(colors.gray.600/90%)]",
+  slate:
+    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.slate.500)] [--checkbox-checked-border:theme(colors.slate.600/90%)]",
+  neutral:
+    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.neutral.500)] [--checkbox-checked-border:theme(colors.neutral.600/90%)]",
+  stone:
+    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.stone.500)] [--checkbox-checked-border:theme(colors.stone.600/90%)]",
 };
 
 type Color = keyof typeof colors;
