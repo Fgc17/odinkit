@@ -57,11 +57,10 @@ export type FormProps<Fields extends FieldValues> = Omit<
   onSubmit?: (data: Fields) => void;
 };
 
-export type MultistepFormProps<
-  Fields extends FieldValues,
-  Steps,
-  Step,
-> = FormProps<Fields> & {
+export type MultistepFormProps<Fields extends FieldValues, Steps, Step> = Omit<
+  FormProps<Fields>,
+  "children"
+> & {
   steps: Steps;
   order: Step[];
   children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
