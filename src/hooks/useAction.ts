@@ -64,7 +64,7 @@ export function useAction<
       ? await requestParser(preparedArg)
       : preparedArg;
 
-    return action(formattedArg)
+    return await action(formattedArg)
       .then((res) => {
         if (res && "error" in res) throw res.message;
 
@@ -88,8 +88,9 @@ export function useAction<
           message: res.message,
         };
       })
-      .catch((error) => {
-        throw error;
+      .catch((err) => {
+        onError && onError(err);
+        return err;
       });
   }
 
@@ -98,9 +99,9 @@ export function useAction<
     string,
     string,
     PrepareType
-  >(id, (url: string, { arg }) => fetcher(arg), {
+  >(id, async (url: string, { arg }) => await fetcher(arg), {
     onSuccess: (data) => onSuccess && onSuccess(data),
-    onError: (error) => onError && onError(error),
+    onError: (error) => null,
   });
 
   const actionResult = {

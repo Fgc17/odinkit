@@ -5,7 +5,6 @@ import clsx from "clsx";
 import React, { MutableRefObject, useRef } from "react";
 import { scrollToElement, scrollToElementX } from "../utils/scroll";
 import { useSteps } from "../hooks/useSteps";
-import Link from "next/link";
 
 export interface Step {
   title: string;
@@ -50,7 +49,10 @@ export function Steps({
         >
           <For each={steps} identifier="tabName">
             {(step, index) => (
-              <Tab className="grow" disabled={step.disabled}>
+              <Tab
+                className="grow outline-none ring-0"
+                disabled={step.disabled}
+              >
                 {({ selected }) => (
                   <div
                     style={{
