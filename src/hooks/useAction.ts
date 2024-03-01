@@ -64,35 +64,29 @@ export function useAction<
       ? await requestParser(preparedArg)
       : preparedArg;
 
-    return await action(formattedArg)
-      .then((res) => {
-        if (res && "error" in res) throw res.message;
+    return await action(formattedArg).then((res) => {
+      if (res && "error" in res) throw res.message;
 
-        if (redirect)
-          return {
-            data: null as ResponseParserReturnType,
-            message: `Redirecionando...`,
-          };
-
-        if (!res) throw "Resposta indefinida.";
-
-        if (!res.data) throw "Resposta sem dados.";
-
-        const parsedData = (
-          responseParser ? responseParser(res.data) : res.data
-        ) as ResponseParserReturnType;
-
+      if (redirect)
         return {
-          data: parsedData,
-          pagination: res.pagination,
-          message: res.message,
+          data: null as ResponseParserReturnType,
+          message: `Redirecionando...`,
         };
-      })
-      .then((data) => onSuccess && onSuccess(data))
-      .catch((err) => {
-        onError && onError(err);
-        return err;
-      });
+
+      if (!res) throw "Resposta indefinida.";
+
+      if (!res.data) throw "Resposta sem dados.";
+
+      const parsedData = (
+        responseParser ? responseParser(res.data) : res.data
+      ) as ResponseParserReturnType;
+
+      return {
+        data: parsedData,
+        pagination: res.pagination,
+        message: res.message,
+      };
+    });
   }
 
   const mutation = useSWRMutation<
@@ -101,8 +95,9 @@ export function useAction<
     string,
     PrepareType
   >(id, async (url: string, { arg }) => await fetcher(arg), {
-    onSuccess: (data) => null,
-    onError: (error) => null,
+    throwOnError: false,
+    onSuccess: (data) => onSuccess && onSuccess(data),
+    onError: (error) => onError && onError(error),
   });
 
   const actionResult = {
