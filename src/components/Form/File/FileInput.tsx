@@ -73,7 +73,6 @@ export function FileInput({
       } catch (error) {
         parsedError = error;
       }
-      console.log(error);
 
       props.onError?.(parsedError as any);
     }
