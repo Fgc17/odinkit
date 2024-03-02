@@ -33,17 +33,11 @@ export function normalizeDocument(data: string) {
 }
 
 export function formatPhone(data: string) {
-  if (data.length === 11) {
-    const DDD = data.split("").slice(0, 2).join("");
-    const firstPart = data.slice(2, 7);
-    const secondPart = data.slice(7);
-    return `(${DDD}) ${firstPart}-${secondPart}`;
-  } else {
-    const DDD = data.split("").slice(0, 2).join("");
-    const firstPart = data.slice(2, 6);
-    const secondPart = data.slice(6);
-    return `(${DDD}) ${firstPart}-${secondPart}`;
-  }
+  const splitDigit = data.length === 11 ? 7 : 6;
+  const DDD = data.split("").slice(0, 2).join("");
+  const firstPart = data.slice(2, splitDigit);
+  const secondPart = data.slice(splitDigit);
+  return `(${DDD}) ${firstPart}-${secondPart}`;
 }
 
 export function formatCPF(data: string) {
