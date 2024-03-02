@@ -60,7 +60,7 @@ const fieldVariants = {
 };
 
 const fieldGroupVariants = {
-  default: "",
+  default: "space-y-3 has-[[data-slot=description]]:space-y-6",
   switch: clsx(
     // Basic groups
     "space-y-3 [&_[data-slot=label]]:font-normal",
