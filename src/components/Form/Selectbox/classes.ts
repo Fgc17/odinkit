@@ -10,6 +10,9 @@ export const option = clsx(
   // Focus
   "outline-none data-[focus]:bg-blue-500 data-[focus]:text-white",
 
+  // Invalid state
+  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
+
   // Disabled
   "data-[disabled]:opacity-50",
 

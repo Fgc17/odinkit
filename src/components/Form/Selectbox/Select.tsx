@@ -60,7 +60,7 @@ export function Select<
   }) {
   const form = useFormContext();
 
-  const { name } = useField();
+  const { name, error } = useField();
 
   const options: SelectOption[] = useMemo(
     () =>
@@ -80,11 +80,12 @@ export function Select<
         render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
           <HeadlessSelect
             {...props}
-            defaultValue={value || ""}
+            value={value || ""}
             onChange={(event) => {
               onChange && onChange(event);
               fieldOnChange(event.target.value);
             }}
+            invalid={Boolean(error)}
             className={inputClasses}
           >
             <option value={""} disabled className={clsx("py-2 pl-3 pr-9")}>

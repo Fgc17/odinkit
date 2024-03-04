@@ -63,7 +63,7 @@ export function CheckboxField({ className, ...props }: HeadlessFieldProps) {
 
 let base = [
   // Basic layout
-  "relative isolate flex size-[1.125rem] items-center justify-center rounded-[0.3125rem] sm:size-4",
+  "relative isolate flex size-[1.125rem] items-center justify-center rounded-[0.3125rem] sm:size-4 ",
 
   // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
   "before:absolute before:inset-0 before:-z-10 before:rounded-[calc(0.3125rem-1px)] before:bg-white before:shadow",
@@ -163,19 +163,19 @@ export function Checkbox({
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
         <HeadlessCheckbox
+          {...props}
+          {...field}
           defaultChecked={value}
           data-slot="control"
-          className={clsx(className, "group inline-flex focus:outline-none")}
+          className={clsx("group inline-flex focus:outline-none")}
           onChange={(checked) => {
             props.onChange && props.onChange(checked);
             fieldOnChange(checked);
           }}
-          {...props}
-          {...field}
         >
-          <span className={clsx([base, colors[color]])}>
+          <span className={clsx([base, colors[color], className])}>
             <svg
-              className="size-4 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 sm:h-3.5 sm:w-3.5"
+              className="size-3 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 lg:size-6"
               viewBox="0 0 14 14"
               fill="none"
             >
