@@ -1,12 +1,13 @@
 //client
 "use client";
 import { FolderIcon } from "@heroicons/react/20/solid";
-import { ReactNode, useContext } from "react";
+import { ReactNode, useContext, useState } from "react";
 import { FileInputContext } from "./FileInput";
 import { useFormContext } from "../Form";
 import { useField } from "../Field";
 import { getFileExtension } from "./utils";
 import clsx from "clsx";
+import { LoadingSpinner } from "../../Spinners";
 
 export function FileDropArea({
   fileIcon,

@@ -11,6 +11,8 @@ import { useField } from "../Field";
 import { useFormContext } from "../Form";
 import { FileFormat } from "./FileFormat";
 import { getFileExtension } from "./utils";
+import { LoadingSpinner } from "../../Spinners";
+import { Text } from "../../Text";
 
 type FileInputContextProps = {
   fileTypes: FileFormat[];
@@ -60,6 +62,7 @@ export function FileInput({
 } & Omit<HeadlessInputProps, "onChange" | "onError">) {
   const form = useFormContext();
   const { name } = useField();
+  const [isLoading, setIsLoading] = useState(false);
 
   const id = useId();
 
@@ -78,6 +81,14 @@ export function FileInput({
     }
   }, [form.formState.errors[name]?.message]);
 
+  if (isLoading)
+    return (
+      <div className="flex w-full flex-col items-center justify-center gap-2">
+        <LoadingSpinner />
+        <Text>Processando Arquivo...</Text>
+      </div>
+    );
+
   return (
     <Controller
       name={name}
@@ -89,6 +100,7 @@ export function FileInput({
         };
 
         const validate = async (files: File[]) => {
+          setIsLoading(true);
           if (files?.length + value?.length > props.maxFiles) {
             form.setError?.(name, {
               message: JSON.stringify("Número máximo de arquivos excedido"),
@@ -115,13 +127,15 @@ export function FileInput({
                 form.setError?.(name, {
                   message: JSON.stringify(err),
                 });
+
                 return false;
+              } finally {
+                setIsLoading(false);
               }
             }
           }
-
+          setIsLoading(false);
           form.clearErrors(name);
-
           return true;
         };
 
