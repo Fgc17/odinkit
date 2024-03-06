@@ -11,8 +11,8 @@ export default function WhatsappIcon({
     <div className={className} style={{ width: size, height: size }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={"28"}
-        height="32"
+        width={size}
+        height={size}
         viewBox="0 0 448 512"
       >
         <path

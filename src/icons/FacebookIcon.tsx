@@ -15,8 +15,8 @@ export default function FacebookIcon({
     <div className={className} style={{ width: size, height: size, filter }}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={28}
-        height={30}
+        width={size}
+        height={size}
         viewBox="0 0 320 512"
       >
         <path
