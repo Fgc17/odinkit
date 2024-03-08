@@ -108,6 +108,13 @@ export function FileInput({
             return false;
           }
 
+          if (files.some((file) => file.size > props.maxSize * 1024 * 1024)) {
+            form.setError?.(name, {
+              message: JSON.stringify("Tamanho máximo de arquivo excedido"),
+            });
+            setIsLoading(false);
+            return false;
+          }
           if (
             files.some(
               (file) => !props.fileTypes.includes(getFileExtension(file))
@@ -116,6 +123,7 @@ export function FileInput({
             form.setError?.(name, {
               message: JSON.stringify("Tipo de arquivo não permitido"),
             });
+            setIsLoading(false);
             return false;
           }
 
