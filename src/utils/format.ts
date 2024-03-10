@@ -14,7 +14,7 @@ export function date(
   format: string,
   localTime: boolean = false
 ) {
-  return dayjs(date).utc(localTime).format(format);
+  return dayjs(date).local().format(format);
 }
 
 export function normalizeEmail(data: string) {
