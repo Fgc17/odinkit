@@ -17,6 +17,13 @@ export function date(
   return dayjs(date).local().format(format);
 }
 
+export function slugify(str: string) {
+  return str
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-");
+}
+
 export function normalizeEmail(data: string) {
   return data.toLowerCase();
 }
