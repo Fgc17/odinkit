@@ -33,7 +33,6 @@ export function Span({
 
   return (
     <span
-      data-slot="control"
       className={clsx(
         // Invalid State
         error &&
