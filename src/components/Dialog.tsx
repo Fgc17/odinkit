@@ -158,7 +158,7 @@ export function DialogActions({
     <div
       {...props}
       className={clsx(
-        "mt-8 flex flex-col items-center justify-end gap-3 *:w-full sm:flex-row ",
+        "mt-8 flex flex-col items-center justify-end gap-3 *:w-full sm:flex-row lg:*:w-auto ",
         className
       )}
     />
