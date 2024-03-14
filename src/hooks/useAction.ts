@@ -1,6 +1,7 @@
 // client
 "use client";
 
+import { Exception } from "../api/Exception";
 import { ErrorResponse, SuccessResponse } from "../api/ActionResponse";
 import { useId } from "react";
 import useSWRMutation from "swr/mutation";
@@ -18,7 +19,7 @@ interface UseActionParams<
   redirect?: boolean;
   formData?: boolean;
   prepare?: (arg: PrepareType) => Promise<ArgumentType> | ArgumentType;
-  onError?: (error: string) => void;
+  onError?: (error: Exception) => void;
   onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
   responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
   requestParser?: (
@@ -65,7 +66,10 @@ export function useAction<
       : preparedArg;
 
     return await action(formattedArg).then((res) => {
-      if (res && "error" in res) throw res.message;
+      if (res && "error" in res) {
+        const { error, ...exception } = res;
+        throw exception;
+      }
 
       if (redirect)
         return {
@@ -73,9 +77,15 @@ export function useAction<
           message: `Redirecionando...`,
         };
 
-      if (!res) throw "Resposta indefinida.";
+      if (!res)
+        throw new Exception({
+          message: "Resposta indefinida.",
+        });
 
-      if (!res.data) throw "Resposta sem dados.";
+      if (!res.data)
+        throw new Exception({
+          message: "Resposta sem dados.",
+        });
 
       const parsedData = (
         responseParser ? responseParser(res.data) : res.data
@@ -91,7 +101,7 @@ export function useAction<
 
   const mutation = useSWRMutation<
     SuccessResponse<ResponseParserReturnType>,
-    string,
+    Exception,
     string,
     PrepareType
   >(id, async (url: string, { arg }) => await fetcher(arg), {

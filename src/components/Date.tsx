@@ -23,5 +23,5 @@ export function Date({
   useEffect(() => {
     setIsClient(true);
   }, []);
-  return isClient ? dayjs(date).local().format(format) : <ButtonSpinner />;
+  return isClient ? dayjs(date).local().format(format) : "";
 }

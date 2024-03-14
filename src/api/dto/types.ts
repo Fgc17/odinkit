@@ -1,4 +1,4 @@
-import { z } from "../../../utils/zod";
+import { z } from "../../utils/zod";
 
 export type ZodDtoEnv = "client" | "server";
 

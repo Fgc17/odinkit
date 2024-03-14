@@ -27,27 +27,30 @@ export function Tabs({
         ref={elementRef}
         className={clsx(
           className,
-          "z-10 flex min-h-12 overflow-x-scroll border-slate-100 bg-white duration-200 lg:mx-0 lg:overflow-x-auto"
+          "z-10 grid min-h-12 overflow-x-scroll border-slate-100 bg-white duration-200 lg:mx-0 lg:overflow-x-auto"
         )}
         as="div"
-        style={{ scrollbarWidth: "none" }}
+        style={{
+          scrollbarWidth: "none",
+          gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`,
+        }}
       >
         <For each={tabs} identifier="tabName">
           {(tab) => (
-            <Tab as="button" className={"grow "}>
-              {({ selected }) => (
+            <Tab as="button" className={"col-span-1"} onClick={tab.onClick}>
+              {({ selected, hover }) => (
                 <div
-                  onClick={tab.onClick}
                   style={{
-                    color: selected ? color : "#6b7280",
+                    color: selected ? (!hover ? color : "#6b7280") : "#6b7280",
                     borderColor: selected ? color : "#6b7280",
                   }}
                   className={clsx(
-                    "min-h-12",
-                    "flex items-center justify-center border-b-2 px-1 font-medium duration-200 *:ring-0 lg:px-3"
+                    "max-h-12",
+                    "text-lg font-semibold sm:text-sm",
+                    "flex items-center justify-center border-b-2 px-1 pb-3  duration-200 *:ring-0 lg:px-3"
                   )}
                 >
-                  <span className="mx-2">{tab.title}</span>
+                  {tab.title}
                 </div>
               )}
             </Tab>
