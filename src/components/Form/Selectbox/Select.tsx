@@ -89,7 +89,7 @@ export function Select<
             className={inputClasses}
           >
             <option
-              value={undefined}
+              value={""}
               disabled={isRequired}
               className={clsx("py-2 pl-3 pr-9")}
             >
