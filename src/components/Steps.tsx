@@ -27,7 +27,7 @@ export function Steps({
   topRef: MutableRefObject<HTMLDivElement>;
   stepRefs: MutableRefObject<HTMLDivElement[]>;
 }) {
-  const { currentStep, setCurrentStep } = useSteps({});
+  const { currentStep, setCurrentStep } = useSteps();
   const stepPanelRefs = useRef<HTMLDivElement[]>(null);
 
   return (

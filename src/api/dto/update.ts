@@ -1,4 +1,4 @@
-import { z } from "../../../utils/zod";
+import { z } from "../../utils/zod";
 import { ZodRawShape } from "zod";
 
 export const updateDto = <D extends ZodRawShape, W extends ZodRawShape>(

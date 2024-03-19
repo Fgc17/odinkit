@@ -23,7 +23,7 @@ import { z } from "../../utils/zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
-import { StepStore, useSteps } from "../../hooks/useSteps";
+import { StepContext, useSteps } from "../../hooks/useSteps";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
@@ -42,8 +42,8 @@ export type MultistepFormChildrenProps<Step, Steps> = {
   hasNextStep: boolean;
   hasPrevStep: boolean;
   currentStep: number;
-  walk: StepStore["walk"];
-  dryWalk: StepStore["dryWalk"];
+  walk: StepContext["walk"];
+  dryWalk: StepContext["dryWalk"];
   steps: Steps;
   order: Step[];
   isCurrentStepValid: boolean;

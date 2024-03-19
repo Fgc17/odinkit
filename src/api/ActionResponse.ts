@@ -1,5 +1,6 @@
 import { redirect as _redirect } from "next/navigation";
-import { PaginationDto } from "./IO/dto/read";
+import { PaginationDto } from "./dto/read";
+import { Exception } from "./Exception";
 
 export type SuccessResponse<T> = {
   data?: T;
@@ -14,10 +15,9 @@ export type ExtractSuccessResponse<T extends (...args: any) => any> =
       : U
     : never;
 
-export interface ErrorResponse {
-  message: string;
+export type ErrorResponse = Exception & {
   error: true;
-}
+};
 
 export type ActionResponseType<T> = SuccessResponse<T> | ErrorResponse | void;
 
@@ -35,17 +35,9 @@ export class ActionResponse {
     return { data, pagination, message };
   }
 
-  public static error(message: unknown = "Operação falhou"): ErrorResponse {
-    /* if (typeof message != "string" && !Array.isArray(message)) {
-      message = "Operação falhou";
-    } */
-
-    if (Array.isArray(message)) {
-      message = message.join(", ");
-    }
-
+  public static error(exception: Exception): ErrorResponse {
     return {
-      message: typeof message === "string" ? message : JSON.stringify(message),
+      ...exception,
       error: true,
     };
   }

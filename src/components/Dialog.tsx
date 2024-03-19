@@ -76,7 +76,7 @@ export function Dialog({
           leaveFrom="opacity-100 translate-y-0"
           leaveTo="opacity-0 translate-y-12 sm:translate-y-0"
         >
-          <div className="grid  min-h-full grid-rows-[1fr_auto] justify-items-center sm:grid-rows-[1fr_auto_3fr] sm:p-4">
+          <div className="flex min-h-full  grid-rows-[1fr_auto] justify-center sm:grid-rows-[1fr_auto_3fr] sm:p-4">
             <HeadlessTransitionChild
               as={HeadlessDialogPanel}
               className={clsx(
