@@ -16,7 +16,7 @@ interface UseActionParams<
   ResponseParserReturnType,
 > {
   defaultData?: ResponseParserReturnType;
-  redirect?: boolean;
+  redirect?: boolean | "unknown";
   formData?: boolean;
   prepare?: (arg: PrepareType) => Promise<ArgumentType> | ArgumentType;
   onError?: (error: Exception) => void;
@@ -71,7 +71,7 @@ export function useAction<
         throw exception;
       }
 
-      if (redirect)
+      if (redirect === true || (redirect === "unknown" && !res))
         return {
           data: null as ResponseParserReturnType,
           message: `Redirecionando...`,
