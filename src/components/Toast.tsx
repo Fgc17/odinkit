@@ -37,7 +37,7 @@ export const toastVariants = {
   },
   error: {
     bg: "bg-red-500",
-    border: "border-red-700",
+    border: "border-red-600",
     icon: <XCircleIcon className="h-6 w-6 text-zinc-900" aria-hidden="true" />,
   },
   white: {

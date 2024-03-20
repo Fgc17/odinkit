@@ -1,6 +1,6 @@
 import { redirect as _redirect } from "next/navigation";
 import { PaginationDto } from "./dto/read";
-import { Exception } from "./Exception";
+import { Exception, ExceptionProps } from "./Exception";
 
 export type SuccessResponse<T> = {
   data?: T;
@@ -35,9 +35,9 @@ export class ActionResponse {
     return { data, pagination, message };
   }
 
-  public static error(exception: Exception): ErrorResponse {
+  public static error(exception: ExceptionProps | unknown): ErrorResponse {
     return {
-      ...exception,
+      ...new Exception(exception as ExceptionProps),
       error: true,
     };
   }

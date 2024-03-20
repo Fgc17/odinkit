@@ -14,15 +14,17 @@ export function Tabs({
   tabs,
   className,
   color,
+  defaultIndex,
 }: {
   tabs: TabItem[];
   className?: string;
   color?: string;
+  defaultIndex?: number;
 }) {
   const elementRef = useRef<HTMLDivElement>(null);
 
   return (
-    <Tab.Group as={"div"}>
+    <Tab.Group defaultIndex={defaultIndex || 0} as={"div"}>
       <Tab.List
         ref={elementRef}
         className={clsx(

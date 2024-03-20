@@ -226,38 +226,37 @@ export function Table<Data>({
             "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
           )}
         >
-          <div className="flex items-center justify-between gap-3">
-            {search && (
-              <Form hform={form} className="flex-grow">
-                <Field name="globalFilter">
-                  <Input
-                    onChange={(e) => {
-                      setGlobalFilter &&
-                        setGlobalFilter(String(e.target.value));
-                    }}
-                    placeholder={`Procurar (ex: ${cols
-                      .filter((c) => c.enableGlobalFilter)
-                      .map((c) => c.header)
-                      .slice(0, 3)
-                      .join(", ")})`}
-                  />
-                  {dataSetter}
-                </Field>
-              </Form>
-            )}
-            {xlsx && (
-              <div className="mt-1.5">
-                <Xlsx data={xlsx.data} />
-              </div>
-            )}
-          </div>
-
           <div
             className={clsx(
               "inline-block min-w-full align-middle",
               !bleed && "sm:px-[--gutter]"
             )}
           >
+            <div className="flex items-center justify-between gap-3">
+              {search && (
+                <Form hform={form} className="flex-grow">
+                  <Field name="globalFilter">
+                    <Input
+                      onChange={(e) => {
+                        setGlobalFilter &&
+                          setGlobalFilter(String(e.target.value));
+                      }}
+                      placeholder={`Procurar (ex: ${cols
+                        .filter((c) => c.enableGlobalFilter)
+                        .map((c) => c.header)
+                        .slice(0, 3)
+                        .join(", ")})`}
+                    />
+                    {dataSetter}
+                  </Field>
+                </Form>
+              )}
+              {xlsx && (
+                <div className="mt-1.5">
+                  <Xlsx data={xlsx.data} />
+                </div>
+              )}
+            </div>
             <table className="min-w-full text-left text-sm/6">
               <TableHead>
                 <For each={table.getHeaderGroups()} identifier="thead">

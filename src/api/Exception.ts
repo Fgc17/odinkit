@@ -1,4 +1,4 @@
-type ExceptionProps =
+export type ExceptionProps =
   | {
       message: string | string[] | Record<string, unknown>;
       field?: string;
