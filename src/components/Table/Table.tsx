@@ -173,9 +173,10 @@ export function Table<Data>({
   className?: string;
 }) {
   const columnHelper = createColumnHelper<Data>();
-  const [globalFilter, setGlobalFilter] = useState("");
 
   const cols = columns(columnHelper);
+
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value);
@@ -209,7 +210,13 @@ export function Table<Data>({
   });
 
   const form = useForm({ schema: tableSearchSchema, mode: "onChange" });
+
   const Field = useMemo(() => form.createField(), []);
+
+  const tablePageCount = useMemo(
+    () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
+    [globalFilter]
+  );
 
   return (
     <TableContext.Provider
@@ -280,8 +287,8 @@ export function Table<Data>({
                                 header.getContext()
                               )}
                               {{
-                                asc: " 🔼",
-                                desc: " 🔽",
+                                asc: " ↑",
+                                desc: " ↓",
                               }[header.column.getIsSorted() as string] ?? null}
                             </div>
                           </TableHeader>
@@ -323,17 +330,18 @@ export function Table<Data>({
                 {
                   <For
                     each={Array.from(
-                      { length: table.getPageCount() },
+                      {
+                        length: tablePageCount,
+                      },
                       (_, index) => index + 1
                     )}
                   >
                     {(page, index) => {
                       const pageIndex = table.getState().pagination.pageIndex;
-                      const pageCount = table.getPageCount();
 
                       const isCurrent = pageIndex === index;
                       const isFirstPage = index === 0;
-                      const isLastPage = index === pageCount - 1;
+                      const isLastPage = index === tablePageCount - 1;
                       const isNearCurrent = Math.abs(index - pageIndex) <= 2;
 
                       const shouldShow =
@@ -342,9 +350,9 @@ export function Table<Data>({
                       const shouldShowGapBeforeCurrent =
                         index === pageIndex - 3 && pageIndex > 3;
                       const shouldShowGapBeforeLast =
-                        index === pageCount - 4 &&
-                        pageIndex < pageCount - 4 &&
-                        pageIndex < pageCount - 1;
+                        index === tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 1;
 
                       return (
                         <>
