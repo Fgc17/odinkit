@@ -146,12 +146,12 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
-  children,
   data,
   columns,
   xlsx,
-  ...props
+  div,
 }: {
+  div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
   search?: boolean;
   pagination?: boolean;
   xlsx?: {
@@ -170,7 +170,8 @@ export function Table<Data>({
     | ReturnType<ColumnHelper<any>["group"]>
     | ReturnType<ColumnHelper<any>["group"]>
   )[];
-} & React.ComponentPropsWithoutRef<"div">) {
+  className?: string;
+}) {
   const columnHelper = createColumnHelper<Data>();
   const [globalFilter, setGlobalFilter] = useState("");
 
@@ -220,7 +221,7 @@ export function Table<Data>({
     >
       <div className="flow-root">
         <div
-          {...props}
+          {...div}
           className={clsx(
             className,
             "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
@@ -315,7 +316,6 @@ export function Table<Data>({
               <PaginationPrevious
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
-                href="#"
               >
                 Anterior
               </PaginationPrevious>
@@ -327,24 +327,47 @@ export function Table<Data>({
                       (_, index) => index + 1
                     )}
                   >
-                    {(page, index) => (
-                      <PaginationPage
-                        href="#"
-                        current={
-                          table.getState().pagination.pageIndex === index
-                        }
-                        onClick={() => table.setPageIndex(index)}
-                      >
-                        {String(page)}
-                      </PaginationPage>
-                    )}
+                    {(page, index) => {
+                      const pageIndex = table.getState().pagination.pageIndex;
+                      const pageCount = table.getPageCount();
+
+                      const isCurrent = pageIndex === index;
+                      const isFirstPage = index === 0;
+                      const isLastPage = index === pageCount - 1;
+                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+
+                      const shouldShow =
+                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
+
+                      const shouldShowGapBeforeCurrent =
+                        index === pageIndex - 3 && pageIndex > 3;
+                      const shouldShowGapBeforeLast =
+                        index === pageCount - 4 &&
+                        pageIndex < pageCount - 4 &&
+                        pageIndex < pageCount - 1;
+
+                      return (
+                        <>
+                          {shouldShowGapBeforeCurrent && <PaginationGap />}
+                          {index === 1 && pageIndex > 3 && <PaginationGap />}
+                          {shouldShow && (
+                            <PaginationPage
+                              current={isCurrent}
+                              onClick={() => table.setPageIndex(index)}
+                            >
+                              {String(page)}
+                            </PaginationPage>
+                          )}
+                          {shouldShowGapBeforeLast && <PaginationGap />}
+                        </>
+                      );
+                    }}
                   </For>
                 }
               </PaginationList>
               <PaginationNext
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
-                href="#"
               >
                 Próxima
               </PaginationNext>
