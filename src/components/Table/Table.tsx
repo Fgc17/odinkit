@@ -146,12 +146,12 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
-  children,
   data,
   columns,
   xlsx,
-  ...props
+  div,
 }: {
+  div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
   search?: boolean;
   pagination?: boolean;
   xlsx?: {
@@ -170,11 +170,13 @@ export function Table<Data>({
     | ReturnType<ColumnHelper<any>["group"]>
     | ReturnType<ColumnHelper<any>["group"]>
   )[];
-} & React.ComponentPropsWithoutRef<"div">) {
+  className?: string;
+}) {
   const columnHelper = createColumnHelper<Data>();
-  const [globalFilter, setGlobalFilter] = useState("");
 
   const cols = columns(columnHelper);
+
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value);
@@ -208,7 +210,13 @@ export function Table<Data>({
   });
 
   const form = useForm({ schema: tableSearchSchema, mode: "onChange" });
+
   const Field = useMemo(() => form.createField(), []);
+
+  const tablePageCount = useMemo(
+    () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
+    [globalFilter]
+  );
 
   return (
     <TableContext.Provider
@@ -220,7 +228,7 @@ export function Table<Data>({
     >
       <div className="flow-root">
         <div
-          {...props}
+          {...div}
           className={clsx(
             className,
             "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
@@ -279,8 +287,8 @@ export function Table<Data>({
                                 header.getContext()
                               )}
                               {{
-                                asc: " 🔼",
-                                desc: " 🔽",
+                                asc: " ↑",
+                                desc: " ↓",
                               }[header.column.getIsSorted() as string] ?? null}
                             </div>
                           </TableHeader>
@@ -315,7 +323,6 @@ export function Table<Data>({
               <PaginationPrevious
                 disabled={!table.getCanPreviousPage()}
                 onClick={() => table.previousPage()}
-                href="#"
               >
                 Anterior
               </PaginationPrevious>
@@ -323,28 +330,52 @@ export function Table<Data>({
                 {
                   <For
                     each={Array.from(
-                      { length: table.getPageCount() },
+                      {
+                        length: tablePageCount,
+                      },
                       (_, index) => index + 1
                     )}
                   >
-                    {(page, index) => (
-                      <PaginationPage
-                        href="#"
-                        current={
-                          table.getState().pagination.pageIndex === index
-                        }
-                        onClick={() => table.setPageIndex(index)}
-                      >
-                        {String(page)}
-                      </PaginationPage>
-                    )}
+                    {(page, index) => {
+                      const pageIndex = table.getState().pagination.pageIndex;
+
+                      const isCurrent = pageIndex === index;
+                      const isFirstPage = index === 0;
+                      const isLastPage = index === tablePageCount - 1;
+                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+
+                      const shouldShow =
+                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
+
+                      const shouldShowGapBeforeCurrent =
+                        index === pageIndex - 3 && pageIndex > 3;
+                      const shouldShowGapBeforeLast =
+                        index === tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 1;
+
+                      return (
+                        <>
+                          {shouldShowGapBeforeCurrent && <PaginationGap />}
+                          {index === 1 && pageIndex > 3 && <PaginationGap />}
+                          {shouldShow && (
+                            <PaginationPage
+                              current={isCurrent}
+                              onClick={() => table.setPageIndex(index)}
+                            >
+                              {String(page)}
+                            </PaginationPage>
+                          )}
+                          {shouldShowGapBeforeLast && <PaginationGap />}
+                        </>
+                      );
+                    }}
                   </For>
                 }
               </PaginationList>
               <PaginationNext
                 disabled={!table.getCanNextPage()}
                 onClick={() => table.nextPage()}
-                href="#"
               >
                 Próxima
               </PaginationNext>
@@ -354,18 +385,6 @@ export function Table<Data>({
       </div>
     </TableContext.Provider>
   );
-}
-
-{
-  /* <PaginationPage href="?page=1">1</PaginationPage>
-              <PaginationPage href="?page=2">2</PaginationPage>
-              <PaginationPage href="?page=3" current>
-                3
-              </PaginationPage>
-              <PaginationPage href="?page=4">4</PaginationPage>
-              <PaginationGap />
-              <PaginationPage href="?page=65">65</PaginationPage>
-              <PaginationPage href="?page=66">66</PaginationPage> */
 }
 
 export function TableHead({

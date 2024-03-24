@@ -125,7 +125,6 @@ export function PaginationPage({
 }) {
   return (
     <Button
-      href={href || "#"}
       plain
       aria-label={`Page ${children}`}
       aria-current={current ? "page" : undefined}
