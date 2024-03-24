@@ -50,6 +50,8 @@ const types = {
   },
 };
 
+export type AlertType = keyof typeof types;
+
 export function Alertbox(props: {
   type: keyof typeof types;
   children: React.ReactNode;
