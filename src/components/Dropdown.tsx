@@ -88,7 +88,10 @@ export function DropdownMenu({
 }
 
 export function DropdownItem(
-  props: { href?: string } & HeadlessMenuItemProps<"button">
+  props: {
+    href?: string;
+    target?: "_blank" | "_self" | "_parent" | "_top" | "framename";
+  } & HeadlessMenuItemProps<"button">
 ) {
   return (
     <HeadlessMenuItem
