@@ -31,7 +31,7 @@ export function FileImagePreview({
   if (!filePreview && !defaultValue) return null;
 
   return (
-    <div className="relative flex justify-center">
+    <div className="relative flex max-h-[300px] max-w-[300px] justify-center">
       <img
         alt="imagem"
         className={clsx("rounded-md", className)}

@@ -25,7 +25,7 @@ interface ToastContentProps {
 
 interface ToastType {
   message: string | string[];
-  title: string;
+  title?: string;
   variant: "success" | "error" | "alert";
 }
 
@@ -34,16 +34,19 @@ export const toastVariants = {
     bg: "bg-emerald-400",
     border: "border-emerald-500",
     icon: <CheckCircleIcon className="h-6 w-6 text-white" aria-hidden="true" />,
+    title: "Sucesso!",
   },
   error: {
     bg: "bg-red-500",
     border: "border-red-600",
     icon: <XCircleIcon className="h-6 w-6 text-zinc-900" aria-hidden="true" />,
+    title: "Erro!",
   },
   white: {
     bg: "bg-white",
     border: "border-gray-050",
     icon: <XCircleIcon className="h-6 w-6 text-zinc-900" aria-hidden="true" />,
+    title: "Atenção!",
   },
   alert: {
     bg: "bg-yellow-500",
@@ -54,6 +57,7 @@ export const toastVariants = {
         aria-hidden="true"
       />
     ),
+    title: "Alerta!",
   },
 };
 
@@ -99,7 +103,8 @@ const ToastContent: React.FC<ToastContentProps> = ({
             </div>
             <div className="ml-3 w-0 flex-1 pt-0.5">
               <p className="text-sm font-medium text-black">
-                {toastElement.title}
+                {toastElement.title ||
+                  toastVariants[toastElement.variant].title}
               </p>
               <p className="mt-1 text-sm text-black">{toastElement.message}</p>
             </div>
