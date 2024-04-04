@@ -1,11 +1,13 @@
+"use client";
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   InformationCircleIcon,
   XCircleIcon,
 } from "@heroicons/react/20/solid";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
-import React from "react";
+import React, { useState } from "react";
 
 const types = {
   warning: {
@@ -58,7 +60,10 @@ export function Alertbox(props: {
   title?: string;
   className?: string;
 }) {
+  const [show, setShow] = useState(true);
   const type = types[props.type];
+
+  if (!show) return null;
 
   return (
     <div className={clsx("rounded-md p-4", type["bg-color"], props.className)}>
@@ -70,6 +75,18 @@ export function Alertbox(props: {
           </h3>
           <div className={clsx("mt-2 text-sm", type["text-color"])}>
             {props.children}
+          </div>
+        </div>
+        <div className="ml-auto pl-3">
+          <div className="-mx-1.5 -my-1.5">
+            <button
+              type="button"
+              onClick={() => setShow(false)}
+              className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
+            >
+              <span className="sr-only">Dismiss</span>
+              <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+            </button>
           </div>
         </div>
       </div>
