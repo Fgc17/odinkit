@@ -21,6 +21,8 @@ const types = {
     "bg-color": "bg-yellow-50",
     "title-color": "text-yellow-800",
     "text-color": "text-yellow-700",
+    "dismiss-classes":
+      "bg-yellow-50 text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600 focus:ring-offset-yellow-50",
   },
   error: {
     icon: <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />,
@@ -28,6 +30,8 @@ const types = {
     "bg-color": "bg-red-50",
     "title-color": "text-red-800",
     "text-color": "text-red-700",
+    "dismiss-classes":
+      "bg-red-50 text-red-500 hover:bg-red-100 focus:ring-red-600 focus:ring-offset-red-50",
   },
   success: {
     icon: (
@@ -37,6 +41,8 @@ const types = {
     "bg-color": "bg-green-50",
     "title-color": "text-green-800",
     "text-color": "text-green-700",
+    "dismiss-classes":
+      "bg-green-50 text-green-500 hover:bg-green-100 focus:ring-green-600 focus:ring-offset-green-50",
   },
   info: {
     icon: (
@@ -49,6 +55,8 @@ const types = {
     "bg-color": "bg-blue-50",
     "title-color": "text-blue-800",
     "text-color": "text-blue-700",
+    "dismiss-classes":
+      "bg-blue-50 text-blue-500 hover:bg-blue-100 focus:ring-blue-600 focus:ring-offset-blue-50",
   },
 };
 
@@ -59,6 +67,7 @@ export function Alertbox(props: {
   children: React.ReactNode;
   title?: string;
   className?: string;
+  dismissible?: boolean;
 }) {
   const [show, setShow] = useState(true);
   const type = types[props.type];
@@ -77,18 +86,23 @@ export function Alertbox(props: {
             {props.children}
           </div>
         </div>
-        <div className="ml-auto pl-3">
-          <div className="-mx-1.5 -my-1.5">
-            <button
-              type="button"
-              onClick={() => setShow(false)}
-              className="inline-flex rounded-md bg-green-50 p-1.5 text-green-500 hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 focus:ring-offset-green-50"
-            >
-              <span className="sr-only">Dismiss</span>
-              <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-            </button>
+        {props.dismissible && (
+          <div className="ml-auto pl-3">
+            <div className="-mx-1.5 -my-1.5">
+              <button
+                type="button"
+                onClick={() => setShow(false)}
+                className={clsx(
+                  "inline-flex rounded-md  p-1.5   focus:outline-none focus:ring-2  focus:ring-offset-2 ",
+                  type["dismiss-classes"]
+                )}
+              >
+                <span className="sr-only">Dismiss</span>
+                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
