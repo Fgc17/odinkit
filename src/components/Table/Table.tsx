@@ -299,7 +299,21 @@ export function Table<Data>({
                 </For>
               </TableHead>
               <TableBody>
-                <For each={table.getRowModel().rows} identifier="row">
+                <For
+                  each={table.getRowModel().rows}
+                  identifier="row"
+                  fallback={
+                    <TableRow>
+                      <For each={table.getAllColumns()}>
+                        {(column, index) => (
+                          <TableCell>
+                            {index === 0 ? <>Nada por aqui.</> : null}
+                          </TableCell>
+                        )}
+                      </For>
+                    </TableRow>
+                  }
+                >
                   {(row) => (
                     <TableRow>
                       <For each={row.getVisibleCells()} identifier="cell">
