@@ -56,12 +56,14 @@ export function Avatar({
           </text>
         </svg>
       )}
-      {src && <img src={src} alt={alt} />}
+
       {/* Add an inset border that sits on top of the image */}
       <span
-        className="ring-1 ring-inset ring-black/5  forced-colors:outline"
+        className="flex items-center ring-1 ring-inset ring-black/5  forced-colors:outline"
         aria-hidden="true"
-      />
+      >
+        {src && <img src={src} className="w-max" alt={alt} />}
+      </span>
     </span>
   );
 }
