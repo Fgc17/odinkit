@@ -60,6 +60,7 @@ export function DropdownMenu({
         }}
         className={clsx(
           props.className,
+          "z-50",
 
           // Anchor positioning
           "[--anchor-gap:theme(spacing.2)] [--anchor-padding:theme(spacing.3)] data-[anchor~=end]:[--anchor-offset:4px] data-[anchor~=start]:[--anchor-offset:-4px]",
