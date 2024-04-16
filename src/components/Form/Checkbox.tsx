@@ -90,6 +90,11 @@ let base = [
   "group-data-[disabled]:border-zinc-950/25 group-data-[disabled]:bg-zinc-950/5 group-data-[disabled]:[--checkbox-check:theme(colors.zinc.950/50%)] group-data-[disabled]:before:bg-transparent",
   "-[disabled]:border-white/20 -[disabled]:bg-white/[2.5%] -[disabled]:[--checkbox-check:theme(colors.white/50%)] -[disabled]:group-data-[checked]:after:hidden",
 
+  // Invalid state
+  "group-data-[invalid]:opacity-50",
+  "group-data-[invalid]:border-red-500 group-data-[invalid]:bg-red-500 group-data-[invalid]:[--checkbox-check:theme(colors.red.500/50%)] group-data-[invalid]:before:bg-transparent",
+  "-[invalid]:border-white/20 -[invalid]:bg-white/[2.5%] -[invalid]:[--checkbox-check:theme(colors.white/50%)] -[invalid]:group-data-[checked]:after:hidden",
+
   // Forced colors mode
   "forced-colors:[--checkbox-check:HighlightText] forced-colors:[--checkbox-checked-bg:Highlight] forced-colors:group-data-[disabled]:[--checkbox-check:Highlight]",
   ":[--checkbox-check:HighlightText] :[--checkbox-checked-bg:Highlight] -[disabled]:[--checkbox-check:Highlight]",
@@ -156,7 +161,7 @@ export function Checkbox({
   className?: string;
 } & HeadlessCheckboxProps) {
   const form = useFormContext();
-  const { name } = useField();
+  const { name, error } = useField();
   return (
     <Controller
       name={name}
@@ -167,7 +172,7 @@ export function Checkbox({
           {...field}
           defaultChecked={value}
           data-slot="control"
-          className={clsx("group inline-flex focus:outline-none")}
+          className={clsx("group inline-flex rounded focus:outline-none")}
           onChange={(checked) => {
             props.onChange && props.onChange(checked);
             fieldOnChange(checked);
@@ -175,7 +180,7 @@ export function Checkbox({
         >
           <span className={clsx([base, colors[color], className])}>
             <svg
-              className="size-3 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 lg:size-6"
+              className="size-3 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 "
               viewBox="0 0 14 14"
               fill="none"
             >
