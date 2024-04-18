@@ -16,13 +16,13 @@ import { Button } from "../Button";
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Alert, AlertActions, AlertBody, AlertTitle } from "../Alert";
 import { For } from "../For";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   twColor,
   twColorPalette,
   twShade,
 } from "../../constants/twColorPalette";
-import { EyeIcon } from "@heroicons/react/20/solid";
+import { EyeIcon, FolderArrowDownIcon } from "@heroicons/react/20/solid";
 import { EyeSlashIcon } from "@heroicons/react/24/solid";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
@@ -66,12 +66,36 @@ export const inputClasses = clsx(
   "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20"
 );
 
+export const iconInputClasses = clsx(
+  // Basic layout
+  "relative mb-1 mt-[11px] block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:pr-[calc(theme(spacing[3])-1px)] sm:pl-[calc(theme(spacing[10])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+
+  // Typography
+  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
+
+  // Border
+  "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
+
+  // Background color
+  "bg-transparent ",
+
+  // Hide default focus styles
+  "focus:outline-none",
+
+  // Invalid state
+  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
+
+  // Disabled state
+  "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20"
+);
+
 export function Input({
   className,
   mask,
   onChange,
   loading,
   type = "text",
+  icon,
   ...props
 }: {
   type?:
@@ -85,6 +109,7 @@ export function Input({
     | DateType;
   loading?: boolean;
   mask?: MaskType;
+  icon?: React.ReactNode;
 } & HeadlessInputProps) {
   const form = useFormContext();
   const [showPassword, setShowPassword] = useState(!(type === "password"));
@@ -115,7 +140,7 @@ export function Input({
               className={clsx([
                 // Date classes
                 type && dateTypes.includes(type) && webkitCss,
-                inputClasses,
+                icon ? iconInputClasses : inputClasses,
               ])}
               type={
                 type === "password"
@@ -145,6 +170,10 @@ export function Input({
               <div className="absolute right-2 top-2.5 text-gray-400">
                 <ButtonSpinner />
               </div>
+            )}
+
+            {icon && (
+              <div className="absolute left-2 top-2 text-gray-400">{icon}</div>
             )}
           </>
         )}
