@@ -19,13 +19,15 @@ export function DisclosureAccordion({
   disabled,
   className,
   color,
+  border = true,
 }: {
   children: React.ReactNode;
   color?: string;
-  title: string;
+  title: string | React.ReactNode;
   scrollToContent?: boolean;
   defaultOpen?: boolean;
   disabled?: boolean;
+  border?: boolean;
   className?: string;
 }) {
   const contentRef = useRef(null);
@@ -35,9 +37,10 @@ export function DisclosureAccordion({
       defaultOpen={defaultOpen}
       as="div"
       className={clsx(
-        "border-t border-gray-200 p-4 pe-2",
+        "border-gray-200 p-4 pe-2",
         disabled ? "bg-gray-100" : "bg-transparent",
-        className
+        className,
+        border && "border-t"
       )}
     >
       {({ open }) => {
