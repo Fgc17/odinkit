@@ -156,6 +156,12 @@ export function MultistepForm<
       (field) => !field.invalid && hform.getValues(field.name)
     );
 
+    const serverError = hform.formState.errors.root?.serverError;
+
+    if (serverError) {
+      return false;
+    }
+
     const refineFn = steps[currentStepKey].refine;
     if (refineFn) {
       const refineValidationResult = refineFn(hform.getValues());
