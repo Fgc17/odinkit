@@ -12,7 +12,9 @@ export function ImageList() {
 
   const field = useField();
 
-  const images = Array.from(form.watch(field.name));
+  const images = form.watch(field.name)
+    ? Array.from(form.watch(field.name))
+    : [];
 
   const filePreview = useMemo(
     () =>
@@ -33,7 +35,7 @@ export function ImageList() {
   };
 
   return (
-    <div className="mt-3 flex gap-4">
+    <div className="mt-3 flex flex-wrap gap-4">
       <For each={filePreview} identifier="images">
         {(image, index) => (
           <div className="relative inline-block" key={`k-${index}`}>

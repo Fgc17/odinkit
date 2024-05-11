@@ -76,7 +76,12 @@ export function FileDropArea({
                       "relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 "
                     )}
                   >
-                    <span>Envie um arquivo</span>
+                    <span>
+                      Envie{" "}
+                      {fileInput.maxFiles > 1
+                        ? `até ${fileInput.maxFiles} arquivos`
+                        : "um arquivo."}
+                    </span>
                   </label>
                   <p className="pl-1">ou arraste</p>
                 </div>

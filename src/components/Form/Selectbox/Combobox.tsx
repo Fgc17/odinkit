@@ -174,18 +174,21 @@ export function Combobox<Data extends { id: string | number }>({
               />
             </Span>
 
-            <ComboboxButton
-              className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2 focus:outline-none"
-              onClick={() => {
-                if (setData) {
-                  setData("");
-                } else {
-                  setQuery("");
-                }
-              }}
-            >
-              <MagnifyingGlassIcon className="size-5 text-zinc-500" />
-            </ComboboxButton>
+            <div className="absolute inset-y-0 right-1 flex space-x-2 ">
+              <ComboboxButton
+                className="flex items-center rounded-r-md focus:outline-none"
+                onClick={() => {
+                  if (setData) {
+                    setData("");
+                  } else {
+                    setQuery("");
+                  }
+                }}
+              >
+                <MagnifyingGlassIcon className="size-5 text-zinc-500" />
+              </ComboboxButton>
+            </div>
+
             <HeadlessTransition
               as={Fragment}
               beforeLeave={() => {}}
