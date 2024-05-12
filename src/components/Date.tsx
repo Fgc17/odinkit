@@ -11,11 +11,11 @@ dayjs.extend(timezone);
 
 export function Date({
   date,
-  format,
+  format = "DD/MM/YYYY HH:mm:ss",
   localTime = false,
 }: {
   date: Date;
-  format: string;
+  format?: string;
   localTime?: boolean;
 }) {
   const [isClient, setIsClient] = useState(false);

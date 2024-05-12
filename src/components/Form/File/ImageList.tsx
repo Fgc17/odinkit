@@ -35,7 +35,7 @@ export function ImageList() {
   };
 
   return (
-    <div className="mt-3 flex flex-wrap gap-4">
+    <div className="mt-3 flex flex-wrap justify-center gap-4 lg:justify-normal">
       <For each={filePreview} identifier="images">
         {(image, index) => (
           <div className="relative inline-block" key={`k-${index}`}>
