@@ -335,70 +335,70 @@ export function Table<Data>({
               </TableBody>
             </table>
           </div>
-          {pagination && (
-            <Pagination className="my-2">
-              <PaginationPrevious
-                disabled={!table.getCanPreviousPage()}
-                onClick={() => table.previousPage()}
-              >
-                Anterior
-              </PaginationPrevious>
-              <PaginationList>
-                {
-                  <For
-                    each={Array.from(
-                      {
-                        length: tablePageCount,
-                      },
-                      (_, index) => index + 1
-                    )}
-                  >
-                    {(page, index) => {
-                      const pageIndex = table.getState().pagination.pageIndex;
-
-                      const isCurrent = pageIndex === index;
-                      const isFirstPage = index === 0;
-                      const isLastPage = index === tablePageCount - 1;
-                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
-
-                      const shouldShow =
-                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
-
-                      const shouldShowGapBeforeCurrent =
-                        index === pageIndex - 3 && pageIndex > 3;
-                      const shouldShowGapBeforeLast =
-                        index === tablePageCount - 4 &&
-                        pageIndex < tablePageCount - 4 &&
-                        pageIndex < tablePageCount - 1;
-
-                      return (
-                        <>
-                          {shouldShowGapBeforeCurrent && <PaginationGap />}
-                          {index === 1 && pageIndex > 3 && <PaginationGap />}
-                          {shouldShow && (
-                            <PaginationPage
-                              current={isCurrent}
-                              onClick={() => table.setPageIndex(index)}
-                            >
-                              {String(page)}
-                            </PaginationPage>
-                          )}
-                          {shouldShowGapBeforeLast && <PaginationGap />}
-                        </>
-                      );
-                    }}
-                  </For>
-                }
-              </PaginationList>
-              <PaginationNext
-                disabled={!table.getCanNextPage()}
-                onClick={() => table.nextPage()}
-              >
-                Próxima
-              </PaginationNext>
-            </Pagination>
-          )}
         </div>
+        {pagination && (
+          <Pagination className="my-2">
+            <PaginationPrevious
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+            >
+              Anterior
+            </PaginationPrevious>
+            <PaginationList>
+              {
+                <For
+                  each={Array.from(
+                    {
+                      length: tablePageCount,
+                    },
+                    (_, index) => index + 1
+                  )}
+                >
+                  {(page, index) => {
+                    const pageIndex = table.getState().pagination.pageIndex;
+
+                    const isCurrent = pageIndex === index;
+                    const isFirstPage = index === 0;
+                    const isLastPage = index === tablePageCount - 1;
+                    const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+
+                    const shouldShow =
+                      isCurrent || isFirstPage || isLastPage || isNearCurrent;
+
+                    const shouldShowGapBeforeCurrent =
+                      index === pageIndex - 3 && pageIndex > 3;
+                    const shouldShowGapBeforeLast =
+                      index === tablePageCount - 4 &&
+                      pageIndex < tablePageCount - 4 &&
+                      pageIndex < tablePageCount - 1;
+
+                    return (
+                      <>
+                        {shouldShowGapBeforeCurrent && <PaginationGap />}
+                        {index === 1 && pageIndex > 3 && <PaginationGap />}
+                        {shouldShow && (
+                          <PaginationPage
+                            current={isCurrent}
+                            onClick={() => table.setPageIndex(index)}
+                          >
+                            {String(page)}
+                          </PaginationPage>
+                        )}
+                        {shouldShowGapBeforeLast && <PaginationGap />}
+                      </>
+                    );
+                  }}
+                </For>
+              }
+            </PaginationList>
+            <PaginationNext
+              disabled={!table.getCanNextPage()}
+              onClick={() => table.nextPage()}
+            >
+              Próxima
+            </PaginationNext>
+          </Pagination>
+        )}
       </div>
     </TableContext.Provider>
   );
