@@ -149,6 +149,7 @@ export function Table<Data>({
   data,
   columns,
   xlsx,
+  link,
   div,
 }: {
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
@@ -157,6 +158,7 @@ export function Table<Data>({
   xlsx?: {
     data: any[];
   };
+  link?: React.ReactNode;
   bleed?: boolean;
   dense?: boolean;
   grid?: boolean;
@@ -259,6 +261,7 @@ export function Table<Data>({
                   </Field>
                 </Form>
               )}
+              {link && <div className="mt-1.5">{link}</div>}
               {xlsx && (
                 <div className="mt-1.5">
                   <Xlsx data={xlsx.data} />
