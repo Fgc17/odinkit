@@ -129,10 +129,7 @@ export function Label({
     <HeadlessLabel
       {...props}
       data-slot="label"
-      className={clsx(
-        className,
-        "select-none text-base/6 text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6"
-      )}
+      className={clsx(className, "block text-sm font-medium text-gray-700")}
     >
       <>
         {children}{" "}
@@ -192,7 +189,7 @@ export function useField() {
   return useContext(FieldContext);
 }
 
-export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
+export function Field<Fields extends FieldValues>({
   className,
   enableAsterisk = true,
   variant = "default",

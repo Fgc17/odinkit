@@ -5,7 +5,8 @@
   "exports": {
     ".": "./dist/index.ts",
     "./client": "./dist/index.client.ts",
-    "./server": "./dist/index.server.ts"
+    "./server": "./dist/index.server.ts",
+    "./styles": "./src/styles/styles.css"
   },
   "scripts": {
     "dev": "libuilder --watch ./libuilder.js",

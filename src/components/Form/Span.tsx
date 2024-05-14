@@ -38,9 +38,6 @@ export function Span({
         error &&
           "before:has-[[data-invalid]]:shadow-red-500/10 has-[[data-invalid]]:after:ring-red-500",
 
-        // Valid State
-        !error && "focus-within:after:ring-blue-500",
-
         classes[variant],
 
         className
