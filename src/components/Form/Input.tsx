@@ -13,8 +13,13 @@ import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
 import { Span } from "./Span";
 import { useField } from "./Field";
-import { useState } from "react";
-import { EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid";
+import { Button } from "../Button";
+import { Alert, AlertActions, AlertBody, AlertTitle } from "../Alert";
+import { For } from "../For";
+import React, { Dispatch, useEffect, useState } from "react";
+
+import { EyeIcon, FolderArrowDownIcon } from "@heroicons/react/20/solid";
+import { EyeSlashIcon } from "@heroicons/react/24/solid";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -229,55 +234,39 @@ export function ColorInput({
   );
 }
 
-{
-  /* <Button type="button" color="white" onClick={() => setIsOpen(true)}>
-              Escolher Cor{" "}
-              <div
-                className={clsx(
-                  `bg-${form.watch("color")} h-5 w-5 rounded-full border border-gray-500`
-                )}
-              ></div>
-            </Button>
-            <Alert open={isOpen} onClose={setIsOpen}>
-              <AlertTitle>Escolha a cor primária</AlertTitle>
-              <AlertBody>
-                <div className="flex flex-col items-center">
-                  <For each={colors} identifier="colors">
-                    {(color) => (
-                      <div className="flex flex-grow">
-                        <For each={tones} identifier="tones">
-                          {(tone) => (
-                            <div
-                              className={clsx(
-                                "h-5 w-5",
-                                `bg-${color}-${tone}`,
-                                "hover:scale-150",
-                                "duration-300"
-                              )}
-                              onClick={() =>
-                                form.setValue("color", `${color}-${tone}`)
-                              }
-                            >
-                              {" "}
-                            </div>
-                          )}
-                        </For>
-                      </div>
-                    )}
-                  </For>
-                  <div
-                    onClick={() => form.setValue("color", `white`)}
-                    className={clsx("h-5 w-5", `bg-black`)}
-                  >
-                    {" "}
-                  </div>
-                  <div
-                    onClick={() => form.setValue("color", `black`)}
-                    className={clsx("h-5 w-5", `border border-black bg-white`)}
-                  >
-                    {" "}
-                  </div>
-                </div>
-              </AlertBody>
-            </Alert> */
+export function DebouncedInput({
+  value: initialValue,
+  onChange,
+  setIsLoading,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  setIsLoading: Dispatch<boolean>;
+  debounce?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = React.useState(initialValue);
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  React.useEffect(() => {
+    console.log("xd");
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [value, debounce]);
+
+  return (
+    <Input
+      {...props}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
 }

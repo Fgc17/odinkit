@@ -28,7 +28,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import {
+import React, {
   useState,
   useMemo,
   useRef,
@@ -55,7 +55,7 @@ export function Select<
   placeholder = "Selecionar",
   ...props
 }: HeadlessSelectProps &
-  SelectProps<Data> & {
+  Omit<SelectProps<Data>, "children"> & {
     placeholder?: string;
   }) {
   const form = useFormContext();
