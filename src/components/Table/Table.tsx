@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Dispatch,
   SetStateAction,
@@ -22,6 +22,9 @@ import {
   FilterFn,
   flexRender,
   createColumnHelper,
+  Column,
+  RowData,
+  Table as TableType,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { For } from "../For";
@@ -34,10 +37,19 @@ import {
   PaginationPrevious,
 } from "../Pagination";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { Form, useForm } from "../Form/Form";
+import { Form, useForm, useFormContext } from "../Form/Form";
 import { z } from "../../utils/zod";
-import { Input } from "../Form/Input";
+import { DebouncedInput, Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
+import { random } from "lodash";
+import { Select } from "../Form/Selectbox/Select";
+
+declare module "@tanstack/react-table" {
+  //allows us to define custom properties for our columns
+  interface ColumnMeta<TData extends RowData, TValue> {
+    filterVariant?: "text" | "range" | "select";
+  }
+}
 
 const TableContext = createContext<{
   bleed: boolean;
@@ -56,42 +68,6 @@ const tableSearchSchema = z.object({
 });
 
 type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
-
-function DebouncedInput({
-  value: initialValue,
-  onChange,
-  setIsLoading,
-  debounce = 500,
-  ...props
-}: {
-  value: string | number;
-  onChange: (value: string | number) => void;
-  setIsLoading: Dispatch<boolean>;
-  debounce?: number;
-} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
-  const [value, setValue] = React.useState(initialValue);
-
-  React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
-
-  React.useEffect(() => {
-    const timeout = setTimeout(() => {
-      onChange(value);
-    }, debounce);
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [value, debounce, onChange]);
-
-  return (
-    <input
-      {...props}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-    />
-  );
-}
 
 export function TableMock({
   bleed = false,
@@ -202,6 +178,7 @@ export function Table<Data>({
     pageCount: data.length ? Math.ceil(data.length / 10) : 1,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
+    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -211,13 +188,29 @@ export function Table<Data>({
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
 
-  const form = useForm({ schema: tableSearchSchema, mode: "onChange" });
+  const zodColumns = useCallback(() => {
+    let zodObject = z.object({});
+
+    cols.forEach((col) => {
+      zodObject = zodObject.merge(
+        z.object({
+          [col.id || random()]: z.any().optional(),
+        })
+      );
+    });
+
+    return zodObject;
+  }, [cols]);
+
+  const form = useForm({
+    schema: tableSearchSchema.merge(zodColumns()),
+  });
 
   const Field = useMemo(() => form.createField(), []);
 
   const tablePageCount = useMemo(
     () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
-    [globalFilter]
+    [table.getFilteredRowModel()]
   );
 
   return (
@@ -243,8 +236,7 @@ export function Table<Data>({
             )}
           >
             <div className="flex items-center justify-between gap-3">
-              {search && (
-                <Form hform={form} className="flex-grow">
+              {/* {search && (
                   <Field name="globalFilter">
                     <Input
                       onChange={(e) => {
@@ -259,8 +251,7 @@ export function Table<Data>({
                     />
                     {dataSetter}
                   </Field>
-                </Form>
-              )}
+                )} */}
               {link && <div className="mt-1.5">{link}</div>}
               {xlsx && (
                 <div className="mt-1.5">
@@ -268,72 +259,86 @@ export function Table<Data>({
                 </div>
               )}
             </div>
-            <table className="min-w-full text-left text-sm/6">
-              <TableHead>
-                <For each={table.getHeaderGroups()} identifier="thead">
-                  {(headerGroup) => (
-                    <TableRow>
-                      <For each={headerGroup.headers} identifier="header">
-                        {(header) => (
-                          <TableHeader>
-                            <div
-                              {...{
-                                className: header.column.getCanSort()
-                                  ? "cursor-pointer select-none"
-                                  : "",
-                                onClick:
-                                  header.column.getToggleSortingHandler(),
-                              }}
-                            >
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
+            <Form hform={form} className="flex-grow">
+              <table className="min-w-full text-left text-sm/6">
+                <TableHead>
+                  <For each={table.getHeaderGroups()} identifier="thead">
+                    {(headerGroup) => (
+                      <TableRow>
+                        <For each={headerGroup.headers} identifier="header">
+                          {(header) => (
+                            <TableHeader>
+                              <div
+                                {...{
+                                  className: header.column.getCanSort()
+                                    ? "cursor-pointer select-none"
+                                    : "",
+                                  onClick:
+                                    header.column.getToggleSortingHandler(),
+                                }}
+                              >
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                                {{
+                                  asc: " ↑",
+                                  desc: " ↓",
+                                }[header.column.getIsSorted() as string] ??
+                                  null}
+                              </div>
+                              {header.column.getCanFilter() && (
+                                <div>
+                                  <Field name={header.column.id}>
+                                    <ColumnFilter
+                                      table={table}
+                                      column={header.column}
+                                    />
+                                  </Field>
+                                </div>
                               )}
-                              {{
-                                asc: " ↑",
-                                desc: " ↓",
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </div>
-                          </TableHeader>
-                        )}
-                      </For>
-                    </TableRow>
-                  )}
-                </For>
-              </TableHead>
-              <TableBody>
-                <For
-                  each={table.getRowModel().rows}
-                  identifier="row"
-                  fallback={
-                    <TableRow>
-                      <For each={table.getAllColumns()}>
-                        {(column, index) => (
-                          <TableCell>
-                            {index === 0 ? <>Nada por aqui.</> : null}
-                          </TableCell>
-                        )}
-                      </For>
-                    </TableRow>
-                  }
-                >
-                  {(row) => (
-                    <TableRow>
-                      <For each={row.getVisibleCells()} identifier="cell">
-                        {(cell) => (
-                          <TableCell>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        )}
-                      </For>
-                    </TableRow>
-                  )}
-                </For>
-              </TableBody>
-            </table>
+                            </TableHeader>
+                          )}
+                        </For>
+                      </TableRow>
+                    )}
+                  </For>
+                </TableHead>
+
+                <TableBody>
+                  <For
+                    each={table.getRowModel().rows}
+                    identifier="row"
+                    fallback={
+                      <TableRow>
+                        <For each={table.getAllColumns()}>
+                          {(column, index) => (
+                            <TableCell>
+                              {index === 0 ? <>Nada por aqui.</> : null}
+                            </TableCell>
+                          )}
+                        </For>
+                      </TableRow>
+                    }
+                  >
+                    {(row) => (
+                      <TableRow>
+                        <For each={row.getVisibleCells()} identifier="cell">
+                          {(cell) => (
+                            <TableCell>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </TableCell>
+                          )}
+                        </For>
+                      </TableRow>
+                    )}
+                  </For>
+                </TableBody>
+              </table>
+            </Form>
           </div>
         </div>
         {pagination && (
@@ -515,5 +520,52 @@ export function TableCell({
       )}
       {children}
     </td>
+  );
+}
+
+export function ColumnFilter({
+  table,
+  column,
+}: {
+  column: Column<any, unknown>;
+  table: TableType<any>;
+}) {
+  const columnFilterValue = column.getFilterValue();
+  const { filterVariant } = column.columnDef.meta ?? {};
+  const [_, setIsLoading] = useState(false);
+
+  return filterVariant === "select" ? (
+    <Select
+      displayValueKey="name"
+      data={Array.from(column.getFacetedUniqueValues())
+        .sort((a, b) => a[0]?.localeCompare(b[0]))
+        .filter((value) => value[0])
+        .map((value) => ({
+          id: value[0],
+          name: value[0],
+        }))}
+      onChange={(e) => {
+        if (!e) return;
+        table.resetPageIndex();
+        if ("target" in e) {
+          column.setFilterValue(e.target.value);
+        } else {
+          column.setFilterValue(e.id);
+        }
+      }}
+      value={columnFilterValue?.toString()}
+    />
+  ) : (
+    <DebouncedInput
+      setIsLoading={setIsLoading}
+      onChange={(e) => {
+        table.resetPageIndex();
+        column.setFilterValue(e);
+      }}
+      placeholder={`Buscar...`}
+      type="text"
+      value={(columnFilterValue ?? "") as string}
+    />
+    // See faceted column filters example for datalist search suggestions
   );
 }

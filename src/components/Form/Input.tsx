@@ -16,7 +16,7 @@ import { Button } from "../Button";
 import { Button as HeadlessButton } from "@headlessui/react";
 import { Alert, AlertActions, AlertBody, AlertTitle } from "../Alert";
 import { For } from "../For";
-import React, { useEffect, useState } from "react";
+import React, { Dispatch, useEffect, useState } from "react";
 import {
   twColor,
   twColorPalette,
@@ -331,6 +331,43 @@ export function ColorInput({
           </Alert>
         </>
       )}
+    />
+  );
+}
+
+export function DebouncedInput({
+  value: initialValue,
+  onChange,
+  setIsLoading,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  setIsLoading: Dispatch<boolean>;
+  debounce?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = React.useState(initialValue);
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  React.useEffect(() => {
+    console.log("xd");
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [value, debounce]);
+
+  return (
+    <Input
+      {...props}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
     />
   );
 }
