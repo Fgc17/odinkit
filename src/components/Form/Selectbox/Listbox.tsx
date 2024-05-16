@@ -40,7 +40,7 @@ import { Path, Controller } from "react-hook-form";
 import { For } from "../../For";
 import { inputClasses } from "../Input";
 import { getEntryFromPath } from "../_shared/utils/getEntryFromPath";
-import { Span } from "../Span";
+import { Overlay } from "../Overlay";
 import { useField } from "../Field";
 import { SelectOption, SelectProps } from "./types";
 import * as classes from "./classes";
@@ -99,7 +99,7 @@ export function Listbox<Data extends { id: string | number }>({
       name={name}
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
-        <Span>
+        <Overlay>
           <HeadlessListbox
             as={"div"}
             onChange={(_: any) => {
@@ -112,7 +112,7 @@ export function Listbox<Data extends { id: string | number }>({
             {..._field}
             {...props}
           >
-            <Span>
+            <Overlay>
               <HeadlessListboxButton
                 autoFocus={autoFocus}
                 data-slot="control"
@@ -139,7 +139,7 @@ export function Listbox<Data extends { id: string | number }>({
                   <ChevronUpDownIcon className="size-4 text-black text-zinc-500" />
                 </span>
               </HeadlessListboxButton>
-            </Span>
+            </Overlay>
             <HeadlessTransition
               as={Fragment}
               afterLeave={() => {}}
@@ -160,7 +160,7 @@ export function Listbox<Data extends { id: string | number }>({
               </HeadlessListboxOptions>
             </HeadlessTransition>
           </HeadlessListbox>
-        </Span>
+        </Overlay>
       )}
     />
   );

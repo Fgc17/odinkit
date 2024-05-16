@@ -10,7 +10,7 @@ import { useFormContext } from "./Form";
 import { MaskType, formatWithMask } from "./_shared/utils/formatWithMask";
 import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
-import { Span } from "./Span";
+import { Overlay } from "./Overlay";
 import { useField } from "./Field";
 import { Button } from "../Button";
 import { Button as HeadlessButton } from "@headlessui/react";
@@ -116,7 +116,7 @@ export function Input({
   const { name, error } = useField();
 
   return (
-    <Span className={clsx(className)}>
+    <Overlay className={clsx(className)}>
       <Controller
         name={name}
         control={form.control}
@@ -178,7 +178,7 @@ export function Input({
           </>
         )}
       />
-    </Span>
+    </Overlay>
   );
 }
 

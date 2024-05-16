@@ -7,7 +7,7 @@ import {
 import { useFormContext } from "../Form";
 import { useField } from "../Field";
 import clsx from "clsx";
-import { Span } from "../Span";
+import { Overlay } from "../Overlay";
 import { Controller } from "react-hook-form";
 import { useRef } from "react";
 
@@ -72,7 +72,7 @@ export default function _Internal_Editor({
   const editorRef = useRef(null);
 
   return (
-    <Span className={clsx(className)}>
+    <Overlay className={clsx(className)}>
       <Controller
         name={name}
         control={form.control}
@@ -123,6 +123,6 @@ export default function _Internal_Editor({
           );
         }}
       />
-    </Span>
+    </Overlay>
   );
 }

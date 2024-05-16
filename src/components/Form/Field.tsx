@@ -4,6 +4,7 @@
 import {
   Description as HeadlessDescription,
   Field as HeadlessField,
+  Radio as HeadlessRadio,
   Fieldset as HeadlessFieldset,
   Label as HeadlessLabel,
   Legend as HeadlessLegend,
@@ -15,11 +16,12 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { createContext, useContext, useMemo } from "react";
+import { ReactNode, createContext, useContext, useMemo } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
 import { useFormContext } from "./Form";
 import { getZodFields, z } from "../../utils/zod";
+import { RadioGroup } from "./Radio";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
@@ -39,6 +41,13 @@ const fieldVariants = {
     "[&>[data-slot=control]+[data-slot=description]]:mt-3",
     "[&>[data-slot=control]+[data-slot=error]]:mt-3",
     "[&>[data-slot=label]]:font-medium"
+  ),
+  radio: clsx(
+    // Basic groups
+    "[&_[data-slot=label]]:font-normal",
+
+    // With descriptions
+    "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
   ),
   switch: clsx(
     // Base layout
@@ -92,7 +101,7 @@ export function Legend({ ...props }: HeadlessLegendProps) {
       data-slot="legend"
       className={clsx(
         props.className,
-        "text-base/6 font-semibold text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 "
+        "text-base font-semibold leading-7 text-gray-900 data-[disabled]:opacity-50"
       )}
     />
   );
@@ -152,7 +161,7 @@ export function Description({
       data-slot="description"
       className={clsx(
         className,
-        "text-base/6 text-zinc-500 data-[disabled]:opacity-50 sm:text-sm/6 "
+        "mt-1 text-sm leading-6 text-gray-600 sm:text-left"
       )}
     />
   );
@@ -189,7 +198,7 @@ export function useField() {
   return useContext(FieldContext);
 }
 
-export function Field<Fields extends FieldValues>({
+export function OdinInternal_Field<Fields extends FieldValues>({
   className,
   enableAsterisk = true,
   variant = "default",
@@ -209,7 +218,7 @@ export function Field<Fields extends FieldValues>({
   const isRequired = Boolean(enableAsterisk) && !zodField?.isOptional();
   const error = getEntryFromPath(errors, name).entryValue?.message;
 
-  const fieldContextValue = {
+  let fieldContextValue = {
     name,
     isRequired,
     error: error,
@@ -218,8 +227,14 @@ export function Field<Fields extends FieldValues>({
   return (
     <FieldContext.Provider value={fieldContextValue}>
       <HeadlessField
-        className={clsx(className, fieldVariants[variant])}
         {...props}
+        className={clsx(fieldVariants[variant], className)}
+        children={(() => {
+          if (variant === "radio")
+            return <RadioGroup>{props.children}</RadioGroup>;
+
+          return props.children;
+        })()}
       />
     </FieldContext.Provider>
   );

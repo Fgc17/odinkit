@@ -40,7 +40,7 @@ import { Path, Controller } from "react-hook-form";
 import { For } from "../../For";
 import { inputClasses } from "../Input";
 import { getEntryFromPath } from "../_shared/utils/getEntryFromPath";
-import { Span } from "../Span";
+import { Overlay } from "../Overlay";
 import { useField } from "../Field";
 import { SelectOption, SelectProps } from "./types";
 
@@ -108,7 +108,7 @@ export function Combobox<Data extends { id: string | number }>({
   const comboboxRef = useRef<HTMLElement | null>(null);
 
   return (
-    <Span>
+    <Overlay>
       <Controller
         name={name}
         control={form.control}
@@ -127,7 +127,7 @@ export function Combobox<Data extends { id: string | number }>({
               comboboxRef.current = el;
             }}
           >
-            <Span>
+            <Overlay>
               <ComboboxInput
                 autoComplete="off"
                 data-invalid={error ? "" : undefined}
@@ -172,7 +172,7 @@ export function Combobox<Data extends { id: string | number }>({
                 }}
                 displayValue={(item: SelectOption) => item.displayValue}
               />
-            </Span>
+            </Overlay>
 
             <div className="absolute inset-y-0 right-1 flex space-x-2 ">
               <ComboboxButton
@@ -226,7 +226,7 @@ export function Combobox<Data extends { id: string | number }>({
           </HeadlessCombobox>
         )}
       />
-    </Span>
+    </Overlay>
   );
 }
 

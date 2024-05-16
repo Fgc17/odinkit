@@ -22,7 +22,7 @@ import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
 import { z } from "../../utils/zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldProps, Field } from "./Field";
+import { FieldProps, OdinInternal_Field } from "./Field";
 import { StepContext, useSteps } from "../../hooks/useSteps";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
@@ -85,7 +85,7 @@ export function useForm<Fields extends FieldValues>({
     id: id ?? _id,
     schema,
     createField: () => (props: FieldProps<_Fields>) => (
-      <Field {...fieldOptions} {...props} />
+      <OdinInternal_Field {...fieldOptions} {...props} />
     ),
     ...useReactHookForm<_Fields>({
       ...useReactHookFormProps,

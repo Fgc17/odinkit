@@ -5,7 +5,7 @@ import {
   type TextareaProps as HeadlessTextareaProps,
 } from "@headlessui/react";
 import { clsx } from "clsx";
-import { Span } from "./Span";
+import { Overlay } from "./Overlay";
 import { Controller } from "react-hook-form";
 import { inputClasses } from "./Input";
 import { useFormContext } from "./Form";
@@ -15,7 +15,7 @@ export function Textarea({ className, ...props }: HeadlessTextareaProps) {
   const form = useFormContext();
   const { name } = useField();
   return (
-    <Span>
+    <Overlay>
       <Controller
         name={name}
         control={form.control}
@@ -31,6 +31,6 @@ export function Textarea({ className, ...props }: HeadlessTextareaProps) {
           />
         )}
       />
-    </Span>
+    </Overlay>
   );
 }
