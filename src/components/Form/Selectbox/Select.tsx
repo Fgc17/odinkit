@@ -77,39 +77,43 @@ export function Select<
       <Controller
         name={name}
         control={form.control}
-        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
-          <HeadlessSelect
-            {...props}
-            value={value || ""}
-            onChange={(event) => {
-              onChange && onChange(event);
-              fieldOnChange(event.target.value);
-            }}
-            invalid={Boolean(error)}
-            className={inputClasses}
-          >
-            <option
-              value={""}
-              disabled={isRequired}
-              className={clsx("py-2 pl-3 pr-9")}
-            >
-              {placeholder}
-            </option>
-            <For each={options}>
-              {(item) => {
-                return (
-                  <option
-                    key={item.id}
-                    value={item.value || ""}
-                    className={clsx("py-2 pl-3 pr-9")}
-                  >
-                    {item.displayValue}
-                  </option>
-                );
-              }}
-            </For>
-          </HeadlessSelect>
-        )}
+        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => {
+          {
+            return (
+              <HeadlessSelect
+                {...props}
+                value={value || ""}
+                onChange={(event) => {
+                  onChange && onChange(event);
+                  fieldOnChange(event.target.value);
+                }}
+                invalid={Boolean(error)}
+                className={inputClasses}
+              >
+                <option
+                  value={""}
+                  disabled={isRequired}
+                  className={clsx("py-2 pl-3 pr-9")}
+                >
+                  {placeholder}
+                </option>
+                <For each={options}>
+                  {(item) => {
+                    return (
+                      <option
+                        key={item.id}
+                        value={item.value || ""}
+                        className={clsx("py-2 pl-3 pr-9")}
+                      >
+                        {item.displayValue}
+                      </option>
+                    );
+                  }}
+                </For>
+              </HeadlessSelect>
+            );
+          }
+        }}
       />
     </Span>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
   Dispatch,
   SetStateAction,
@@ -25,6 +25,8 @@ import {
   Column,
   RowData,
   Table as TableType,
+  ColumnFiltersState,
+  ColumnFilter as ColumnFilterType,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { For } from "../For";
@@ -36,13 +38,14 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from "../Pagination";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import { Form, useForm, useFormContext } from "../Form/Form";
 import { z } from "../../utils/zod";
 import { DebouncedInput, Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
 import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
+import { Label } from "../Form/Field";
+import { DisclosureAccordion } from "../Disclosure";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -122,6 +125,7 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
+  defaultColumnFilters,
   data,
   columns,
   xlsx,
@@ -135,6 +139,7 @@ export function Table<Data>({
     data: any[];
   };
   link?: React.ReactNode;
+  defaultColumnFilters?: ColumnFiltersState;
   bleed?: boolean;
   dense?: boolean;
   grid?: boolean;
@@ -175,10 +180,12 @@ export function Table<Data>({
     state: {
       globalFilter,
     },
+    initialState: {
+      columnFilters: defaultColumnFilters,
+    },
     pageCount: data.length ? Math.ceil(data.length / 10) : 1,
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
-    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -187,14 +194,17 @@ export function Table<Data>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
-
   const zodColumns = useCallback(() => {
     let zodObject = z.object({});
 
     cols.forEach((col) => {
       zodObject = zodObject.merge(
         z.object({
-          [col.id || random()]: z.any().optional(),
+          [col.id || random()]: defaultColumnFilters?.find(
+            (f) => f.id === col.id
+          )?.value
+            ? z.string()
+            : z.string().optional(),
         })
       );
     });
@@ -204,6 +214,12 @@ export function Table<Data>({
 
   const form = useForm({
     schema: tableSearchSchema.merge(zodColumns()),
+    defaultValues: defaultColumnFilters
+      ? Object.assign(
+          {},
+          ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
+        )
+      : undefined,
   });
 
   const Field = useMemo(() => form.createField(), []);
@@ -221,45 +237,69 @@ export function Table<Data>({
         >
       }
     >
-      <div className="flow-root">
-        <div
-          {...div}
-          className={clsx(
-            className,
-            "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
+      <Form hform={form}>
+        <div className="flex items-center justify-between gap-3">
+          {search && (
+            <Field name="globalFilter" className="flex-grow">
+              <Input
+                onChange={(e) => {
+                  setGlobalFilter && setGlobalFilter(String(e.target.value));
+                }}
+                placeholder={`Procurar (ex: ${cols
+                  .filter((c) => c.enableGlobalFilter)
+                  .map((c) => c.header)
+                  .slice(0, 3)
+                  .join(", ")})`}
+              />
+              {dataSetter}
+            </Field>
           )}
-        >
+          {link && <div className="mt-1.5">{link}</div>}
+          {xlsx && (
+            <div className="mt-1.5">
+              <Xlsx data={xlsx.data} />
+            </div>
+          )}
+        </div>
+        <div className="mt-4 lg:hidden">
+          <DisclosureAccordion title={"Exibir Filtros"}>
+            <For each={table.getHeaderGroups()}>
+              {(headerGroup) => (
+                <For each={headerGroup.headers}>
+                  {(header) => {
+                    if (header.column.getCanFilter()) {
+                      return (
+                        <Field name={header.column.id}>
+                          <Label>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </Label>
+                          <ColumnFilter table={table} column={header.column} />
+                        </Field>
+                      );
+                    } else return <></>;
+                  }}
+                </For>
+              )}
+            </For>
+          </DisclosureAccordion>
+        </div>
+        <div className="mt-3 flow-root">
           <div
+            {...div}
             className={clsx(
-              "inline-block min-w-full align-middle",
-              !bleed && "sm:px-[--gutter]"
+              className,
+              "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
             )}
           >
-            <div className="flex items-center justify-between gap-3">
-              {/* {search && (
-                  <Field name="globalFilter">
-                    <Input
-                      onChange={(e) => {
-                        setGlobalFilter &&
-                          setGlobalFilter(String(e.target.value));
-                      }}
-                      placeholder={`Procurar (ex: ${cols
-                        .filter((c) => c.enableGlobalFilter)
-                        .map((c) => c.header)
-                        .slice(0, 3)
-                        .join(", ")})`}
-                    />
-                    {dataSetter}
-                  </Field>
-                )} */}
-              {link && <div className="mt-1.5">{link}</div>}
-              {xlsx && (
-                <div className="mt-1.5">
-                  <Xlsx data={xlsx.data} />
-                </div>
+            <div
+              className={clsx(
+                "inline-block min-w-full align-middle",
+                !bleed && "sm:px-[--gutter]"
               )}
-            </div>
-            <Form hform={form} className="flex-grow">
+            >
               <table className="min-w-full text-left text-sm/6">
                 <TableHead>
                   <For each={table.getHeaderGroups()} identifier="thead">
@@ -288,7 +328,7 @@ export function Table<Data>({
                                   null}
                               </div>
                               {header.column.getCanFilter() && (
-                                <div>
+                                <div className="hidden lg:block">
                                   <Field name={header.column.id}>
                                     <ColumnFilter
                                       table={table}
@@ -338,73 +378,74 @@ export function Table<Data>({
                   </For>
                 </TableBody>
               </table>
-            </Form>
+            </div>
           </div>
         </div>
-        {pagination && (
-          <Pagination className="my-2">
-            <PaginationPrevious
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
-            >
-              Anterior
-            </PaginationPrevious>
-            <PaginationList>
-              {
-                <For
-                  each={Array.from(
-                    {
-                      length: tablePageCount,
-                    },
-                    (_, index) => index + 1
-                  )}
-                >
-                  {(page, index) => {
-                    const pageIndex = table.getState().pagination.pageIndex;
+      </Form>
 
-                    const isCurrent = pageIndex === index;
-                    const isFirstPage = index === 0;
-                    const isLastPage = index === tablePageCount - 1;
-                    const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+      {pagination && (
+        <Pagination className="my-2">
+          <PaginationPrevious
+            disabled={!table.getCanPreviousPage()}
+            onClick={() => table.previousPage()}
+          >
+            Anterior
+          </PaginationPrevious>
+          <PaginationList>
+            {
+              <For
+                each={Array.from(
+                  {
+                    length: tablePageCount,
+                  },
+                  (_, index) => index + 1
+                )}
+              >
+                {(page, index) => {
+                  const pageIndex = table.getState().pagination.pageIndex;
 
-                    const shouldShow =
-                      isCurrent || isFirstPage || isLastPage || isNearCurrent;
+                  const isCurrent = pageIndex === index;
+                  const isFirstPage = index === 0;
+                  const isLastPage = index === tablePageCount - 1;
+                  const isNearCurrent = Math.abs(index - pageIndex) <= 2;
 
-                    const shouldShowGapBeforeCurrent =
-                      index === pageIndex - 3 && pageIndex > 3;
-                    const shouldShowGapBeforeLast =
-                      index === tablePageCount - 4 &&
-                      pageIndex < tablePageCount - 4 &&
-                      pageIndex < tablePageCount - 1;
+                  const shouldShow =
+                    isCurrent || isFirstPage || isLastPage || isNearCurrent;
 
-                    return (
-                      <>
-                        {shouldShowGapBeforeCurrent && <PaginationGap />}
-                        {index === 1 && pageIndex > 3 && <PaginationGap />}
-                        {shouldShow && (
-                          <PaginationPage
-                            current={isCurrent}
-                            onClick={() => table.setPageIndex(index)}
-                          >
-                            {String(page)}
-                          </PaginationPage>
-                        )}
-                        {shouldShowGapBeforeLast && <PaginationGap />}
-                      </>
-                    );
-                  }}
-                </For>
-              }
-            </PaginationList>
-            <PaginationNext
-              disabled={!table.getCanNextPage()}
-              onClick={() => table.nextPage()}
-            >
-              Próxima
-            </PaginationNext>
-          </Pagination>
-        )}
-      </div>
+                  const shouldShowGapBeforeCurrent =
+                    index === pageIndex - 3 && pageIndex > 3;
+                  const shouldShowGapBeforeLast =
+                    index === tablePageCount - 4 &&
+                    pageIndex < tablePageCount - 4 &&
+                    pageIndex < tablePageCount - 1;
+
+                  return (
+                    <>
+                      {shouldShowGapBeforeCurrent && <PaginationGap />}
+                      {index === 1 && pageIndex > 3 && <PaginationGap />}
+                      {shouldShow && (
+                        <PaginationPage
+                          current={isCurrent}
+                          onClick={() => table.setPageIndex(index)}
+                        >
+                          {String(page)}
+                        </PaginationPage>
+                      )}
+                      {shouldShowGapBeforeLast && <PaginationGap />}
+                    </>
+                  );
+                }}
+              </For>
+            }
+          </PaginationList>
+          <PaginationNext
+            disabled={!table.getCanNextPage()}
+            onClick={() => table.nextPage()}
+          >
+            Próxima
+          </PaginationNext>
+        </Pagination>
+      )}
     </TableContext.Provider>
   );
 }
@@ -413,7 +454,12 @@ export function TableHead({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"thead">) {
-  return <thead className={clsx(className, "text-zinc-500 ")} {...props} />;
+  return (
+    <thead
+      className={clsx(className, "text-zinc-500 ", "lg:min-w-[150px]")}
+      {...props}
+    />
+  );
 }
 
 export function TableBody(props: React.ComponentPropsWithoutRef<"tbody">) {
@@ -478,7 +524,7 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
+        "min-w-[120px] border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
         grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
         !bleed && "sm:first:pl-2 sm:last:pr-2"
       )}

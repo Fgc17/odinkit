@@ -354,7 +354,6 @@ export function DebouncedInput({
   }, [initialValue]);
 
   React.useEffect(() => {
-    console.log("xd");
     const timeout = setTimeout(() => {
       onChange(value);
     }, debounce);
