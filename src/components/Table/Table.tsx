@@ -46,6 +46,7 @@ import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
 import { Label } from "../Form/Field";
 import { DisclosureAccordion } from "../Disclosure";
+import { BottomNavigation } from "../BottomNavigation";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -132,6 +133,7 @@ export function Table<Data>({
   xlsx,
   link,
   div,
+  children,
 }: {
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
   search?: boolean;
@@ -155,6 +157,7 @@ export function Table<Data>({
     | ReturnType<ColumnHelper<any>["group"]>
   )[];
   className?: string;
+  children?: React.ReactNode;
 }) {
   const columnHelper = createColumnHelper<Data>();
 
@@ -262,31 +265,7 @@ export function Table<Data>({
             </div>
           )}
         </div>
-        <div className="mt-4 lg:hidden">
-          <DisclosureAccordion title={"Exibir Filtros"}>
-            <For each={table.getHeaderGroups()}>
-              {(headerGroup) => (
-                <For each={headerGroup.headers}>
-                  {(header) => {
-                    if (header.column.getCanFilter()) {
-                      return (
-                        <Field name={header.column.id}>
-                          <Label>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                          </Label>
-                          <ColumnFilter table={table} column={header.column} />
-                        </Field>
-                      );
-                    } else return <></>;
-                  }}
-                </For>
-              )}
-            </For>
-          </DisclosureAccordion>
-        </div>
+
         <div className="mt-3 flow-root">
           <div
             {...div}
@@ -382,6 +361,32 @@ export function Table<Data>({
             </div>
           </div>
         </div>
+        <BottomNavigation className="p-1 lg:hidden">
+          <DisclosureAccordion className="border-none" title={"Exibir Filtros"}>
+            {children}
+            <For each={table.getHeaderGroups()}>
+              {(headerGroup) => (
+                <For each={headerGroup.headers}>
+                  {(header) => {
+                    if (header.column.getCanFilter()) {
+                      return (
+                        <Field name={header.column.id}>
+                          <Label>
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                          </Label>
+                          <ColumnFilter table={table} column={header.column} />
+                        </Field>
+                      );
+                    } else return <></>;
+                  }}
+                </For>
+              )}
+            </For>
+          </DisclosureAccordion>
+        </BottomNavigation>
       </Form>
 
       {pagination && (
@@ -525,7 +530,7 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "min-w-[120px] border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
+        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
         grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
         !bleed && "sm:first:pl-2 sm:last:pr-2"
       )}
