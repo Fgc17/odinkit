@@ -43,11 +43,12 @@ const fieldVariants = {
     "[&>[data-slot=label]]:font-medium"
   ),
   radio: clsx(
-    // Basic groups
-    "[&_[data-slot=label]]:font-normal",
-
-    // With descriptions
-    "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
+    "[&>[data-slot=label]+[data-slot=control]]:mt-3",
+    "[&>[data-slot=label]+[data-slot=description]]:mt-1",
+    "[&>[data-slot=description]+[data-slot=control]]:mt-3",
+    "[&>[data-slot=control]+[data-slot=description]]:mt-3",
+    "[&>[data-slot=control]+[data-slot=error]]:mt-3",
+    "[&>[data-slot=label]]:font-medium"
   ),
   switch: clsx(
     // Base layout
@@ -224,17 +225,15 @@ export function OdinInternal_Field<Fields extends FieldValues>({
     error: error,
   };
 
+  if (variant === "radio") {
+    fieldContextValue.isRequired = false;
+  }
+
   return (
     <FieldContext.Provider value={fieldContextValue}>
       <HeadlessField
         {...props}
         className={clsx(fieldVariants[variant], className)}
-        children={(() => {
-          if (variant === "radio")
-            return <RadioGroup>{props.children}</RadioGroup>;
-
-          return props.children;
-        })()}
       />
     </FieldContext.Provider>
   );

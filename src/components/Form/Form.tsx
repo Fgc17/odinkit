@@ -51,8 +51,9 @@ export type MultistepFormChildrenProps<Step, Steps> = {
 
 export type FormProps<Fields extends FieldValues> = Omit<
   React.ComponentProps<"form">,
-  "onSubmit" | "id"
+  "onSubmit" | "id" | "ref"
 > & {
+  innerRef?: React.RefObject<HTMLFormElement>;
   hform: UseFormReturn<Fields>;
   onSubmit?: (data: Fields) => void;
 };
@@ -200,6 +201,7 @@ export function MultistepForm<
 export function Form<Fields extends FieldValues>({
   onSubmit,
   hform,
+  innerRef,
   ...props
 }: FormProps<Fields>) {
   return (
@@ -212,6 +214,7 @@ export function Form<Fields extends FieldValues>({
             return onSubmit(data);
           })
         }
+        ref={innerRef}
         id={hform.id}
         {...props}
       />
