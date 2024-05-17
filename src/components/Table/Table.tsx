@@ -127,6 +127,7 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
+  disableMobileFilters,
   defaultColumnFilters,
   data,
   columns,
@@ -135,6 +136,7 @@ export function Table<Data>({
   div,
   children,
 }: {
+  disableMobileFilters?: boolean;
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
   search?: boolean;
   pagination?: boolean;
@@ -361,32 +363,40 @@ export function Table<Data>({
             </div>
           </div>
         </div>
-        <BottomNavigation className="p-1 lg:hidden">
-          <DisclosureAccordion className="border-none" title={"Exibir Filtros"}>
-            {children}
-            <For each={table.getHeaderGroups()}>
-              {(headerGroup) => (
-                <For each={headerGroup.headers}>
-                  {(header) => {
-                    if (header.column.getCanFilter()) {
-                      return (
-                        <Field name={header.column.id}>
-                          <Label>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                          </Label>
-                          <ColumnFilter table={table} column={header.column} />
-                        </Field>
-                      );
-                    } else return <></>;
-                  }}
-                </For>
-              )}
-            </For>
-          </DisclosureAccordion>
-        </BottomNavigation>
+        {!disableMobileFilters && (
+          <BottomNavigation className="p-1 lg:hidden">
+            <DisclosureAccordion
+              className="border-none"
+              title={"Exibir Filtros"}
+            >
+              {children}
+              <For each={table.getHeaderGroups()}>
+                {(headerGroup) => (
+                  <For each={headerGroup.headers}>
+                    {(header) => {
+                      if (header.column.getCanFilter()) {
+                        return (
+                          <Field name={header.column.id}>
+                            <Label>
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                            </Label>
+                            <ColumnFilter
+                              table={table}
+                              column={header.column}
+                            />
+                          </Field>
+                        );
+                      } else return <></>;
+                    }}
+                  </For>
+                )}
+              </For>
+            </DisclosureAccordion>
+          </BottomNavigation>
+        )}
       </Form>
 
       {pagination && (
