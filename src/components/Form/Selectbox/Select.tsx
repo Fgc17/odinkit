@@ -68,6 +68,7 @@ export function Select<
         id: i.id as string,
         displayValue: getEntryFromPath(i, displayValueKey).entryValue,
         value: valueKey ? getEntryFromPath(i, valueKey).entryValue : i.id,
+        disabled: i.disabled,
       })),
     [data]
   );
@@ -102,6 +103,7 @@ export function Select<
                     return (
                       <option
                         key={item.id}
+                        disabled={item.disabled}
                         value={item.value || ""}
                         className={clsx("py-2 pl-3 pr-9")}
                       >
