@@ -187,7 +187,7 @@ export function Table<Data>({
       globalFilter,
     },
     initialState: {
-      columnFilters: defaultColumnFilters,
+      columnFilters: defaultColumnFilters ?? [],
     },
     pageCount: data.length ? Math.ceil(data.length / 10) : 1,
     onGlobalFilterChange: setGlobalFilter,
@@ -232,7 +232,7 @@ export function Table<Data>({
 
   const tablePageCount = useMemo(
     () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
-    [table.getFilteredRowModel()]
+    [table.getPreFilteredRowModel()]
   );
 
   return (
