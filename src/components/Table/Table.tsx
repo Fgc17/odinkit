@@ -51,6 +51,7 @@ import { BottomNavigation } from "../BottomNavigation";
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
+    selectOptions?: Array<{ value: TValue; label: string }>;
     filterVariant?: "text" | "range" | "select";
     className?: string;
   }
@@ -593,7 +594,7 @@ export function ColumnFilter({
   table: TableType<any>;
 }) {
   const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta ?? {};
+  const { filterVariant, selectOptions } = column.columnDef.meta ?? {};
   const [_, setIsLoading] = useState(false);
 
   return filterVariant === "select" ? (
@@ -604,7 +605,8 @@ export function ColumnFilter({
         .filter((value) => value[0])
         .map((value) => ({
           id: value[0],
-          name: value[0],
+          name:
+            selectOptions?.find((v) => v.value === value[0])?.label ?? value[0],
         }))}
       onChange={(e) => {
         if (!e) return;
