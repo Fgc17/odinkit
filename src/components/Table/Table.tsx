@@ -169,13 +169,6 @@ export function Table<Data>({
 
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const [paginationState, setPaginationState] = React.useState<PaginationState>(
-    {
-      pageIndex: 0,
-      pageSize: 10,
-    }
-  );
-
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value);
 
