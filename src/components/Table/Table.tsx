@@ -42,7 +42,7 @@ import { Form, useForm, useFormContext } from "../Form/Form";
 import { z } from "../../utils/zod";
 import { DebouncedInput, Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
-import { random } from "lodash";
+import { get, random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
 import { Label } from "../Form/Field";
 import { DisclosureAccordion } from "../Disclosure";
@@ -71,6 +71,7 @@ const TableContext = createContext<{
 
 const tableSearchSchema = z.object({
   globalFilter: z.string().optional(),
+  itemsPerPage: z.number(),
 });
 
 type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
@@ -168,6 +169,13 @@ export function Table<Data>({
 
   const [globalFilter, setGlobalFilter] = useState("");
 
+  const [paginationState, setPaginationState] = React.useState<PaginationState>(
+    {
+      pageIndex: 0,
+      pageSize: 10,
+    }
+  );
+
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value);
 
@@ -178,29 +186,6 @@ export function Table<Data>({
     return itemRank.passed;
   };
 
-  const table = useReactTable({
-    data,
-    columns: cols,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    state: {
-      globalFilter,
-    },
-    initialState: {
-      columnFilters: defaultColumnFilters ?? [],
-    },
-    pageCount: data.length ? Math.ceil(data.length / 10) : 1,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-  });
   const zodColumns = useCallback(() => {
     let zodObject = z.object({});
 
@@ -221,19 +206,52 @@ export function Table<Data>({
 
   const form = useForm({
     schema: tableSearchSchema.merge(zodColumns()),
-    defaultValues: defaultColumnFilters
-      ? Object.assign(
-          {},
-          ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
-        )
-      : undefined,
+    defaultValues: {
+      ...(defaultColumnFilters
+        ? Object.assign(
+            {},
+            ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
+          )
+        : undefined),
+      itemsPerPage: 10,
+    },
+  });
+
+  const table = useReactTable({
+    data,
+    columns: cols,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    state: {
+      globalFilter,
+    },
+    initialState: {
+      columnFilters: defaultColumnFilters ?? [],
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+      },
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
 
   const Field = useMemo(() => form.createField(), []);
 
   const tablePageCount = useMemo(
-    () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
-    [table.getPreFilteredRowModel()]
+    () =>
+      Math.ceil(
+        table.getFilteredRowModel().rows.length / form.watch("itemsPerPage")
+      ),
+    [table.getFilteredRowModel(), form.watch("itemsPerPage")]
   );
 
   return (
@@ -244,7 +262,7 @@ export function Table<Data>({
         >
       }
     >
-      <Form hform={form}>
+      <Form hform={form} className={clsx(pagination && "pb-20 lg:pb-0")}>
         <div className="flex items-center justify-between gap-3">
           {search && (
             <Field name="globalFilter" className="flex-grow">
@@ -284,7 +302,7 @@ export function Table<Data>({
               )}
             >
               <table className="min-w-full text-left text-sm/6">
-                <TableHead>
+                <TableHead className="bg-white">
                   <For each={table.getHeaderGroups()} identifier="thead">
                     {(headerGroup) => (
                       <TableRow>
@@ -398,71 +416,94 @@ export function Table<Data>({
             </DisclosureAccordion>
           </BottomNavigation>
         )}
+
+        {pagination && (
+          <Pagination className="my-2">
+            <PaginationPrevious
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+            >
+              Anterior
+            </PaginationPrevious>
+            <div className="flex items-center gap-2">
+              <PaginationList>
+                {
+                  <For
+                    each={Array.from(
+                      {
+                        length: tablePageCount,
+                      },
+                      (_, index) => index + 1
+                    )}
+                  >
+                    {(page, index) => {
+                      const pageIndex = table.getState().pagination.pageIndex;
+
+                      const isCurrent = pageIndex === index;
+                      const isFirstPage = index === 0;
+                      const isLastPage = index === tablePageCount - 1;
+                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+
+                      const shouldShow =
+                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
+
+                      const shouldShowGapBeforeCurrent =
+                        index === pageIndex - 3 && pageIndex > 3;
+                      const shouldShowGapBeforeLast =
+                        index === tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 1;
+
+                      return (
+                        <>
+                          {shouldShowGapBeforeCurrent && <PaginationGap />}
+                          {index === 1 && pageIndex > 3 && <PaginationGap />}
+                          {shouldShow && (
+                            <PaginationPage
+                              current={isCurrent}
+                              onClick={() => table.setPageIndex(index)}
+                            >
+                              {String(page)}
+                            </PaginationPage>
+                          )}
+                          {shouldShowGapBeforeLast && <PaginationGap />}
+                        </>
+                      );
+                    }}
+                  </For>
+                }
+              </PaginationList>
+              <Field name="itemsPerPage">
+                <Select
+                  data={[
+                    { id: 10, name: "10" },
+                    { id: 20, name: "20" },
+                    { id: 30, name: "30" },
+                    { id: 50, name: "50" },
+                  ]}
+                  displayValueKey="name"
+                  onChange={(e) =>
+                    table.setPageSize(
+                      Number(
+                        (e as React.ChangeEvent<HTMLSelectElement>).target.value
+                      )
+                    )
+                  }
+                />
+              </Field>
+            </div>
+            <PaginationNext
+              disabled={
+                !table.getCanNextPage() ||
+                table.getState().pagination.pageIndex + 1 >= tablePageCount
+              }
+              onClick={() => table.nextPage()}
+            >
+              Próxima
+            </PaginationNext>
+          </Pagination>
+        )}
       </Form>
-
-      {pagination && (
-        <Pagination className="my-2">
-          <PaginationPrevious
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
-          >
-            Anterior
-          </PaginationPrevious>
-          <PaginationList>
-            {
-              <For
-                each={Array.from(
-                  {
-                    length: tablePageCount,
-                  },
-                  (_, index) => index + 1
-                )}
-              >
-                {(page, index) => {
-                  const pageIndex = table.getState().pagination.pageIndex;
-
-                  const isCurrent = pageIndex === index;
-                  const isFirstPage = index === 0;
-                  const isLastPage = index === tablePageCount - 1;
-                  const isNearCurrent = Math.abs(index - pageIndex) <= 2;
-
-                  const shouldShow =
-                    isCurrent || isFirstPage || isLastPage || isNearCurrent;
-
-                  const shouldShowGapBeforeCurrent =
-                    index === pageIndex - 3 && pageIndex > 3;
-                  const shouldShowGapBeforeLast =
-                    index === tablePageCount - 4 &&
-                    pageIndex < tablePageCount - 4 &&
-                    pageIndex < tablePageCount - 1;
-
-                  return (
-                    <>
-                      {shouldShowGapBeforeCurrent && <PaginationGap />}
-                      {index === 1 && pageIndex > 3 && <PaginationGap />}
-                      {shouldShow && (
-                        <PaginationPage
-                          current={isCurrent}
-                          onClick={() => table.setPageIndex(index)}
-                        >
-                          {String(page)}
-                        </PaginationPage>
-                      )}
-                      {shouldShowGapBeforeLast && <PaginationGap />}
-                    </>
-                  );
-                }}
-              </For>
-            }
-          </PaginationList>
-          <PaginationNext
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
-          >
-            Próxima
-          </PaginationNext>
-        </Pagination>
-      )}
     </TableContext.Provider>
   );
 }
@@ -602,7 +643,6 @@ export function ColumnFilter({
       displayValueKey="name"
       data={Array.from(column.getFacetedUniqueValues())
         .sort((a, b) => a[0]?.localeCompare(b[0]))
-        .filter((value) => value[0])
         .map((value) => ({
           id: value[0],
           name:
