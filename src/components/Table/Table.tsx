@@ -468,6 +468,7 @@ export function Table<Data>({
               </PaginationList>
               <Field name="itemsPerPage">
                 <Select
+                  className={"mb-0 mt-0"}
                   data={[
                     { id: 10, name: "10" },
                     { id: 20, name: "20" },

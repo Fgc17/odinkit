@@ -89,7 +89,7 @@ export function Select<
                   fieldOnChange(event.target.value);
                 }}
                 invalid={Boolean(error)}
-                className={inputClasses}
+                className={inputClasses + " " + className}
               >
                 <option
                   value={""}
