@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Dispatch,
   SetStateAction,
@@ -42,7 +42,7 @@ import { Form, useForm, useFormContext } from "../Form/Form";
 import { z } from "../../utils/zod";
 import { DebouncedInput, Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
-import { get, random } from "lodash";
+import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
 import { Label } from "../Form/Field";
 import { DisclosureAccordion } from "../Disclosure";
@@ -144,6 +144,7 @@ export function Table<Data>({
   pagination?: boolean;
   xlsx?: {
     data: any[];
+    fileName: string;
   };
   link?: React.ReactNode;
   defaultColumnFilters?: ColumnFiltersState;
@@ -275,7 +276,7 @@ export function Table<Data>({
           {link && <div className="mt-1.5">{link}</div>}
           {xlsx && (
             <div className="mt-1.5">
-              <Xlsx data={xlsx.data} />
+              <Xlsx fileName={xlsx.fileName} data={xlsx.data} />
             </div>
           )}
         </div>
@@ -637,6 +638,7 @@ export function ColumnFilter({
       displayValueKey="name"
       data={Array.from(column.getFacetedUniqueValues())
         .sort((a, b) => a[0]?.localeCompare(b[0]))
+        .filter((value) => value[0] !== undefined)
         .map((value) => ({
           id: value[0],
           name:
