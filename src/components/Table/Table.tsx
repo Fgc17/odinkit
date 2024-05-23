@@ -144,7 +144,7 @@ export function Table<Data>({
   pagination?: boolean;
   xlsx?: {
     data: any[];
-    fileName: string;
+    fileName?: string;
   };
   link?: React.ReactNode;
   defaultColumnFilters?: ColumnFiltersState;
