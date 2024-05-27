@@ -1,3 +1,15 @@
+type EditorSettingsType = {
+  skin?: boolean;
+  promotion?: boolean;
+  language?: string;
+  plugins?: string[];
+  toolbar?: string;
+  content_style?: string;
+  height?: number;
+  menubar?: boolean;
+  content_css?: boolean;
+};
+
 export const editorSettings = {
   skin: false,
   promotion: false,
