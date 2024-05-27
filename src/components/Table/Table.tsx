@@ -296,7 +296,7 @@ export function Table<Data>({
               )}
             >
               <table className="min-w-full text-left text-sm/6">
-                <TableHead className="bg-white">
+                <TableHead>
                   <For each={table.getHeaderGroups()} identifier="thead">
                     {(headerGroup) => (
                       <TableRow>
@@ -380,7 +380,11 @@ export function Table<Data>({
           <BottomNavigation className="p-1 lg:hidden">
             <DisclosureAccordion
               className="border-none"
-              title={"Exibir Filtros"}
+              title={`Exibir Filtros (${
+                Object.entries(form.watch()).filter(
+                  (f) => f[1] && f[0] !== "itemsPerPage"
+                ).length
+              })`}
             >
               {children}
               <For each={table.getHeaderGroups()}>
@@ -577,7 +581,7 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
+        "border-b border-b-zinc-950/10 px-2 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] lg:px-4 ",
         grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
         !bleed && "sm:first:pl-2 sm:last:pr-2"
       )}
@@ -600,7 +604,7 @@ export function TableCell({
       {...props}
       className={clsx(
         className,
-        "px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
+        "px-2 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] lg:px-4",
         !striped && "border-b border-zinc-950/5 ",
         grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
         dense ? "py-2.5" : "py-4",
