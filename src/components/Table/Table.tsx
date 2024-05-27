@@ -256,7 +256,7 @@ export function Table<Data>({
         >
       }
     >
-      <Form hform={form} className={clsx(pagination && "pb-20 lg:pb-0")}>
+      <Form hform={form} className={clsx(pagination && "pb-4 lg:pb-0")}>
         <div className="flex items-center justify-between gap-3">
           {search && (
             <Field name="globalFilter" className="flex-grow">
