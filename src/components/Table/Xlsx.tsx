@@ -1,82 +1,50 @@
 import { TableCellsIcon } from "@heroicons/react/24/solid";
-import xlsx from "json-as-xlsx";
+import * as XLSX from "xlsx";
 import dayjs from "dayjs";
 import { Button } from "../Button";
 
 export interface XlsxProps {
   data: any[];
-  columns: any[];
-  fileName: string;
-  sheetName: string;
+  fileName?: string;
 }
 
-export default function Xlsx({
-  data,
-  columns,
-  fileName,
-  sheetName,
-}: XlsxProps) {
-  let settings = {
-    fileName: fileName,
-    extraLength: 3,
-    writeMode: "writeFile",
-    writeOptions: {},
-    RTL: false,
-  };
-  const parsedColumns = columns.map((column, index, array) => ({
-    label:
-      column.header === "Comentários"
-        ? columns[index - 1].header + ": Comentarios"
-        : column.header,
-    key: `${column.accessorKey}`,
-    value: `${column.accessorKey}`.replace(/\./g, ""),
-  }));
-
-  function getNestedProperty(obj: any, path: string | string[]) {
-    if (typeof path === "string") {
-      path = path.split(".");
-    }
-
-    return path.reduce(
-      (current: { [x: string]: any }, key: string | number) => {
-        return current ? current[key] : undefined;
-      },
-      obj
-    );
+export default function Xlsx({ data, fileName }: XlsxProps) {
+  function s2ab(s: string) {
+    const buf = new ArrayBuffer(s.length);
+    const view = new Uint8Array(buf);
+    for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xff;
+    return buf;
   }
 
-  function dataFormatter(data: any) {
-    const formattedData = data.map((row: any) => {
-      const formattedRow: any = {};
-      parsedColumns.forEach((column) => {
-        const value = getNestedProperty(row, column.key);
-        formattedRow[column.value] = value;
-      });
-      return formattedRow;
+  const handleDownload = () => {
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+    const wbout = XLSX.write(wb, { bookType: "xlsx", type: "binary" });
+
+    const blob = new Blob([s2ab(wbout)], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
 
-    return formattedData;
-  }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${fileName || "arquivo"}.xlsx`;
 
-  function excelObjectBuilder(
-    data: any[],
-    columns: { label: any; key: string; value: string }[]
-  ) {
-    return [
-      {
-        sheet: sheetName || `ApoioZ ${dayjs().format("DD-MM-YYYY")}`,
-        columns,
-        content: dataFormatter(data),
-      },
-    ];
-  }
+    // Simulate click on the link to trigger the download
+    a.click();
+
+    // Clean up the URL object
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <>
       <Button
         color="emerald"
         className={"my-0"}
-        onClick={() => xlsx(excelObjectBuilder(data, parsedColumns), settings)}
+        onClick={() => handleDownload()}
       >
         <div className="flex items-center justify-center gap-2">
           <TableCellsIcon className="h-6 w-6 text-white" />

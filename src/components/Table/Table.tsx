@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Dispatch,
   SetStateAction,
@@ -22,6 +22,7 @@ import {
   FilterFn,
   flexRender,
   createColumnHelper,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { For } from "../For";
@@ -38,6 +39,9 @@ import { Form, useForm } from "../Form/Form";
 import { z } from "zod";
 import { Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
+import { random } from "lodash";
+import { Label } from "../Form/Field";
+import { Select } from "../Form/Selectbox/Select";
 
 const TableContext = createContext<{
   bleed: boolean;
@@ -98,18 +102,29 @@ export function Table<Data>({
   dense = false,
   grid = false,
   striped = false,
+  search = true,
+  pagination = true,
   className,
   dataSetter,
-  children,
+  disableMobileFilters,
+  defaultColumnFilters,
   data,
   columns,
   xlsx,
-  ...props
+  link,
+  div,
+  children,
 }: {
+  disableMobileFilters?: boolean;
+  div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
+  search?: boolean;
+  pagination?: boolean;
   xlsx?: {
-    fileName: string;
-    sheetName: string;
+    data: any[];
+    fileName?: string;
   };
+  link?: React.ReactNode;
+  defaultColumnFilters?: ColumnFiltersState;
   bleed?: boolean;
   dense?: boolean;
   grid?: boolean;
@@ -123,11 +138,14 @@ export function Table<Data>({
     | ReturnType<ColumnHelper<any>["group"]>
     | ReturnType<ColumnHelper<any>["group"]>
   )[];
-} & React.ComponentPropsWithoutRef<"div">) {
+  className?: string;
+  children?: React.ReactNode;
+}) {
   const columnHelper = createColumnHelper<Data>();
-  const [globalFilter, setGlobalFilter] = useState("");
 
   const cols = columns(columnHelper);
+
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
     const itemRank = rankItem(row.getValue(columnId), value);
@@ -139,6 +157,37 @@ export function Table<Data>({
     return itemRank.passed;
   };
 
+  const zodColumns = useCallback(() => {
+    let zodObject = z.object({});
+
+    cols.forEach((col) => {
+      zodObject = zodObject.merge(
+        z.object({
+          [col.id || random()]: defaultColumnFilters?.find(
+            (f) => f.id === col.id
+          )?.value
+            ? z.string()
+            : z.string().optional(),
+        })
+      );
+    });
+
+    return zodObject;
+  }, [cols]);
+
+  const form = useForm({
+    schema: tableSearchSchema.merge(zodColumns()),
+    defaultValues: {
+      ...(defaultColumnFilters
+        ? Object.assign(
+            {},
+            ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
+          )
+        : undefined),
+      itemsPerPage: 10,
+    },
+  });
+
   const table = useReactTable({
     data,
     columns: cols,
@@ -148,7 +197,13 @@ export function Table<Data>({
     state: {
       globalFilter,
     },
-    pageCount: data.length ? Math.ceil(data.length / 10) : 1,
+    initialState: {
+      columnFilters: defaultColumnFilters ?? [],
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+      },
+    },
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
     getCoreRowModel: getCoreRowModel(),
@@ -160,8 +215,15 @@ export function Table<Data>({
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
 
-  const form = useForm({ schema: tableSearchSchema, mode: "onChange" });
   const Field = useMemo(() => form.createField(), []);
+
+  const tablePageCount = useMemo(
+    () =>
+      Math.ceil(
+        table.getFilteredRowModel().rows.length / form.watch("itemsPerPage")
+      ),
+    [table.getFilteredRowModel(), form.watch("itemsPerPage")]
+  );
 
   return (
     <TableContext.Provider
@@ -171,138 +233,186 @@ export function Table<Data>({
         >
       }
     >
-      <div className="flow-root">
-        <div
-          {...props}
-          className={clsx(
-            className,
-            "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
+      <Form hform={form} className={clsx(pagination && "pb-4 lg:pb-0")}>
+        <div className="flex items-center justify-between gap-3">
+          {search && (
+            <Field name="globalFilter" className="flex-grow">
+              <Input
+                onChange={(e) => {
+                  setGlobalFilter && setGlobalFilter(String(e.target.value));
+                }}
+                placeholder={`Procurar (ex: ${cols
+                  .filter((c) => c.enableGlobalFilter)
+                  .map((c) => c.header)
+                  .slice(0, 3)
+                  .join(", ")})`}
+              />
+              {dataSetter}
+            </Field>
           )}
-        >
-          <div className="flex items-center justify-between gap-3">
-            <Form hform={form} className="flex-grow">
-              <Field name="globalFilter">
-                <Input
-                  onChange={(e) => {
-                    setGlobalFilter && setGlobalFilter(String(e.target.value));
-                  }}
-                  placeholder={`Procurar (ex: ${cols
-                    .map((c) => c.header)
-                    .slice(0, 3)
-                    .join(", ")})`}
-                />
-                {dataSetter}
-              </Field>
-            </Form>
-            {xlsx && (
-              <div className="mt-1.5">
-                <Xlsx
-                  data={data}
-                  columns={cols}
-                  fileName={xlsx.fileName}
-                  sheetName={xlsx.sheetName}
-                />
-              </div>
-            )}
-          </div>
+          {link && <div className="mt-1.5">{link}</div>}
+          {xlsx && (
+            <div className="mt-1.5">
+              <Xlsx fileName={xlsx.fileName} data={xlsx.data} />
+            </div>
+          )}
+        </div>
 
+        <div className="mt-3 flow-root">
           <div
+            {...div}
             className={clsx(
-              "inline-block min-w-full align-middle",
-              !bleed && "sm:px-[--gutter]"
+              className,
+              "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
             )}
           >
-            <table className="min-w-full text-left text-sm/6">
-              <TableHead>
-                <For each={table.getHeaderGroups()} identifier="thead">
-                  {(headerGroup) => (
-                    <TableRow>
-                      <For each={headerGroup.headers} identifier="header">
-                        {(header) => (
-                          <TableHeader>
-                            <div
-                              {...{
-                                className: header.column.getCanSort()
-                                  ? "cursor-pointer select-none"
-                                  : "",
-                                onClick:
-                                  header.column.getToggleSortingHandler(),
-                              }}
-                            >
+            <div
+              className={clsx(
+                "inline-block min-w-full align-middle",
+                !bleed && "sm:px-[--gutter]"
+              )}
+            >
+              <table className="min-w-full text-left text-sm/6">
+                <TableHead>
+                  <For each={table.getHeaderGroups()} identifier="thead">
+                    {(headerGroup) => (
+                      <TableRow>
+                        <For each={headerGroup.headers} identifier="header">
+                          {(header) => (
+                            <TableHeader>
+                              <div
+                                {...{
+                                  className: header.column.getCanSort()
+                                    ? "cursor-pointer select-none"
+                                    : "",
+                                  onClick:
+                                    header.column.getToggleSortingHandler(),
+                                }}
+                              >
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                                {{
+                                  asc: " ↑",
+                                  desc: " ↓",
+                                }[header.column.getIsSorted() as string] ??
+                                  null}
+                              </div>
+                            </TableHeader>
+                          )}
+                        </For>
+                      </TableRow>
+                    )}
+                  </For>
+                </TableHead>
+
+                <TableBody>
+                  <For
+                    each={table.getRowModel().rows}
+                    identifier="row"
+                    fallback={
+                      <TableRow>
+                        <For each={table.getAllColumns()}>
+                          {(column, index) => (
+                            <TableCell>
+                              {index === 0 ? <>Nada por aqui.</> : null}
+                            </TableCell>
+                          )}
+                        </For>
+                      </TableRow>
+                    }
+                  >
+                    {(row) => (
+                      <TableRow>
+                        <For each={row.getVisibleCells()} identifier="cell">
+                          {(cell) => (
+                            <TableCell>
                               {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
+                                cell.column.columnDef.cell,
+                                cell.getContext()
                               )}
-                              {{
-                                asc: " 🔼",
-                                desc: " 🔽",
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </div>
-                          </TableHeader>
-                        )}
-                      </For>
-                    </TableRow>
-                  )}
-                </For>
-              </TableHead>
-              <TableBody>
-                <For each={table.getRowModel().rows} identifier="row">
-                  {(row) => (
-                    <TableRow>
-                      <For each={row.getVisibleCells()} identifier="cell">
-                        {(cell) => (
-                          <TableCell>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        )}
-                      </For>
-                    </TableRow>
-                  )}
-                </For>
-              </TableBody>
-            </table>
+                            </TableCell>
+                          )}
+                        </For>
+                      </TableRow>
+                    )}
+                  </For>
+                </TableBody>
+              </table>
+            </div>
           </div>
+        </div>
+
+        {pagination && (
           <Pagination className="my-2">
             <PaginationPrevious
               disabled={!table.getCanPreviousPage()}
               onClick={() => table.previousPage()}
-              href="#"
             >
               Anterior
             </PaginationPrevious>
-            <PaginationList>
-              {
-                <For
-                  each={Array.from(
-                    { length: table.getPageCount() },
-                    (_, index) => index + 1
-                  )}
-                >
-                  {(page, index) => (
-                    <PaginationPage
-                      href="#"
-                      current={table.getState().pagination.pageIndex === index}
-                      onClick={() => table.setPageIndex(index)}
-                    >
-                      {String(page)}
-                    </PaginationPage>
-                  )}
-                </For>
-              }
-            </PaginationList>
+            <div className="flex items-center gap-2">
+              <PaginationList>
+                {
+                  <For
+                    each={Array.from(
+                      {
+                        length: tablePageCount,
+                      },
+                      (_, index) => index + 1
+                    )}
+                  >
+                    {(page, index) => {
+                      const pageIndex = table.getState().pagination.pageIndex;
+
+                      const isCurrent = pageIndex === index;
+                      const isFirstPage = index === 0;
+                      const isLastPage = index === tablePageCount - 1;
+                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+
+                      const shouldShow =
+                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
+
+                      const shouldShowGapBeforeCurrent =
+                        index === pageIndex - 3 && pageIndex > 3;
+                      const shouldShowGapBeforeLast =
+                        index === tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 1;
+
+                      return (
+                        <>
+                          {shouldShowGapBeforeCurrent && <PaginationGap />}
+                          {index === 1 && pageIndex > 3 && <PaginationGap />}
+                          {shouldShow && (
+                            <PaginationPage
+                              current={isCurrent}
+                              onClick={() => table.setPageIndex(index)}
+                            >
+                              {String(page)}
+                            </PaginationPage>
+                          )}
+                          {shouldShowGapBeforeLast && <PaginationGap />}
+                        </>
+                      );
+                    }}
+                  </For>
+                }
+              </PaginationList>
+            </div>
             <PaginationNext
-              disabled={!table.getCanNextPage()}
+              disabled={
+                !table.getCanNextPage() ||
+                table.getState().pagination.pageIndex + 1 >= tablePageCount
+              }
               onClick={() => table.nextPage()}
-              href="#"
             >
               Próxima
             </PaginationNext>
           </Pagination>
-        </div>
-      </div>
+        )}
+      </Form>
     </TableContext.Provider>
   );
 }
