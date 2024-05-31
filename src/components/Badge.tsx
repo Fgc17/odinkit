@@ -48,9 +48,9 @@ export function Badge({
     <span
       {...props}
       className={clsx(
+        className,
         "inline-flex items-center gap-x-1.5 rounded-md px-1.5 py-0.5 text-sm/5 font-medium sm:text-xs/5 forced-colors:outline",
-        colors[color],
-        className
+        colors[color]
       )}
     />
   );
@@ -62,9 +62,9 @@ export const BadgeButton = React.forwardRef(function BadgeButton(
     className,
     children,
     ...props
-  }: BadgeProps & { children: React.ReactNode } & (
-      | HeadlessButtonProps
-      | React.ComponentPropsWithoutRef<typeof Link>
+  }: BadgeProps & { className?: string; children: React.ReactNode } & (
+      | Omit<HeadlessButtonProps, "className">
+      | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
     ),
   ref: React.ForwardedRef<HTMLElement>
 ) {

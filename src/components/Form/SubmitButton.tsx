@@ -1,3 +1,4 @@
+"use client";
 import { FieldValues } from "react-hook-form";
 import { Button, ButtonProps } from "../Button";
 import { UseFormReturn, useFormContext } from "./Form";

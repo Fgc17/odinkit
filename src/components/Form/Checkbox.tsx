@@ -23,10 +23,8 @@ export function CheckboxGroup({
       {...props}
       className={clsx(
         className,
-
         // Basic groups
         "space-y-3",
-
         // With descriptions
         "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
       )}
@@ -34,26 +32,24 @@ export function CheckboxGroup({
   );
 }
 
-export function CheckboxField({ className, ...props }: HeadlessFieldProps) {
+export function CheckboxField({
+  className,
+  ...props
+}: { className?: string } & Omit<HeadlessFieldProps, "className">) {
   return (
     <HeadlessField
       data-slot="field"
       {...props}
       className={clsx(
         className,
-
         // Base layout
         "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
-
         // Control layout
         "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
-
         // Label layout
         "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
-
         // Description layout
         "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
-
         // With description
         "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
       )}
@@ -61,46 +57,35 @@ export function CheckboxField({ className, ...props }: HeadlessFieldProps) {
   );
 }
 
-let base = [
+const base = [
   // Basic layout
-  "relative isolate flex size-[1.125rem] items-center justify-center rounded-[0.3125rem] sm:size-4 ",
-
+  "relative isolate flex size-[1.125rem] items-center justify-center rounded-[0.3125rem] sm:size-4",
   // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
   "before:absolute before:inset-0 before:-z-10 before:rounded-[calc(0.3125rem-1px)] before:bg-white before:shadow",
-
   // Background color when checked
   "before:group-data-[checked]:bg-[--checkbox-checked-bg]",
-
+  // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
+  "dark:before:hidden",
   // Background color applied to control in dark mode
-  " -[checked]:bg-[--checkbox-checked-bg]",
-
+  "dark:bg-white/5 dark:group-data-[checked]:bg-[--checkbox-checked-bg]",
   // Border
   "border border-zinc-950/15 group-data-[checked]:border-transparent group-data-[checked]:group-data-[hover]:border-transparent group-data-[hover]:border-zinc-950/30 group-data-[checked]:bg-[--checkbox-checked-border]",
-  " -[checked]:border-white/5 -[checked]:group-data-[hover]:border-white/5 -[hover]:border-white/30",
-
+  "dark:border-white/15 dark:group-data-[checked]:border-white/5 dark:group-data-[checked]:group-data-[hover]:border-white/5 dark:group-data-[hover]:border-white/30",
   // Inner highlight shadow
   "after:absolute after:inset-0 after:rounded-[calc(0.3125rem-1px)] after:shadow-[inset_0_1px_theme(colors.white/15%)]",
-  "  -[0.3125rem] -[checked]:after:block",
-
+  "dark:after:-inset-px dark:after:hidden dark:after:rounded-[0.3125rem] dark:group-data-[checked]:after:block",
   // Focus ring
   "group-data-[focus]:outline group-data-[focus]:outline-2 group-data-[focus]:outline-offset-2 group-data-[focus]:outline-blue-500",
-
   // Disabled state
   "group-data-[disabled]:opacity-50",
   "group-data-[disabled]:border-zinc-950/25 group-data-[disabled]:bg-zinc-950/5 group-data-[disabled]:[--checkbox-check:theme(colors.zinc.950/50%)] group-data-[disabled]:before:bg-transparent",
-  "-[disabled]:border-white/20 -[disabled]:bg-white/[2.5%] -[disabled]:[--checkbox-check:theme(colors.white/50%)] -[disabled]:group-data-[checked]:after:hidden",
-
-  // Invalid state
-  "group-data-[invalid]:opacity-50",
-  "group-data-[invalid]:border-red-500 group-data-[invalid]:bg-red-500 group-data-[invalid]:[--checkbox-check:theme(colors.red.500/50%)] group-data-[invalid]:before:bg-transparent",
-  "-[invalid]:border-white/20 -[invalid]:bg-white/[2.5%] -[invalid]:[--checkbox-check:theme(colors.white/50%)] -[invalid]:group-data-[checked]:after:hidden",
-
+  "dark:group-data-[disabled]:border-white/20 dark:group-data-[disabled]:bg-white/[2.5%] dark:group-data-[disabled]:[--checkbox-check:theme(colors.white/50%)] dark:group-data-[disabled]:group-data-[checked]:after:hidden",
   // Forced colors mode
   "forced-colors:[--checkbox-check:HighlightText] forced-colors:[--checkbox-checked-bg:Highlight] forced-colors:group-data-[disabled]:[--checkbox-check:Highlight]",
-  ":[--checkbox-check:HighlightText] :[--checkbox-checked-bg:Highlight] -[disabled]:[--checkbox-check:Highlight]",
+  "dark:forced-colors:[--checkbox-check:HighlightText] dark:forced-colors:[--checkbox-checked-bg:Highlight] dark:forced-colors:group-data-[disabled]:[--checkbox-check:Highlight]",
 ];
 
-let colors = {
+const colors = {
   "dark/zinc": [
     "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.900)] [--checkbox-checked-border:theme(colors.zinc.950/90%)]",
     "dark:[--checkbox-checked-bg:theme(colors.zinc.600)]",
@@ -112,8 +97,6 @@ let colors = {
   white:
     "[--checkbox-check:theme(colors.zinc.900)] [--checkbox-checked-bg:theme(colors.white)] [--checkbox-checked-border:theme(colors.zinc.950/15%)]",
   dark: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.900)] [--checkbox-checked-border:theme(colors.zinc.950/90%)]",
-  black:
-    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.900)] [--checkbox-checked-border:theme(colors.zinc.950/90%)]",
   zinc: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.zinc.600)] [--checkbox-checked-border:theme(colors.zinc.700/90%)]",
   red: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.red.600)] [--checkbox-checked-border:theme(colors.red.700/90%)]",
   orange:
@@ -141,13 +124,6 @@ let colors = {
     "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.fuchsia.500)] [--checkbox-checked-border:theme(colors.fuchsia.600/90%)]",
   pink: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.pink.500)] [--checkbox-checked-border:theme(colors.pink.600/90%)]",
   rose: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.rose.500)] [--checkbox-checked-border:theme(colors.rose.600/90%)]",
-  gray: "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.gray.500)] [--checkbox-checked-border:theme(colors.gray.600/90%)]",
-  slate:
-    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.slate.500)] [--checkbox-checked-border:theme(colors.slate.600/90%)]",
-  neutral:
-    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.neutral.500)] [--checkbox-checked-border:theme(colors.neutral.600/90%)]",
-  stone:
-    "[--checkbox-check:theme(colors.white)] [--checkbox-checked-bg:theme(colors.stone.500)] [--checkbox-checked-border:theme(colors.stone.600/90%)]",
 };
 
 type Color = keyof typeof colors;
@@ -180,7 +156,7 @@ export function Checkbox({
         >
           <span className={clsx([base, colors[color], className])}>
             <svg
-              className="size-3 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 "
+              className="size-4 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 "
               viewBox="0 0 14 14"
               fill="none"
             >

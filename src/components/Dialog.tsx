@@ -9,6 +9,8 @@ import {
   Transition as HeadlessTransition,
   TransitionChild as HeadlessTransitionChild,
   type DialogProps as HeadlessDialogProps,
+  type DialogTitleProps as HeadlessDialogTitleProps,
+  type DescriptionProps as HeadlessDescriptionProps,
 } from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
@@ -37,18 +39,16 @@ export function Dialog({
   size = "lg",
   className,
   children,
-  zIndex = 20,
   ...props
 }: {
   size?: keyof typeof sizes;
-  zIndex?: number;
+  className?: string;
   children: React.ReactNode;
-} & HeadlessDialogProps) {
+} & Omit<HeadlessDialogProps, "className">) {
   return (
-    <HeadlessTransition appear as={Fragment} show={open} {...props}>
+    <HeadlessTransition appear show={open} {...props}>
       <HeadlessDialog onClose={onClose}>
         <HeadlessTransitionChild
-          as={Fragment}
           enter="ease-out duration-100"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -56,45 +56,31 @@ export function Dialog({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div
-            style={{
-              zIndex,
-            }}
-            className="fixed inset-0 flex w-screen justify-center overflow-y-auto bg-zinc-950/25 px-2 py-2 focus:outline-0 sm:px-6 sm:py-8 lg:px-8 lg:py-16 "
-          />
+          <div className="fixed inset-0 flex w-screen justify-center overflow-y-auto bg-zinc-950/25 px-2 py-2 focus:outline-0 sm:px-6 sm:py-8 lg:px-8 lg:py-16 dark:bg-zinc-950/50" />
         </HeadlessTransitionChild>
 
-        <HeadlessTransitionChild
-          style={{
-            zIndex,
-          }}
-          className="fixed inset-0 w-screen overflow-y-auto pt-6 sm:pt-0"
-          enter="ease-out duration-100"
-          enterFrom="opacity-0 translate-y-12 sm:translate-y-0"
-          enterTo="opacity-100 translate-y-0"
-          leave="ease-in duration-100"
-          leaveFrom="opacity-100 translate-y-0"
-          leaveTo="opacity-0 translate-y-12 sm:translate-y-0"
-        >
-          <div className="flex min-h-full  grid-rows-[1fr_auto] justify-center sm:grid-rows-[1fr_auto_3fr] sm:p-4">
+        <div className="fixed inset-0 w-screen overflow-y-auto pt-6 sm:pt-0">
+          <div className="grid min-h-full grid-rows-[1fr_auto] justify-items-center sm:grid-rows-[1fr_auto_3fr] sm:p-4">
             <HeadlessTransitionChild
-              as={HeadlessDialogPanel}
-              className={clsx(
-                className,
-                sizes[size],
-                "row-start-2 w-full min-w-0 rounded-t-3xl bg-white p-[--gutter] shadow-lg ring-1 ring-zinc-950/10 [--gutter:theme(spacing.8)] sm:mb-auto sm:rounded-2xl forced-colors:outline"
-              )}
               enter="ease-out duration-100"
-              enterFrom="sm:scale-95"
-              enterTo="sm:scale-100"
+              enterFrom="opacity-0 translate-y-12 sm:translate-y-0 sm:scale-95"
+              enterTo="opacity-100 translate-y-0 sm:scale-100"
               leave="ease-in duration-100"
-              leaveFrom="sm:scale-100"
-              leaveTo="sm:scale-100"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-12 sm:translate-y-0"
             >
-              {children}
+              <HeadlessDialogPanel
+                className={clsx(
+                  className,
+                  sizes[size],
+                  "row-start-2 w-full min-w-0 rounded-t-3xl bg-white p-[--gutter] shadow-lg ring-1 ring-zinc-950/10 [--gutter:theme(spacing.8)] sm:mb-auto sm:rounded-2xl dark:bg-zinc-900 dark:ring-white/10 forced-colors:outline"
+                )}
+              >
+                {children}
+              </HeadlessDialogPanel>
             </HeadlessTransitionChild>
           </div>
-        </HeadlessTransitionChild>
+        </div>
       </HeadlessDialog>
     </HeadlessTransition>
   );
@@ -102,38 +88,26 @@ export function Dialog({
 
 export function DialogTitle({
   className,
-  onClose,
   ...props
-}: React.ComponentPropsWithoutRef<"div"> & {
-  onClose?: (bool: boolean) => void;
-}) {
+}: { className?: string } & Omit<HeadlessDialogTitleProps, "className">) {
   return (
     <HeadlessDialogTitle
       {...props}
       className={clsx(
         className,
-        "flex items-center justify-between text-balance text-lg/6 font-semibold text-zinc-950 sm:text-base/6"
+        "text-balance text-lg/6 font-semibold text-zinc-950 sm:text-base/6 dark:text-white"
       )}
-    >
-      {props.children}
-      {onClose && (
-        <button
-          type="button"
-          className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          onClick={() => onClose(false)}
-        >
-          <span className="sr-only">Close</span>
-          <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-        </button>
-      )}
-    </HeadlessDialogTitle>
+    />
   );
 }
 
 export function DialogDescription({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: { className?: string } & Omit<
+  HeadlessDescriptionProps<typeof Text>,
+  "className"
+>) {
   return (
     <HeadlessDescription
       as={Text}
@@ -147,7 +121,7 @@ export function DialogBody({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  return <div {...props} className={clsx(className)} />;
+  return <div {...props} className={clsx(className, "mt-6")} />;
 }
 
 export function DialogActions({
@@ -158,8 +132,8 @@ export function DialogActions({
     <div
       {...props}
       className={clsx(
-        "mt-8 flex flex-col items-center justify-end gap-3 *:w-full sm:flex-row lg:*:w-auto ",
-        className
+        className,
+        "mt-8 flex flex-col-reverse items-center justify-end gap-3 *:w-full sm:flex-row sm:*:w-auto"
       )}
     />
   );
