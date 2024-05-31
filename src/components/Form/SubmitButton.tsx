@@ -13,7 +13,7 @@ export function SubmitButton<T extends FieldValues>(
   return (
     <Button
       {...props}
-      loading={form.formState.isSubmitting}
+      loading={form.formState.isSubmitting ? "true" : undefined}
       form={form.id}
       type="submit"
     />

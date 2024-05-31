@@ -3,7 +3,7 @@
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
 import { LayoutGroup, motion } from "framer-motion";
-import React, { Fragment, useId } from "react";
+import React, { Fragment, useEffect, useId, useRef, useState } from "react";
 import { TouchTarget } from "./Button";
 import { Link } from "./Link";
 
@@ -11,7 +11,37 @@ export function Sidebar({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"nav">) {
-  return <nav {...props} className={clsx(className, "flex h-full flex-col")} />;
+  const [isSticky, setIsSticky] = useState(false);
+  const stickyRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = () => {
+    if (stickyRef.current) {
+      // Now TypeScript knows stickyRef.current is an HTMLDivElement
+      const sticky = stickyRef.current.getBoundingClientRect().top <= 0;
+      setIsSticky(sticky);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+  return (
+    <nav
+      ref={stickyRef}
+      {...props}
+      className={clsx(
+        className,
+        "sticky top-0 flex flex-col duration-300",
+        isSticky ? "h-[calc(100vh-0.5rem)]" : "h-[calc(100vh-54px)]"
+      )}
+    >
+      {props.children}
+    </nav>
+  );
 }
 
 export function SidebarHeader({
@@ -38,7 +68,7 @@ export function SidebarBody({
       {...props}
       className={clsx(
         className,
-        "flex flex-1 flex-col overflow-y-auto p-4 [&>[data-slot=section]+[data-slot=section]]:mt-8"
+        "flex flex-1 grow flex-col overflow-y-auto p-4 [&>[data-slot=section]+[data-slot=section]]:mt-8"
       )}
     />
   );

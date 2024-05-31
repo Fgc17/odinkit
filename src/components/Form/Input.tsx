@@ -60,6 +60,21 @@ export const inputClasses = clsx(
   "data-[disabled]:border-zinc-950/20 dark:data-[hover]:data-[disabled]:border-white/15 data-[disabled]:dark:border-white/15 data-[disabled]:dark:bg-white/[2.5%]"
 );
 
+export const inputSpanClasses = clsx(
+  // Basic layout
+  "relative block w-full",
+  // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
+  "before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white before:shadow",
+  // Background color is moved to control and shadow is removed in dark mode so hide `before` pseudo
+  "dark:before:hidden",
+  // Focus ring
+  "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent sm:after:focus-within:ring-2 sm:after:focus-within:ring-blue-500",
+  // Disabled state
+  "has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none",
+  // Invalid state
+  "before:has-[[data-invalid]]:shadow-red-500/10"
+);
+
 export const iconInputClasses = clsx(
   // Basic layout
   "relative mb-1 mt-[11px] block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:pr-[calc(theme(spacing[3])-1px)] sm:pl-[calc(theme(spacing[10])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
@@ -110,7 +125,7 @@ export function Input({
   const { name, error } = useField();
 
   return (
-    <Span className={clsx(className)}>
+    <Span className={clsx(className, inputSpanClasses)}>
       <Controller
         name={name}
         control={form.control}
