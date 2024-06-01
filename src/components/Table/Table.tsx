@@ -376,44 +376,6 @@ export function Table<Data>({
             </div>
           </div>
         </div>
-        {!disableMobileFilters && (
-          <BottomNavigation className="p-1 lg:hidden">
-            <DisclosureAccordion
-              className="border-none"
-              title={`Exibir Filtros (${
-                Object.entries(form.watch()).filter(
-                  (f) => f[1] && f[0] !== "itemsPerPage"
-                ).length
-              })`}
-            >
-              {children}
-              <For each={table.getHeaderGroups()}>
-                {(headerGroup) => (
-                  <For each={headerGroup.headers}>
-                    {(header) => {
-                      if (header.column.getCanFilter()) {
-                        return (
-                          <Field name={header.column.id}>
-                            <Label>
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                            </Label>
-                            <ColumnFilter
-                              table={table}
-                              column={header.column}
-                            />
-                          </Field>
-                        );
-                      } else return <></>;
-                    }}
-                  </For>
-                )}
-              </For>
-            </DisclosureAccordion>
-          </BottomNavigation>
-        )}
 
         {pagination && (
           <Pagination className="my-2">
