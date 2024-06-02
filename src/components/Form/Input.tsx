@@ -160,7 +160,7 @@ export function Input({
             {type === "password" && (
               <HeadlessButton
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-[0.5rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-[0.75rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600 lg:top-[0.5rem] dark:bg-zinc-800 lg:dark:bg-zinc-900"
               >
                 {showPassword ? (
                   <EyeSlashIcon className="size-5" />
