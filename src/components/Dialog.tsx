@@ -14,7 +14,7 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { Fragment } from "react";
+import { Dispatch, Fragment, SetStateAction } from "react";
 import { Text } from "./Text";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 
@@ -88,8 +88,12 @@ export function Dialog({
 
 export function DialogTitle({
   className,
+  onClose,
   ...props
-}: { className?: string } & Omit<HeadlessDialogTitleProps, "className">) {
+}: { className?: string; onClose?: Dispatch<SetStateAction<boolean>> } & Omit<
+  HeadlessDialogTitleProps,
+  "className"
+>) {
   return (
     <HeadlessDialogTitle
       {...props}
@@ -97,7 +101,9 @@ export function DialogTitle({
         className,
         "text-balance text-lg/6 font-semibold text-zinc-950 sm:text-base/6 dark:text-white"
       )}
-    />
+    >
+      {props.children}
+    </HeadlessDialogTitle>
   );
 }
 

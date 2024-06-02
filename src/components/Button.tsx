@@ -166,6 +166,22 @@ const styles = {
       "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.slate.500)] [--btn-border:theme(colors.slate.600/90%)]",
       "[--btn-icon:theme(colors.slate.300)] data-[active]:[--btn-icon:theme(colors.slate.200)] data-[hover]:[--btn-icon:theme(colors.slate.200)]",
     ],
+    black: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.black)] [--btn-border:theme(colors.black)]",
+      "[--btn-icon:theme(colors.black)] data-[active]:[--btn-icon:theme(colors.black)] data-[hover]:[--btn-icon:theme(colors.black)]",
+    ],
+    gray: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.gray.500)] [--btn-border:theme(colors.gray.600/90%)]",
+      "[--btn-icon:theme(colors.gray.300)] data-[active]:[--btn-icon:theme(colors.gray.200)] data-[hover]:[--btn-icon:theme(colors.gray.200)]",
+    ],
+    neutral: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.neutral.500)] [--btn-border:theme(colors.neutral.600/90%)]",
+      "[--btn-icon:theme(colors.neutral.300)] data-[active]:[--btn-icon:theme(colors.neutral.200)] data-[hover]:[--btn-icon:theme(colors.neutral.200)]",
+    ],
+    stone: [
+      "text-white [--btn-hover-overlay:theme(colors.white/10%)] [--btn-bg:theme(colors.stone.500)] [--btn-border:theme(colors.stone.600/90%)]",
+      "[--btn-icon:theme(colors.stone.300)] data-[active]:[--btn-icon:theme(colors.stone.200)] data-[hover]:[--btn-icon:theme(colors.stone.200)]",
+    ],
   },
 };
 
