@@ -166,7 +166,9 @@ export function ErrorMessage({
   disabled,
   ...props
 }: { className?: string; disabled?: boolean } & HeadlessDescriptionProps) {
-  const { error } = useField()!;
+  const { error } = useField();
+
+  if (!error) return null;
 
   return (
     <HeadlessDescription
@@ -177,7 +179,7 @@ export function ErrorMessage({
         "text-xs text-red-600 data-[disabled]:opacity-50"
       )}
     >
-      {error}
+      {error.match(/"((?:\\.|[^"\\])*)"/g) ? error.replace(/"/g, "") : error}
     </HeadlessDescription>
   );
 }

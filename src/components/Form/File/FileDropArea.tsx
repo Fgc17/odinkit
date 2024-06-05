@@ -68,7 +68,7 @@ export function FileDropArea({
                   />
                 )}
 
-                <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                <div className="mt-4 flex justify-center text-sm leading-6 text-gray-600">
                   <label
                     htmlFor={fileInput.inputId}
                     style={{ color }}
@@ -80,7 +80,7 @@ export function FileDropArea({
                       Envie{" "}
                       {fileInput.maxFiles > 1
                         ? `até ${fileInput.maxFiles} arquivos`
-                        : "um arquivo."}
+                        : "um arquivo"}
                     </span>
                   </label>
                   <p className="pl-1">ou arraste</p>

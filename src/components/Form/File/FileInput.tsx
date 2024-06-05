@@ -95,16 +95,23 @@ export function FileInput({
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => {
         const onChange = (files: File[]) => {
-          fieldOnChange([...(value ?? []), ...files]);
+          fieldOnChange(
+            props.maxFiles > 1 ? [...(value ?? []), ...files] : files
+          );
           props.onChange?.(files);
         };
 
         const validate = async (files: File[]) => {
           setIsLoading(true);
-          if (files?.length + value?.length > props.maxFiles) {
+          if (
+            props.maxFiles > 1
+              ? files?.length + value?.length > props.maxFiles
+              : files?.length > 1
+          ) {
             form.setError?.(name, {
               message: JSON.stringify("Número máximo de arquivos excedido"),
             });
+            setIsLoading(false);
             return false;
           }
 
@@ -115,6 +122,7 @@ export function FileInput({
             setIsLoading(false);
             return false;
           }
+
           if (
             files.some(
               (file) => !props.fileTypes.includes(getFileExtension(file))
@@ -166,7 +174,7 @@ export function FileInput({
                 type="file"
                 accept={props.fileTypes?.join(",")}
                 name={field.name}
-                multiple={props.maxFiles > 1 || props.maxFiles === undefined}
+                multiple={props.maxFiles > 1}
                 value={""}
                 onChange={async (e) => {
                   const files = e.target.files;
