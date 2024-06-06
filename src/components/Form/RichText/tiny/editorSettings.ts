@@ -1,5 +1,4 @@
 type EditorSettingsType = {
-  skin?: boolean;
   promotion?: boolean;
   language?: string;
   plugins?: string[];
@@ -7,7 +6,6 @@ type EditorSettingsType = {
   content_style?: string;
   height?: number;
   menubar?: boolean;
-  content_css?: boolean;
 };
 
 export const editorSettings = {

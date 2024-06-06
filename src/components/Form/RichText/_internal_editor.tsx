@@ -273,6 +273,14 @@ export default function _Internal_Editor({
                 init={{
                   ...editorSettings,
                   images_upload_handler: handleImageUpload,
+                  skin_url: window.matchMedia("(prefers-color-scheme: dark)")
+                    .matches
+                    ? "/assets/libs/tinymce/skins/ui/oxide-dark"
+                    : "",
+                  content_css: window.matchMedia("(prefers-color-scheme: dark)")
+                    .matches
+                    ? "/assets/libs/tinymce/skins/content/dark/content.min.css"
+                    : "",
                 }}
               />
             </>

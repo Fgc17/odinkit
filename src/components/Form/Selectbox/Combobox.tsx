@@ -117,7 +117,6 @@ export function Combobox<Data extends { id: string | number }>({
             {..._field}
             {...rest}
             as={"div"}
-            value={options.find((i) => i.value === value)?.value || ""}
             onChange={(_: any) => {
               const data: SelectOption<Data> = _;
               onChange && onChange(data?._);

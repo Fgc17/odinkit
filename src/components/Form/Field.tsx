@@ -136,8 +136,13 @@ export function Field({
 
 export function Label({
   className,
+  enableAsterisk = true,
   ...props
-}: { className?: string } & Omit<HeadlessLabelProps, "className">) {
+}: { className?: string; enableAsterisk?: boolean } & Omit<
+  HeadlessLabelProps,
+  "className"
+>) {
+  const { isRequired } = useField();
   return (
     <HeadlessLabel
       data-slot="label"
@@ -146,7 +151,14 @@ export function Label({
         className,
         "select-none text-base/6 text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-white"
       )}
-    />
+    >
+      <>
+        {props.children}{" "}
+        {enableAsterisk && isRequired && (
+          <span className="text-red-600">*</span>
+        )}
+      </>
+    </HeadlessLabel>
   );
 }
 
@@ -170,6 +182,7 @@ export function ErrorMessage({
   className,
   ...props
 }: { className?: string } & Omit<HeadlessDescriptionProps, "className">) {
+  const { error } = useField();
   return (
     <HeadlessDescription
       data-slot="error"
@@ -178,7 +191,9 @@ export function ErrorMessage({
         className,
         "text-base/6 text-red-600 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-red-500"
       )}
-    />
+    >
+      {error ? error : " "}
+    </HeadlessDescription>
   );
 }
 
