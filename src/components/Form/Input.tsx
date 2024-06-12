@@ -4,6 +4,7 @@
 import {
   Input as HeadlessInput,
   type InputProps as HeadlessInputProps,
+  Button as HeadlessButton,
 } from "@headlessui/react";
 import { clsx } from "clsx";
 import { useFormContext } from "./Form";
@@ -12,6 +13,8 @@ import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
 import { Span } from "./Span";
 import { useField } from "./Field";
+import { useState } from "react";
+import { EyeIcon, EyeSlashIcon } from "@heroicons/react/20/solid";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -76,6 +79,7 @@ export function Input({
 } & HeadlessInputProps) {
   const form = useFormContext();
   const { name, error } = useField();
+  const [showPassword, setShowPassword] = useState(!(type === "password"));
 
   return (
     <Span className={clsx(className)}>
@@ -103,10 +107,29 @@ export function Input({
                 type && dateTypes.includes(type) && webkitCss,
                 inputClasses,
               ])}
-              type={type}
+              type={
+                type === "password"
+                  ? showPassword
+                    ? "text"
+                    : "password"
+                  : type
+              }
               {...props}
               {...field}
             />
+
+            {type === "password" && (
+              <HeadlessButton
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2 top-[0.75rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600 lg:top-[0.5rem]"
+              >
+                {showPassword ? (
+                  <EyeSlashIcon className="size-5" />
+                ) : (
+                  <EyeIcon className="size-5" />
+                )}
+              </HeadlessButton>
+            )}
 
             {loading && (
               <div className="absolute right-2 top-2.5 text-white">
