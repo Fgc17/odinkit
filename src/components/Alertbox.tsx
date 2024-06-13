@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/20/solid";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import clsx from "clsx";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const types = {
@@ -68,8 +69,11 @@ export function Alertbox(props: {
   title?: string;
   className?: string;
   dismissible?: boolean;
+  onClose?: () => void;
 }) {
   const [show, setShow] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
   const type = types[props.type];
 
   if (!show) return null;
@@ -91,7 +95,10 @@ export function Alertbox(props: {
             <div className="-mx-1.5 -my-1.5">
               <button
                 type="button"
-                onClick={() => setShow(false)}
+                onClick={() => {
+                  setShow(false);
+                  router.replace(pathname);
+                }}
                 className={clsx(
                   "inline-flex rounded-md  p-1.5   focus:outline-none focus:ring-2  focus:ring-offset-2 ",
                   type["dismiss-classes"]

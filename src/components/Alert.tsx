@@ -1,18 +1,8 @@
-// client
+//client
 "use client";
-
-import {
-  Description as HeadlessDescription,
-  Dialog as HeadlessDialog,
-  DialogPanel as HeadlessDialogPanel,
-  DialogTitle as HeadlessDialogTitle,
-  Transition as HeadlessTransition,
-  TransitionChild as HeadlessTransitionChild,
-  type DialogProps as HeadlessDialogProps,
-} from "@headlessui/react";
+import * as Headless from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { Fragment } from "react";
 import { Text } from "./Text";
 
 const sizes = {
@@ -36,13 +26,13 @@ export function Alert({
   ...props
 }: {
   size?: keyof typeof sizes;
+  className?: string;
   children: React.ReactNode;
-} & HeadlessDialogProps) {
+} & Omit<Headless.DialogProps, "className">) {
   return (
-    <HeadlessTransition appear as={Fragment} show={open} {...props}>
-      <HeadlessDialog onClose={onClose}>
-        <HeadlessTransitionChild
-          as={Fragment}
+    <Headless.Transition appear show={open} {...props}>
+      <Headless.Dialog onClose={onClose}>
+        <Headless.TransitionChild
           enter="ease-out duration-100"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -50,52 +40,46 @@ export function Alert({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 z-20 flex w-screen justify-center overflow-y-auto bg-zinc-950/15 px-2 py-2 focus:outline-0 sm:px-6 sm:py-8 lg:px-8 lg:py-16 " />
-        </HeadlessTransitionChild>
+          <div className="fixed inset-0 flex w-screen justify-center overflow-y-auto bg-zinc-950/15 px-2 py-2 focus:outline-0 sm:px-6 sm:py-8 lg:px-8 lg:py-16 dark:bg-zinc-950/50" />
+        </Headless.TransitionChild>
 
-        <HeadlessTransitionChild
-          className="fixed inset-0 z-20 w-screen overflow-y-auto pt-6 sm:pt-0"
-          enter="ease-out duration-100"
-          enterFrom="opacity-0"
-          enterTo="opacity-100"
-          leave="ease-in duration-100"
-          leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
+        <div className="fixed inset-0 w-screen overflow-y-auto pt-6 sm:pt-0">
           <div className="grid min-h-full grid-rows-[1fr_auto_1fr] justify-items-center p-8 sm:grid-rows-[1fr_auto_3fr] sm:p-4">
-            <HeadlessTransitionChild
-              as={HeadlessDialogPanel}
-              className={clsx(
-                className,
-                sizes[size],
-                "row-start-2 w-full rounded-2xl bg-white p-8 shadow-lg ring-1 ring-zinc-950/10 sm:rounded-2xl sm:p-6   forced-colors:outline"
-              )}
+            <Headless.TransitionChild
               enter="ease-out duration-100"
-              enterFrom="scale-95"
-              enterTo="scale-100"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
               leave="ease-in duration-100"
-              leaveFrom="scale-100"
-              leaveTo="scale-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
             >
-              {children}
-            </HeadlessTransitionChild>
+              <Headless.DialogPanel
+                className={clsx(
+                  className,
+                  sizes[size],
+                  "row-start-2 w-full rounded-2xl bg-white p-8 shadow-lg ring-1 ring-zinc-950/10 sm:rounded-2xl sm:p-6 dark:bg-zinc-900 dark:ring-white/10 forced-colors:outline"
+                )}
+              >
+                {children}
+              </Headless.DialogPanel>
+            </Headless.TransitionChild>
           </div>
-        </HeadlessTransitionChild>
-      </HeadlessDialog>
-    </HeadlessTransition>
+        </div>
+      </Headless.Dialog>
+    </Headless.Transition>
   );
 }
 
 export function AlertTitle({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: { className?: string } & Omit<Headless.DialogTitleProps, "className">) {
   return (
-    <HeadlessDialogTitle
+    <Headless.DialogTitle
       {...props}
       className={clsx(
         className,
-        "text-balance text-center text-base/6 font-semibold text-zinc-950 sm:text-wrap sm:text-left sm:text-sm/6 "
+        "text-balance text-center text-base/6 font-semibold text-zinc-950 sm:text-wrap sm:text-left sm:text-sm/6 dark:text-white"
       )}
     />
   );
@@ -104,9 +88,12 @@ export function AlertTitle({
 export function AlertDescription({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"div">) {
+}: { className?: string } & Omit<
+  Headless.DescriptionProps<typeof Text>,
+  "className"
+>) {
   return (
-    <HeadlessDescription
+    <Headless.Description
       as={Text}
       {...props}
       className={clsx(className, "mt-2 text-pretty text-center sm:text-left")}

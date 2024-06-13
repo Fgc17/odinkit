@@ -1,7 +1,7 @@
 "use client";
 
 import { clsx } from "clsx";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   Dispatch,
   SetStateAction,
@@ -46,10 +46,12 @@ import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
 import { Label } from "../Form/Field";
 import { DisclosureAccordion } from "../Disclosure";
+import { BottomNavigation } from "../BottomNavigation";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
+    selectOptions?: Array<{ value: TValue; label: string }>;
     filterVariant?: "text" | "range" | "select";
     className?: string;
   }
@@ -69,6 +71,7 @@ const TableContext = createContext<{
 
 const tableSearchSchema = z.object({
   globalFilter: z.string().optional(),
+  itemsPerPage: z.number(),
 });
 
 type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
@@ -126,18 +129,22 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
+  disableMobileFilters,
   defaultColumnFilters,
   data,
   columns,
   xlsx,
   link,
   div,
+  children,
 }: {
+  disableMobileFilters?: boolean;
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
   search?: boolean;
   pagination?: boolean;
   xlsx?: {
     data: any[];
+    fileName?: string;
   };
   link?: React.ReactNode;
   defaultColumnFilters?: ColumnFiltersState;
@@ -155,6 +162,7 @@ export function Table<Data>({
     | ReturnType<ColumnHelper<any>["group"]>
   )[];
   className?: string;
+  children?: React.ReactNode;
 }) {
   const columnHelper = createColumnHelper<Data>();
 
@@ -172,29 +180,6 @@ export function Table<Data>({
     return itemRank.passed;
   };
 
-  const table = useReactTable({
-    data,
-    columns: cols,
-    filterFns: {
-      fuzzy: fuzzyFilter,
-    },
-    state: {
-      globalFilter,
-    },
-    initialState: {
-      columnFilters: defaultColumnFilters,
-    },
-    pageCount: data.length ? Math.ceil(data.length / 10) : 1,
-    onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: fuzzyFilter,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
-    getFacetedMinMaxValues: getFacetedMinMaxValues(),
-  });
   const zodColumns = useCallback(() => {
     let zodObject = z.object({});
 
@@ -215,19 +200,52 @@ export function Table<Data>({
 
   const form = useForm({
     schema: tableSearchSchema.merge(zodColumns()),
-    defaultValues: defaultColumnFilters
-      ? Object.assign(
-          {},
-          ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
-        )
-      : undefined,
+    defaultValues: {
+      ...(defaultColumnFilters
+        ? Object.assign(
+            {},
+            ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
+          )
+        : undefined),
+      itemsPerPage: 10,
+    },
+  });
+
+  const table = useReactTable({
+    data,
+    columns: cols,
+    filterFns: {
+      fuzzy: fuzzyFilter,
+    },
+    state: {
+      globalFilter,
+    },
+    initialState: {
+      columnFilters: defaultColumnFilters ?? [],
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+      },
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
 
   const Field = useMemo(() => form.createField(), []);
 
   const tablePageCount = useMemo(
-    () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
-    [table.getFilteredRowModel()]
+    () =>
+      Math.ceil(
+        table.getFilteredRowModel().rows.length / form.watch("itemsPerPage")
+      ),
+    [table.getFilteredRowModel(), form.watch("itemsPerPage")]
   );
 
   return (
@@ -238,7 +256,7 @@ export function Table<Data>({
         >
       }
     >
-      <Form hform={form}>
+      <Form hform={form} className={clsx(pagination && "pb-4 lg:pb-0")}>
         <div className="flex items-center justify-between gap-3">
           {search && (
             <Field name="globalFilter" className="flex-grow">
@@ -258,35 +276,11 @@ export function Table<Data>({
           {link && <div className="mt-1.5">{link}</div>}
           {xlsx && (
             <div className="mt-1.5">
-              <Xlsx data={xlsx.data} />
+              <Xlsx fileName={xlsx.fileName} data={xlsx.data} />
             </div>
           )}
         </div>
-        <div className="mt-4 lg:hidden">
-          <DisclosureAccordion title={"Exibir Filtros"}>
-            <For each={table.getHeaderGroups()}>
-              {(headerGroup) => (
-                <For each={headerGroup.headers}>
-                  {(header) => {
-                    if (header.column.getCanFilter()) {
-                      return (
-                        <Field name={header.column.id}>
-                          <Label>
-                            {flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                          </Label>
-                          <ColumnFilter table={table} column={header.column} />
-                        </Field>
-                      );
-                    } else return <></>;
-                  }}
-                </For>
-              )}
-            </For>
-          </DisclosureAccordion>
-        </div>
+
         <div className="mt-3 flow-root">
           <div
             {...div}
@@ -301,7 +295,7 @@ export function Table<Data>({
                 !bleed && "sm:px-[--gutter]"
               )}
             >
-              <table className="min-w-full text-left text-sm/6">
+              <table className="min-w-full text-left text-sm/6 text-zinc-950 dark:text-white">
                 <TableHead>
                   <For each={table.getHeaderGroups()} identifier="thead">
                     {(headerGroup) => (
@@ -382,71 +376,95 @@ export function Table<Data>({
             </div>
           </div>
         </div>
+
+        {pagination && (
+          <Pagination className="my-2">
+            <PaginationPrevious
+              disabled={!table.getCanPreviousPage()}
+              onClick={() => table.previousPage()}
+            >
+              Anterior
+            </PaginationPrevious>
+            <div className="flex items-center gap-2">
+              <PaginationList>
+                {
+                  <For
+                    each={Array.from(
+                      {
+                        length: tablePageCount,
+                      },
+                      (_, index) => index + 1
+                    )}
+                  >
+                    {(page, index) => {
+                      const pageIndex = table.getState().pagination.pageIndex;
+
+                      const isCurrent = pageIndex === index;
+                      const isFirstPage = index === 0;
+                      const isLastPage = index === tablePageCount - 1;
+                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
+
+                      const shouldShow =
+                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
+
+                      const shouldShowGapBeforeCurrent =
+                        index === pageIndex - 3 && pageIndex > 3;
+                      const shouldShowGapBeforeLast =
+                        index === tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 4 &&
+                        pageIndex < tablePageCount - 1;
+
+                      return (
+                        <>
+                          {shouldShowGapBeforeCurrent && <PaginationGap />}
+                          {index === 1 && pageIndex > 3 && <PaginationGap />}
+                          {shouldShow && (
+                            <PaginationPage
+                              current={isCurrent}
+                              onClick={() => table.setPageIndex(index)}
+                            >
+                              {String(page)}
+                            </PaginationPage>
+                          )}
+                          {shouldShowGapBeforeLast && <PaginationGap />}
+                        </>
+                      );
+                    }}
+                  </For>
+                }
+              </PaginationList>
+              <Field name="itemsPerPage">
+                <Select
+                  className={"mb-0 mt-0"}
+                  data={[
+                    { id: 10, name: "10" },
+                    { id: 20, name: "20" },
+                    { id: 30, name: "30" },
+                    { id: 50, name: "50" },
+                  ]}
+                  displayValueKey="name"
+                  onChange={(e) =>
+                    table.setPageSize(
+                      Number(
+                        (e as React.ChangeEvent<HTMLSelectElement>).target.value
+                      )
+                    )
+                  }
+                />
+              </Field>
+            </div>
+            <PaginationNext
+              disabled={
+                !table.getCanNextPage() ||
+                table.getState().pagination.pageIndex + 1 >= tablePageCount
+              }
+              onClick={() => table.nextPage()}
+            >
+              Próxima
+            </PaginationNext>
+          </Pagination>
+        )}
       </Form>
-
-      {pagination && (
-        <Pagination className="my-2">
-          <PaginationPrevious
-            disabled={!table.getCanPreviousPage()}
-            onClick={() => table.previousPage()}
-          >
-            Anterior
-          </PaginationPrevious>
-          <PaginationList>
-            {
-              <For
-                each={Array.from(
-                  {
-                    length: tablePageCount,
-                  },
-                  (_, index) => index + 1
-                )}
-              >
-                {(page, index) => {
-                  const pageIndex = table.getState().pagination.pageIndex;
-
-                  const isCurrent = pageIndex === index;
-                  const isFirstPage = index === 0;
-                  const isLastPage = index === tablePageCount - 1;
-                  const isNearCurrent = Math.abs(index - pageIndex) <= 2;
-
-                  const shouldShow =
-                    isCurrent || isFirstPage || isLastPage || isNearCurrent;
-
-                  const shouldShowGapBeforeCurrent =
-                    index === pageIndex - 3 && pageIndex > 3;
-                  const shouldShowGapBeforeLast =
-                    index === tablePageCount - 4 &&
-                    pageIndex < tablePageCount - 4 &&
-                    pageIndex < tablePageCount - 1;
-
-                  return (
-                    <>
-                      {shouldShowGapBeforeCurrent && <PaginationGap />}
-                      {index === 1 && pageIndex > 3 && <PaginationGap />}
-                      {shouldShow && (
-                        <PaginationPage
-                          current={isCurrent}
-                          onClick={() => table.setPageIndex(index)}
-                        >
-                          {String(page)}
-                        </PaginationPage>
-                      )}
-                      {shouldShowGapBeforeLast && <PaginationGap />}
-                    </>
-                  );
-                }}
-              </For>
-            }
-          </PaginationList>
-          <PaginationNext
-            disabled={!table.getCanNextPage()}
-            onClick={() => table.nextPage()}
-          >
-            Próxima
-          </PaginationNext>
-        </Pagination>
-      )}
     </TableContext.Provider>
   );
 }
@@ -457,8 +475,8 @@ export function TableHead({
 }: React.ComponentPropsWithoutRef<"thead">) {
   return (
     <thead
-      className={clsx(className, "text-zinc-500 ", "lg:min-w-[150px]")}
       {...props}
+      className={clsx(className, "text-zinc-500 dark:text-zinc-400")}
     />
   );
 }
@@ -482,7 +500,6 @@ export function TableRow({
   target,
   title,
   className,
-  children,
   ...props
 }: {
   href?: string;
@@ -502,14 +519,14 @@ export function TableRow({
         className={clsx(
           className,
           href &&
-            "/[2.5%] has-[[data-row-link][data-focus]]:outline has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500",
-          striped && "/[2.5%] even:bg-zinc-950/[2.5%]",
-          href && striped && "hover:bg-zinc-950/5 ",
-          href && !striped && "/[2.5%] hover:bg-zinc-950/[2.5%]"
+            "has-[[data-row-link][data-focus]]:outline has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500 dark:focus-within:bg-white/[2.5%]",
+          striped && "even:bg-zinc-950/[2.5%] dark:even:bg-white/[2.5%]",
+          href && striped && "hover:bg-zinc-950/5 dark:hover:bg-white/5",
+          href &&
+            !striped &&
+            "hover:bg-zinc-950/[2.5%] dark:hover:bg-white/[2.5%]"
         )}
-      >
-        {children}
-      </tr>
+      />
     </TableRowContext.Provider>
   );
 }
@@ -525,9 +542,10 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "min-w-[120px] border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
-        grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
-        !bleed && "sm:first:pl-2 sm:last:pr-2"
+        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] dark:border-b-white/10",
+        grid &&
+          "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
+        !bleed && "sm:first:pl-1 sm:last:pr-1"
       )}
     />
   );
@@ -548,11 +566,12 @@ export function TableCell({
       {...props}
       className={clsx(
         className,
-        "px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
-        !striped && "border-b border-zinc-950/5 ",
-        grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
+        "relative px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
+        !striped && "border-b border-zinc-950/5 dark:border-white/5",
+        grid &&
+          "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
         dense ? "py-2.5" : "py-4",
-        !bleed && "sm:first:pl-2 sm:last:pr-2"
+        !bleed && "sm:first:pl-1 sm:last:pr-1"
       )}
     >
       {href && (
@@ -578,7 +597,7 @@ export function ColumnFilter({
   table: TableType<any>;
 }) {
   const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta ?? {};
+  const { filterVariant, selectOptions } = column.columnDef.meta ?? {};
   const [_, setIsLoading] = useState(false);
 
   return filterVariant === "select" ? (
@@ -586,10 +605,11 @@ export function ColumnFilter({
       displayValueKey="name"
       data={Array.from(column.getFacetedUniqueValues())
         .sort((a, b) => a[0]?.localeCompare(b[0]))
-        .filter((value) => value[0])
+        .filter((value) => value[0] !== undefined)
         .map((value) => ({
           id: value[0],
-          name: value[0],
+          name:
+            selectOptions?.find((v) => v.value === value[0])?.label ?? value[0],
         }))}
       onChange={(e) => {
         if (!e) return;

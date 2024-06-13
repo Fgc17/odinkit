@@ -48,8 +48,7 @@ export const inputClasses = clsx(
   "relative mb-1 mt-1 block w-full appearance-none rounded-lg py-[5px]",
 
   // Typography
-  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
-
+  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white",
   // Border
   "border border-zinc-950/10",
 
@@ -60,33 +59,27 @@ export const inputClasses = clsx(
   "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20",
 
   // Background color
-  "bg-transparent ",
-
+  "bg-transparent dark:bg-white/5",
   // Hide default focus styles
   "focus:outline-none"
 );
 
 export const iconInputClasses = clsx(
   // Basic layout
-  "relative mb-1 mt-[11px] block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:pr-[calc(theme(spacing[3])-1px)] sm:pl-[calc(theme(spacing[10])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+  "relative mb-1  block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:pr-[calc(theme(spacing[3])-1px)] pl-[calc(theme(spacing[10])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
 
   // Typography
-  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
-
+  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white",
   // Border
-  "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
-
+  "border border-zinc-950/10 data-[hover]:border-zinc-950/20 dark:border-white/10 dark:data-[hover]:border-white/20",
   // Background color
-  "bg-transparent ",
-
+  "bg-transparent dark:bg-white/5",
   // Hide default focus styles
   "focus:outline-none",
-
   // Invalid state
-  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
-
+  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500 data-[invalid]:dark:border-red-500 data-[invalid]:data-[hover]:dark:border-red-500",
   // Disabled state
-  "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20"
+  "data-[disabled]:border-zinc-950/20 dark:data-[hover]:data-[disabled]:border-white/15 data-[disabled]:dark:border-white/15 data-[disabled]:dark:bg-white/[2.5%]"
 );
 
 export function Input({
@@ -156,7 +149,7 @@ export function Input({
             {type === "password" && (
               <HeadlessButton
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-[0.5rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600"
+                className="absolute right-2 top-[0.75rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600 lg:top-[0.5rem] dark:bg-zinc-800 lg:dark:bg-zinc-900"
               >
                 {showPassword ? (
                   <EyeSlashIcon className="size-5" />

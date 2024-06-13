@@ -5,6 +5,7 @@ export interface SelectOption<T = any> {
   displayValue: string;
   value: string;
   _?: T;
+  disabled?: boolean;
 }
 
 export interface SelectProps<Data> {

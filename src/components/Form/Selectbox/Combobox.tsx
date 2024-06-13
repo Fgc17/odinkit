@@ -65,7 +65,7 @@ export function Combobox<Data extends { id: string | number }>({
   className?: string;
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
 } & SelectProps<Data> &
-  Omit<HeadlessComboboxProps<Data, any, any, any>, "children">) {
+  Omit<HeadlessComboboxProps<Data, any, any>, "children">) {
   const form = useFormContext();
 
   const { name, error } = useField();
@@ -117,7 +117,6 @@ export function Combobox<Data extends { id: string | number }>({
             {..._field}
             {...rest}
             as={"div"}
-            value={options.find((i) => i.value === value) || ""}
             onChange={(_: any) => {
               const data: SelectOption<Data> = _;
               onChange && onChange(data?._);

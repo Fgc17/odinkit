@@ -83,7 +83,7 @@ const fieldGroupVariants = {
 export function Fieldset({
   className,
   ...props
-}: { disabled?: boolean } & HeadlessFieldsetProps) {
+}: { className?: string } & Omit<HeadlessFieldsetProps, "className">) {
   return (
     <HeadlessFieldset
       {...props}
@@ -95,13 +95,16 @@ export function Fieldset({
   );
 }
 
-export function Legend({ ...props }: HeadlessLegendProps) {
+export function Legend({
+  className,
+  ...props
+}: { className?: string } & Omit<HeadlessLegendProps, "className">) {
   return (
     <HeadlessLegend
-      {...props}
       data-slot="legend"
+      {...props}
       className={clsx(
-        props.className,
+        className,
         "text-base font-semibold leading-7 text-gray-900 data-[disabled]:opacity-50"
       )}
     />
@@ -110,39 +113,53 @@ export function Legend({ ...props }: HeadlessLegendProps) {
 
 export function FieldGroup({
   className,
-  variant = "default",
   ...props
-}: React.ComponentPropsWithoutRef<"div"> & {
-  variant?: keyof typeof fieldGroupVariants;
-}) {
+}: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div
-      {...props}
       data-slot="control"
-      className={clsx(className, fieldGroupVariants[variant])}
+      {...props}
+      className={clsx(className, "space-y-8")}
+    />
+  );
+}
+
+export function Field({
+  className,
+  ...props
+}: { className?: string } & Omit<HeadlessFieldProps, "className">) {
+  return (
+    <HeadlessField
+      {...props}
+      className={clsx(
+        className,
+        "[&>[data-slot=label]+[data-slot=control]]:mt-3",
+        "[&>[data-slot=label]+[data-slot=description]]:mt-1",
+        "[&>[data-slot=description]+[data-slot=control]]:mt-3",
+        "[&>[data-slot=control]+[data-slot=description]]:mt-3",
+        "[&>[data-slot=control]+[data-slot=error]]:mt-3",
+        "[&>[data-slot=label]]:font-medium"
+      )}
     />
   );
 }
 
 export function Label({
   className,
-  children,
   enableAsterisk = true,
   ...props
-}: {
-  className?: string;
-  enableAsterisk?: boolean;
-} & HeadlessLabelProps) {
+}: { className?: string; enableAsterisk?: boolean } & Omit<
+  HeadlessLabelProps,
+  "className"
+>) {
   const { isRequired } = useField();
-
   return (
     <HeadlessLabel
-      {...props}
       data-slot="label"
       className={clsx(className, "block text-sm font-medium text-gray-700")}
     >
       <>
-        {children}{" "}
+        {props.children}{" "}
         {enableAsterisk && isRequired && (
           <span className="text-red-600">*</span>
         )}
@@ -153,13 +170,12 @@ export function Label({
 
 export function Description({
   className,
-  disabled,
   ...props
-}: { className?: string; disabled?: boolean } & HeadlessDescriptionProps) {
+}: { className?: string } & Omit<HeadlessDescriptionProps, "className">) {
   return (
     <HeadlessDescription
-      {...props}
       data-slot="description"
+      {...props}
       className={clsx(
         className,
         "mt-1 text-sm leading-6 text-gray-600 sm:text-left"
@@ -170,21 +186,19 @@ export function Description({
 
 export function ErrorMessage({
   className,
-  disabled,
   ...props
-}: { className?: string; disabled?: boolean } & HeadlessDescriptionProps) {
-  const { error } = useField()!;
-
+}: { className?: string } & Omit<HeadlessDescriptionProps, "className">) {
+  const { error } = useField();
   return (
     <HeadlessDescription
-      {...props}
       data-slot="error"
+      {...props}
       className={clsx(
         className,
-        "text-xs text-red-600 data-[disabled]:opacity-50"
+        "text-base/6 text-red-600 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-red-500"
       )}
     >
-      {error}
+      {error ? error : " "}
     </HeadlessDescription>
   );
 }
