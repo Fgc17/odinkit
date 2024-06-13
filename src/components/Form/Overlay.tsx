@@ -10,9 +10,6 @@ const classes = {
     // Basic layouts
     `relative block w-full`,
 
-    // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-    `before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white before:shadow`,
-
     // Focus ring
     `after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:ring-inset after:ring-transparent 
         focus-within:after:ring-2`,
@@ -22,7 +19,7 @@ const classes = {
   ),
 };
 
-export function Span({
+export function Overlay({
   variant = "default",
   className,
   ...props
@@ -34,12 +31,9 @@ export function Span({
   return (
     <span
       className={clsx(
-        // Invalid State
-        error &&
-          "before:has-[[data-invalid]]:shadow-red-500/10 has-[[data-invalid]]:after:ring-red-500",
-
-        // Valid State
-        !error && "focus-within:after:ring-blue-500",
+        error
+          ? "before:has-[[data-invalid]]:shadow-red-500/10 has-[[data-invalid]]:after:ring-red-500"
+          : "before:shadow-blue-500/10 after:ring-blue-500",
 
         classes[variant],
 

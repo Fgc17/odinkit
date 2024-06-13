@@ -17,12 +17,12 @@ import {
   UseFormProps as useReactHookFormProps,
   Path,
 } from "react-hook-form";
-import { ZodEffects, ZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
+import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
 
 import { z } from "../../utils/zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
+import { FieldProps, OdinInternal_Field } from "./Field";
 import { StepContext, useSteps } from "../../hooks/useSteps";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
@@ -51,8 +51,9 @@ export type MultistepFormChildrenProps<Step, Steps> = {
 
 export type FormProps<Fields extends FieldValues> = Omit<
   React.ComponentProps<"form">,
-  "onSubmit" | "id"
+  "onSubmit" | "id" | "ref"
 > & {
+  innerRef?: React.RefObject<HTMLFormElement>;
   hform: UseFormReturn<Fields>;
   onSubmit?: (data: Fields) => void;
 };
@@ -85,7 +86,7 @@ export function useForm<Fields extends FieldValues>({
     id: id ?? _id,
     schema,
     createField: () => (props: FieldProps<_Fields>) => (
-      <_ODINKIT_INTERNAL_Field {...fieldOptions} {...props} />
+      <OdinInternal_Field {...fieldOptions} {...props} />
     ),
     ...useReactHookForm<_Fields>({
       ...useReactHookFormProps,
@@ -200,6 +201,7 @@ export function MultistepForm<
 export function Form<Fields extends FieldValues>({
   onSubmit,
   hform,
+  innerRef,
   ...props
 }: FormProps<Fields>) {
   return (
@@ -212,6 +214,7 @@ export function Form<Fields extends FieldValues>({
             return onSubmit(data);
           })
         }
+        ref={innerRef}
         id={hform.id}
         {...props}
       />

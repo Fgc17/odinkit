@@ -1,0 +1,99 @@
+[type="text"]:focus,
+[type="email"]:focus,
+[type="url"]:focus,
+[type="password"]:focus,
+[type="number"]:focus,
+[type="date"]:focus,
+[type="datetime-local"]:focus,
+[type="month"]:focus,
+[type="search"]:focus,
+[type="tel"]:focus,
+[type="checkbox"]:focus,
+[type="radio"]:focus,
+[type="time"]:focus,
+[type="week"]:focus,
+[multiple]:focus,
+textarea:focus,
+select:focus {
+  --tw-ring-offset-shadow: "transparent";
+  --tw-ring-shadow: "transparent";
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border-radius: 50%;
+  border: none;
+}
+
+.embla {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+}
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  margin: 0 20px;
+}
+
+body {
+  margin: 0 !important;
+}
+
+.customHtml {
+  line-height: 1.5;
+  font-weight: 400;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+.customHtml ol,
+.customHtml ul {
+  list-style: initial; /* Usa o estilo de lista padrão */
+  margin-left: 40px; /* Adiciona uma margem à esquerda para indentação */
+}
+
+.customHtml a {
+  color: #005bbd; /* Default link color */
+  text-decoration: none; /* Remove default underline */
+}
+
+/* Hover effect for links */
+.customHtml a:hover {
+  text-decoration: underline; /* Add underline on hover */
+}
+
+.customHtml li {
+  list-style: initial; /* Usa o estilo de lista padrão */
+  margin-bottom: 10px; /* Adiciona um espaço abaixo de cada item da lista */
+}
+
+@media (min-width: 1367px) {
+  /* WebKit-based browsers */
+  ::-webkit-scrollbar {
+    width: 5px; /* Width of the scrollbar */
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Color of the scrollbar track */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #888; /* Color of the scrollbar thumb */
+    border-radius: 10px; /* Rounded corners of the thumb */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color of the scrollbar thumb on hover */
+  }
+}

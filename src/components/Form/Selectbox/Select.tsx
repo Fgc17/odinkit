@@ -40,7 +40,7 @@ import { Path, Controller } from "react-hook-form";
 import { For } from "../../For";
 import { inputClasses } from "../Input";
 import { getEntryFromPath } from "../_shared/utils/getEntryFromPath";
-import { Span } from "../Span";
+import { Overlay } from "../Overlay";
 import { useField } from "../Field";
 import { SelectOption, SelectProps } from "./types";
 export function Select<
@@ -73,7 +73,7 @@ export function Select<
   );
 
   return (
-    <Span data-slot="control" variant="default">
+    <Overlay data-slot="control" variant="default">
       <Controller
         name={name}
         control={form.control}
@@ -115,6 +115,6 @@ export function Select<
           }
         }}
       />
-    </Span>
+    </Overlay>
   );
 }
