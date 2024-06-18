@@ -19,6 +19,7 @@ import { createContext, useContext, useMemo } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
 import { useFormContext } from "./Form";
+import { getZodFields } from "../../utils/zod";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
@@ -133,7 +134,7 @@ export function Label({
   children,
   ...props
 }: { className?: string } & HeadlessLabelProps) {
-  const { isRequired } = useField();
+  const { isRequired, name } = useField();
 
   return (
     <HeadlessLabel
@@ -213,7 +214,7 @@ export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
   } = form;
 
   const name = props["name"];
-  const zodField = getEntryFromPath(schema, name, "shape").entryValue;
+  const zodField = getZodFields(schema)[name];
   const isRequired = enableAsterisk ?? !zodField?.isOptional();
   const error = getEntryFromPath(errors, name).entryValue?.message;
 
