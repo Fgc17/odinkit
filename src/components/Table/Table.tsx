@@ -298,93 +298,85 @@ export function Table<Data>({
                     {dataSetter}
                   </Field>
                 )} */}
-              {link && <div className="mt-1.5">{link}</div>}
-              {xlsx && (
-                <div className="mt-1.5">
-                  <Xlsx data={xlsx.data} />
-                </div>
-              )}
             </div>
-            <Form hform={form} className="flex-grow">
-              <table className="min-w-full text-left text-sm/6">
-                <TableHead>
-                  <For each={table.getHeaderGroups()} identifier="thead">
-                    {(headerGroup) => (
-                      <TableRow>
-                        <For each={headerGroup.headers} identifier="header">
-                          {(header) => (
-                            <TableHeader>
-                              <div
-                                {...{
-                                  className: header.column.getCanSort()
-                                    ? "cursor-pointer select-none"
-                                    : "",
-                                  onClick:
-                                    header.column.getToggleSortingHandler(),
-                                }}
-                              >
-                                {flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                                {{
-                                  asc: " ↑",
-                                  desc: " ↓",
-                                }[header.column.getIsSorted() as string] ??
-                                  null}
-                              </div>
-                              {header.column.getCanFilter() && (
-                                <div>
-                                  <Field name={header.column.id}>
-                                    <ColumnFilter
-                                      table={table}
-                                      column={header.column}
-                                    />
-                                  </Field>
-                                </div>
-                              )}
-                            </TableHeader>
-                          )}
-                        </For>
-                      </TableRow>
-                    )}
-                  </For>
-                </TableHead>
 
-                <TableBody>
-                  <For
-                    each={table.getRowModel().rows}
-                    identifier="row"
-                    fallback={
-                      <TableRow>
-                        <For each={table.getAllColumns()}>
-                          {(column, index) => (
-                            <TableCell>
-                              {index === 0 ? <>Nada por aqui.</> : null}
-                            </TableCell>
-                          )}
-                        </For>
-                      </TableRow>
-                    }
-                  >
-                    {(row) => (
-                      <TableRow>
-                        <For each={row.getVisibleCells()} identifier="cell">
-                          {(cell) => (
-                            <TableCell>
+            <table className="min-w-full text-left text-sm/6">
+              <TableHead>
+                <For each={table.getHeaderGroups()} identifier="thead">
+                  {(headerGroup) => (
+                    <TableRow>
+                      <For each={headerGroup.headers} identifier="header">
+                        {(header) => (
+                          <TableHeader>
+                            <div
+                              {...{
+                                className: header.column.getCanSort()
+                                  ? "cursor-pointer select-none"
+                                  : "",
+                                onClick:
+                                  header.column.getToggleSortingHandler(),
+                              }}
+                            >
                               {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
+                                header.column.columnDef.header,
+                                header.getContext()
                               )}
-                            </TableCell>
-                          )}
-                        </For>
-                      </TableRow>
-                    )}
-                  </For>
-                </TableBody>
-              </table>
-            </Form>
+                              {{
+                                asc: " ↑",
+                                desc: " ↓",
+                              }[header.column.getIsSorted() as string] ?? null}
+                            </div>
+                            {header.column.getCanFilter() && (
+                              <div>
+                                <Field name={header.column.id}>
+                                  <ColumnFilter
+                                    table={table}
+                                    column={header.column}
+                                  />
+                                </Field>
+                              </div>
+                            )}
+                          </TableHeader>
+                        )}
+                      </For>
+                    </TableRow>
+                  )}
+                </For>
+              </TableHead>
+
+              <TableBody>
+                <For
+                  each={table.getRowModel().rows}
+                  identifier="row"
+                  fallback={
+                    <TableRow>
+                      <For each={table.getAllColumns()}>
+                        {(column, index) => (
+                          <TableCell>
+                            {index === 0 ? <>Nada por aqui.</> : null}
+                          </TableCell>
+                        )}
+                      </For>
+                    </TableRow>
+                  }
+                >
+                  {(row) => (
+                    <TableRow>
+                      <For each={row.getVisibleCells()} identifier="cell">
+                        {(cell) => (
+                          <TableCell>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </TableCell>
+                        )}
+                      </For>
+                    </TableRow>
+                  )}
+                </For>
+              </TableBody>
+            </table>
           </div>
         </div>
 
