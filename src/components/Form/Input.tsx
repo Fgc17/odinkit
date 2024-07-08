@@ -22,8 +22,15 @@ import {
   twColorPalette,
   twShade,
 } from "../../constants/twColorPalette";
-import { EyeIcon, FolderArrowDownIcon } from "@heroicons/react/20/solid";
+import { EyeIcon } from "@heroicons/react/20/solid";
 import { EyeSlashIcon } from "@heroicons/react/24/solid";
+import {
+  fieldBackgroundColorClasses,
+  fieldBasicLayoutClasses,
+  fieldBorderClasses,
+  fieldFocusClasses,
+  fieldTipographyClasses,
+} from "./_shared/styles/field-classes";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -45,23 +52,24 @@ const webkitCss = [
 
 export const inputClasses = clsx(
   // Basic layout
-  "relative mb-1 mt-1 block w-full appearance-none rounded-lg py-[5px]",
+  fieldBasicLayoutClasses,
 
   // Typography
-  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white",
+  fieldTipographyClasses,
+
+  // Background color
+  fieldBackgroundColorClasses,
+
   // Border
-  "border border-zinc-950/10",
+  fieldBorderClasses,
+
+  fieldFocusClasses,
 
   // Invalid state
   "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500 ",
 
   // Disabled state
-  "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20",
-
-  // Background color
-  "bg-transparent dark:bg-white/5",
-  // Hide default focus styles
-  "focus:outline-none"
+  "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20"
 );
 
 export const iconInputClasses = clsx(
@@ -109,7 +117,7 @@ export function Input({
   const { name, error } = useField();
 
   return (
-    <Overlay className={clsx(className)}>
+    <Overlay data-slot="control" className={clsx(className)}>
       <Controller
         name={name}
         control={form.control}
@@ -131,7 +139,6 @@ export function Input({
               disabled={loading}
               value={value || ""}
               className={clsx([
-                // Date classes
                 type && dateTypes.includes(type) && webkitCss,
                 icon ? iconInputClasses : inputClasses,
               ])}

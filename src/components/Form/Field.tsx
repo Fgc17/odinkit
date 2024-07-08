@@ -16,12 +16,11 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { ReactNode, createContext, useContext, useMemo } from "react";
+import { createContext, useContext } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
 import { useFormContext } from "./Form";
 import { getZodFields, z } from "../../utils/zod";
-import { RadioGroup } from "./Radio";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
@@ -35,19 +34,19 @@ export type FieldOptions = {
 
 const fieldVariants = {
   default: clsx(
-    "[&>[data-slot=label]+[data-slot=control]]:mt-3",
+    "[&>[data-slot=label]+[data-slot=control]]:mt-1.5",
     "[&>[data-slot=label]+[data-slot=description]]:mt-1",
-    "[&>[data-slot=description]+[data-slot=control]]:mt-3",
-    "[&>[data-slot=control]+[data-slot=description]]:mt-3",
-    "[&>[data-slot=control]+[data-slot=error]]:mt-3",
+    "[&>[data-slot=description]+[data-slot=control]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=description]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=error]]:mt-1.5",
     "[&>[data-slot=label]]:font-medium"
   ),
   radio: clsx(
-    "[&>[data-slot=label]+[data-slot=control]]:mt-3",
+    "[&>[data-slot=label]+[data-slot=control]]:mt-1.5",
     "[&>[data-slot=label]+[data-slot=description]]:mt-1",
-    "[&>[data-slot=description]+[data-slot=control]]:mt-3",
-    "[&>[data-slot=control]+[data-slot=description]]:mt-3",
-    "[&>[data-slot=control]+[data-slot=error]]:mt-3",
+    "[&>[data-slot=description]+[data-slot=control]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=description]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=error]]:mt-1.5",
     "[&>[data-slot=label]]:font-medium"
   ),
   switch: clsx(
@@ -124,26 +123,6 @@ export function FieldGroup({
   );
 }
 
-export function Field({
-  className,
-  ...props
-}: { className?: string } & Omit<HeadlessFieldProps, "className">) {
-  return (
-    <HeadlessField
-      {...props}
-      className={clsx(
-        className,
-        "[&>[data-slot=label]+[data-slot=control]]:mt-3",
-        "[&>[data-slot=label]+[data-slot=description]]:mt-1",
-        "[&>[data-slot=description]+[data-slot=control]]:mt-3",
-        "[&>[data-slot=control]+[data-slot=description]]:mt-3",
-        "[&>[data-slot=control]+[data-slot=error]]:mt-3",
-        "[&>[data-slot=label]]:font-medium"
-      )}
-    />
-  );
-}
-
 export function Label({
   className,
   enableAsterisk = true,
@@ -156,6 +135,11 @@ export function Label({
   return (
     <HeadlessLabel
       data-slot="label"
+      onClick={(e) => {
+        console.log(e);
+        e.preventDefault();
+        e.stopPropagation();
+      }}
       className={clsx(className, "block text-sm font-medium text-gray-700")}
     >
       <>
