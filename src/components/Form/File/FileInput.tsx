@@ -12,7 +12,7 @@ import { useFormContext } from "../Form";
 import { FileFormat } from "./FileFormat";
 import { getFileExtension } from "./utils";
 import { LoadingSpinner } from "../../Spinners";
-import { Text } from "../../Text";
+import { Text } from "../../Typesetting/Text";
 
 type FileInputContextProps = {
   fileTypes: FileFormat[];
