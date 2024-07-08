@@ -42,9 +42,9 @@ import { inputClasses } from "../Input";
 import { getEntryFromPath } from "../_shared/utils/getEntryFromPath";
 import { Overlay } from "../Overlay";
 import { useField } from "../Field";
-import { SelectOption, SelectProps } from "./types";
+import { SelectOption, SelectProps } from "./shared/types";
 
-import * as classes from "./classes";
+import * as classes from "./shared/classes";
 
 export function Combobox<Data extends { id: string | number }>({
   className,
