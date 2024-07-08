@@ -7,7 +7,6 @@ import {
 import { clsx } from "clsx";
 import { Overlay } from "./Overlay";
 import { Controller } from "react-hook-form";
-import { inputClasses } from "./Input";
 import { useFormContext } from "./Form";
 import { useField } from "./Field";
 
