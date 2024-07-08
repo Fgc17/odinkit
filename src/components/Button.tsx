@@ -9,6 +9,8 @@ import { clsx } from "clsx";
 import React from "react";
 import { Link } from "./Link";
 import { ButtonSpinner } from "./Spinners";
+import { UseFormReturn } from "./Form/Form";
+import { FieldValues } from "react-hook-form";
 
 const styles = {
   base: [
@@ -185,17 +187,23 @@ const styles = {
   },
 };
 
-export type ButtonProps = (
+export type ButtonProps<T extends FieldValues> = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
-) & { className?: string; children: React.ReactNode; loading?: string } & (
+) &
+  (
     | Omit<HeadlessButtonProps, "className">
     | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
-  );
+  ) & {
+    className?: string;
+    children: React.ReactNode;
+    loading?: string;
+    hform?: UseFormReturn<T>;
+  };
 
 export const Button = React.forwardRef(function Button(
-  { color, outline, plain, className, children, ...props }: ButtonProps,
+  { color, outline, plain, className, children, ...props }: ButtonProps<any>,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   let classes = clsx(

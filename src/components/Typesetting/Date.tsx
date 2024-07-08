@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import { useEffect, useState } from "react";
-import { ButtonSpinner } from "./Spinners";
+import { ButtonSpinner } from "../Spinners";
 dayjs.extend(utc);
 dayjs.extend(timezone);
 

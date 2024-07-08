@@ -3,7 +3,7 @@
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { Text } from "./Text";
+import { Text } from "./Typesetting/Text";
 
 const sizes = {
   xs: "sm:max-w-xs",
