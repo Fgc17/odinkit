@@ -15,8 +15,7 @@ import {
 import clsx from "clsx";
 import type React from "react";
 import { Dispatch, Fragment, SetStateAction } from "react";
-import { Text } from "./Text";
-import { XMarkIcon } from "@heroicons/react/24/solid";
+import { Text } from "./Typesetting/Text";
 
 const sizes = {
   xs: "sm:max-w-xs",
