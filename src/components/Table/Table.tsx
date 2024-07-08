@@ -2,13 +2,7 @@
 
 import { clsx } from "clsx";
 import React, { useCallback, useMemo } from "react";
-import {
-  Dispatch,
-  SetStateAction,
-  createContext,
-  useContext,
-  useState,
-} from "react";
+import { createContext, useContext, useState } from "react";
 import { Link } from "../Link";
 import {
   useReactTable,
@@ -38,15 +32,12 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from "../Pagination";
-import { Form, useForm, useFormContext } from "../Form/Form";
+import { Form, useForm } from "../Form/Form";
 import { z } from "../../utils/zod";
 import { DebouncedInput, Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
 import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
-import { Label } from "../Form/Field";
-import { DisclosureAccordion } from "../Disclosure";
-import { BottomNavigation } from "../BottomNavigation";
 
 declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
@@ -435,7 +426,7 @@ export function Table<Data>({
               </PaginationList>
               <Field name="itemsPerPage">
                 <Select
-                  className={"mb-0 mt-0"}
+                  className={"mb-0 mt-0 text-xs"}
                   data={[
                     { id: 10, name: "10" },
                     { id: 20, name: "20" },
@@ -566,7 +557,7 @@ export function TableCell({
       {...props}
       className={clsx(
         className,
-        "relative px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
+        "relative px-4 text-sm first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
         !striped && "border-b border-zinc-950/5 dark:border-white/5",
         grid &&
           "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
