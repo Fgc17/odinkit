@@ -1,7 +1,7 @@
 import { FileFormat } from "./FileFormat";
 
 export const getFileExtension = (file: File): FileFormat => {
-  return file.name.split(".").pop() as FileFormat;
+  return file.name.split(".").pop()?.toLowerCase() as FileFormat;
 };
 
 export const getFileMime = (file: File) => {
