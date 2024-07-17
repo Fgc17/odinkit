@@ -63,9 +63,14 @@ export function Listbox<T>({
           >
             <HeadlessListboxButton
               data-slot="control"
-              as={"select"}
+              as="div"
               className={clsx([
+                // Form style
+                "form-select",
+
+                // Custom styles
                 className,
+
                 // Basic layout
                 fieldBasicLayoutClasses,
 
@@ -80,8 +85,6 @@ export function Listbox<T>({
 
                 // Hide default focus styles
                 fieldFocusClasses,
-
-                "appearance-none",
 
                 // Options (multi-select)
                 "[&_optgroup]:font-semibold",
@@ -102,11 +105,16 @@ export function Listbox<T>({
                   }
                 : {})}
             >
-              <ListboxSelectedOption as="option" options={options} />
+              {value ? (
+                <ListboxSelectedOption options={options} />
+              ) : (
+                <div className="select-none text-transparent">placeholder</div>
+              )}
             </HeadlessListboxButton>
 
             <HeadlessListboxOptions
               transition
+              as="div"
               anchor="selection start"
               className={clsx(
                 // Anchor positioning
