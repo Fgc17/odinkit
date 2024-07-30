@@ -89,6 +89,7 @@ const ToastContent: React.FC<ToastContentProps> = ({
     >
       <div
         className={clsx(
+          "w-full",
           "rounded-lg",
           "border",
           toastVariants[toastElement.variant].bg,
