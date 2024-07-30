@@ -117,6 +117,7 @@ export function Combobox<Data extends { id: string | number }>({
           <HeadlessCombobox
             {..._field}
             {...rest}
+            nullable={undefined}
             as={"div"}
             value={options.find((i) => i.value === value)?.value || ""}
             onChange={(_: any) => {
