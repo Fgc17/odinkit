@@ -61,7 +61,6 @@ export function Combobox<Data extends { id: string | number }>({
   ...props
 }: {
   children: (item: Data) => React.ReactNode;
-  multiple?: boolean;
   maxVisibleOptions?: number;
   debounce?: number;
   setData?: (query: string | undefined) => void;
@@ -120,7 +119,7 @@ export function Combobox<Data extends { id: string | number }>({
             {..._field}
             {...rest}
             nullable={undefined}
-            multiple={multiple}
+            multiple={false}
             as={"div"}
             value={options.find((i) => i.value === value)?.value || ""}
             onChange={(_: any) => {
