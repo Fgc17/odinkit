@@ -86,7 +86,6 @@ const ToastContent: React.FC<ToastContentProps> = ({
       leave="transition ease-in duration-300"
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
-      className={clsx("w-full")}
     >
       <div
         className={clsx(
