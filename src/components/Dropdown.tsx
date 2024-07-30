@@ -38,7 +38,6 @@ export function DropdownButton<T extends React.ElementType = typeof Button>(
 }
 
 export function DropdownMenu({
-  anchor = { to: "bottom end" },
   ...props
 }: { anchor?: NonNullable<HeadlessMenuItemsProps["anchor"]> } & Omit<
   HeadlessMenuItemsProps,
@@ -53,7 +52,7 @@ export function DropdownMenu({
       <HeadlessMenuItems
         {...props}
         anchor={{
-          to: anchor as any,
+          to: "bottom end",
           gap: "var(--anchor-gap)",
           offset: "var(--anchor-offset)",
           padding: "var(--anchor-padding)",
