@@ -60,6 +60,7 @@ export function Combobox<Data extends { id: string | number }>({
   ...props
 }: {
   children: (item: Data) => React.ReactNode;
+  maxVisibleOptions?: number;
   debounce?: number;
   setData?: (query: string | undefined) => void;
   className?: string;
