@@ -61,23 +61,25 @@ export function Alert({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="grid min-h-full grid-rows-[1fr_auto_1fr] justify-items-center p-8 sm:grid-rows-[1fr_auto_3fr] sm:p-4">
-            <HeadlessTransitionChild
-              as={HeadlessDialogPanel}
-              className={clsx(
-                className,
-                sizes[size],
-                "row-start-2 w-full rounded-2xl bg-white p-8 shadow-lg ring-1 ring-zinc-950/10 sm:rounded-2xl sm:p-6   forced-colors:outline"
-              )}
-              enter="ease-out duration-100"
-              enterFrom="scale-95"
-              enterTo="scale-100"
-              leave="ease-in duration-100"
-              leaveFrom="scale-100"
-              leaveTo="scale-100"
-            >
-              {children}
-            </HeadlessTransitionChild>
+          <div className="fixed inset-0 z-20 w-screen overflow-y-auto pt-6 sm:pt-0">
+            <div className="grid min-h-full grid-rows-[1fr_auto_1fr] justify-items-center p-8 sm:grid-rows-[1fr_auto_3fr] sm:p-4">
+              <HeadlessTransitionChild
+                as={HeadlessDialogPanel}
+                className={clsx(
+                  className,
+                  sizes[size],
+                  "row-start-2 w-full rounded-2xl bg-white p-8 shadow-lg ring-1 ring-zinc-950/10 sm:rounded-2xl sm:p-6   forced-colors:outline"
+                )}
+                enter="ease-out duration-100"
+                enterFrom="scale-95"
+                enterTo="scale-100"
+                leave="ease-in duration-100"
+                leaveFrom="scale-100"
+                leaveTo="scale-100"
+              >
+                {children}
+              </HeadlessTransitionChild>
+            </div>
           </div>
         </HeadlessTransitionChild>
       </HeadlessDialog>
