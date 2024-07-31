@@ -87,38 +87,41 @@ const ToastContent: React.FC<ToastContentProps> = ({
       leaveFrom="transform opacity-100 scale-100"
       leaveTo="transform opacity-0 scale-95"
     >
-      <div
-        className={clsx(
-          "w-full",
-          "rounded-lg",
-          "border",
-          toastVariants[toastElement.variant].bg,
-          toastVariants[toastElement.variant].border
-        )}
-      >
-        <div className="p-4">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              {toastVariants[toastElement.variant].icon}
-            </div>
-            <div className="ml-3 w-0 flex-1 pt-0.5">
-              <p className="text-sm font-medium text-black">
-                {toastElement.title ||
-                  toastVariants[toastElement.variant].title}
-              </p>
-              <p className="mt-1 text-sm text-black">{toastElement.message}</p>
-            </div>
-            <div className="ml-4 flex flex-shrink-0">
-              <button
-                type="button"
-                className="inline-flex rounded-md  text-black hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
-                onClick={() => {
-                  toast.dismiss();
-                }}
-              >
-                <span className="sr-only">Close</span>
-                <XMarkIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
+      <div className="w-full">
+        <div
+          className={clsx(
+            "rounded-lg",
+            "border",
+            toastVariants[toastElement.variant].bg,
+            toastVariants[toastElement.variant].border
+          )}
+        >
+          <div className="p-4">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                {toastVariants[toastElement.variant].icon}
+              </div>
+              <div className="ml-3 w-0 flex-1 pt-0.5">
+                <p className="text-sm font-medium text-black">
+                  {toastElement.title ||
+                    toastVariants[toastElement.variant].title}
+                </p>
+                <p className="mt-1 text-sm text-black">
+                  {toastElement.message}
+                </p>
+              </div>
+              <div className="ml-4 flex flex-shrink-0">
+                <button
+                  type="button"
+                  className="inline-flex rounded-md  text-black hover:text-zinc-800 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2"
+                  onClick={() => {
+                    toast.dismiss();
+                  }}
+                >
+                  <span className="sr-only">Close</span>
+                  <XMarkIcon className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
