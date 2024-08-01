@@ -36,8 +36,10 @@ export class ActionResponse {
   }
 
   public static error(exception: ExceptionProps | unknown): ErrorResponse {
+    const error = new Exception(exception as ExceptionProps);
+
     return {
-      ...new Exception(exception as ExceptionProps),
+      ...error,
       error: true,
     };
   }
