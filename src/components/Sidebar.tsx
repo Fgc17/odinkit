@@ -3,7 +3,14 @@
 import * as Headless from "@headlessui/react";
 import clsx from "clsx";
 import { LayoutGroup, motion } from "framer-motion";
-import React, { Fragment, useEffect, useId, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  Fragment,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { TouchTarget } from "./Button";
 import { Link } from "./Link";
 
@@ -11,36 +18,62 @@ export function Sidebar({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"nav">) {
-  const [isSticky, setIsSticky] = useState(false);
-  const stickyRef = useRef<HTMLDivElement>(null);
-
-  const handleScroll = () => {
-    if (stickyRef.current) {
-      // Now TypeScript knows stickyRef.current is an HTMLDivElement
-      const sticky = stickyRef.current.getBoundingClientRect().top <= 0;
-      setIsSticky(sticky);
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
   return (
     <nav
-      ref={stickyRef}
       {...props}
-      className={clsx(
-        className,
-        "sticky top-0 flex flex-col duration-300",
-        isSticky ? "h-[calc(100vh-0.5rem)]" : "h-[calc(100vh-54px)]"
-      )}
-    >
-      {props.children}
-    </nav>
+      className={clsx(className, "flex h-full min-h-0 flex-col")}
+    />
+  );
+}
+
+export function MobileSidebar({
+  open,
+  close,
+  children,
+  direction = "left",
+}: React.PropsWithChildren<{
+  open: boolean;
+  close: () => void;
+  direction?: "left" | "right";
+}>) {
+  return (
+    <Headless.Transition show={open}>
+      <Headless.Dialog onClose={close} className="lg:hidden">
+        <Headless.TransitionChild
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black/30" />
+        </Headless.TransitionChild>
+        <Headless.TransitionChild
+          enter="ease-in-out duration-300"
+          enterFrom={
+            direction === "left" ? "-translate-x-full" : "translate-x-full"
+          }
+          enterTo="translate-x-0"
+          leave="ease-in-out duration-300"
+          leaveFrom="translate-x-0"
+          leaveTo={
+            direction === "left" ? "-translate-x-full" : "translate-x-full"
+          }
+        >
+          <Headless.DialogPanel
+            className={clsx(
+              "fixed inset-y-0 w-full max-w-80 p-2 transition",
+              direction === "right" && "right-0"
+            )}
+          >
+            <div className="flex h-full flex-col rounded-lg bg-white shadow-sm ring-1 ring-zinc-950/5 dark:bg-zinc-900 dark:ring-white/10">
+              {children}
+            </div>
+          </Headless.DialogPanel>
+        </Headless.TransitionChild>
+      </Headless.Dialog>
+    </Headless.Transition>
   );
 }
 
@@ -53,7 +86,7 @@ export function SidebarHeader({
       {...props}
       className={clsx(
         className,
-        "flex flex-col border-b border-zinc-950/5 dark:border-white/5 [&>[data-slot=section]+[data-slot=section]]:mt-2.5"
+        "flex flex-col border-b border-zinc-950/5 p-4 dark:border-white/5 [&>[data-slot=section]+[data-slot=section]]:mt-2.5"
       )}
     />
   );
@@ -68,7 +101,7 @@ export function SidebarBody({
       {...props}
       className={clsx(
         className,
-        "flex flex-1 grow flex-col overflow-y-auto p-4 [&>[data-slot=section]+[data-slot=section]]:mt-8"
+        "flex flex-1 flex-col overflow-y-auto p-4 [&>[data-slot=section]+[data-slot=section]]:mt-8"
       )}
     />
   );
@@ -149,7 +182,7 @@ export function SidebarHeading({
   );
 }
 
-export const SidebarItem = React.forwardRef(function SidebarItem(
+export const SidebarItem = forwardRef(function SidebarItem(
   {
     current,
     className,
@@ -163,7 +196,7 @@ export const SidebarItem = React.forwardRef(function SidebarItem(
 ) {
   let classes = clsx(
     // Base
-    "flex w-full items-center text-sm gap-2 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-gray-800 sm:py-2 sm:text-sm/5",
+    "flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left text-base/6 font-medium text-zinc-950 sm:py-2 sm:text-sm/5",
     // Leading icon/icon-only
     "data-[slot=icon]:*:size-6 data-[slot=icon]:*:shrink-0 data-[slot=icon]:*:fill-zinc-500 sm:data-[slot=icon]:*:size-5",
     // Trailing icon (down chevron or similar)
