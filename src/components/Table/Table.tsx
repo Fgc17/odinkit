@@ -49,6 +49,7 @@ declare module "@tanstack/react-table" {
   //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
     filterVariant?: "text" | "range" | "select";
+    selectOptions?: { id: string; name: string }[];
   }
 }
 
@@ -123,14 +124,12 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
-  disableMobileFilters,
   defaultColumnFilters,
   data,
   columns,
   xlsx,
   link,
   div,
-  children,
 }: {
   disableMobileFilters?: boolean;
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
@@ -593,13 +592,16 @@ export function ColumnFilter({
   return filterVariant === "select" ? (
     <Select
       displayValueKey="name"
-      data={Array.from(column.getFacetedUniqueValues())
-        .sort((a, b) => String(a[0])?.localeCompare(String(b[0])))
-        .filter((value) => value[0])
-        .map((value) => ({
-          id: value[0],
-          name: value[0],
-        }))}
+      data={
+        column.columnDef.meta?.selectOptions ??
+        Array.from(column.getFacetedUniqueValues())
+          .sort((a, b) => String(a[0])?.localeCompare(String(b[0])))
+          .filter((value) => value[0])
+          .map((value) => ({
+            id: value[0],
+            name: value[0],
+          }))
+      }
       onChange={(e) => {
         if (!e) return;
         table.resetPageIndex();
