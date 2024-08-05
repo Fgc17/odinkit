@@ -60,7 +60,7 @@ export function Select<
   }) {
   const form = useFormContext();
 
-  const { name } = useField();
+  const { name, isRequired } = useField();
 
   const options: SelectOption[] = useMemo(
     () =>
@@ -84,9 +84,13 @@ export function Select<
               onChange && onChange(event);
               fieldOnChange(event.target.value);
             }}
-            className={inputClasses}
+            className={clsx(inputClasses, "min-w-[7rem]", className)}
           >
-            <option disabled value={""} className={clsx("py-2 pl-3 pr-9")}>
+            <option
+              disabled={isRequired}
+              value={""}
+              className={clsx("py-2 pl-3 pr-9")}
+            >
               {placeholder}
             </option>
             <For each={options}>
