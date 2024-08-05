@@ -593,7 +593,7 @@ export function ColumnFilter({
     <Select
       displayValueKey="name"
       data={
-        column.columnDef.meta?.selectOptions ??
+        column.columnDef.meta?.selectOptions?.filter((value) => value.id) ??
         Array.from(column.getFacetedUniqueValues())
           .sort((a, b) => String(a[0])?.localeCompare(String(b[0])))
           .filter((value) => value[0])
