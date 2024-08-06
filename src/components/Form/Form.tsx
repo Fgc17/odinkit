@@ -17,11 +17,11 @@ import {
   UseFormProps as useReactHookFormProps,
   Path,
 } from "react-hook-form";
-import { ZodEffects, ZodObject, ZodRawShape, ZodType, ZodTypeAny } from "zod";
-
+import { ClassConstructor, ClassTransformOptions } from "class-transformer";
 import { z } from "../../utils/zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { FieldProps, _ODINKIT_INTERNAL_Field } from "./Field";
 import { StepContext, useSteps } from "../../hooks/useSteps";
 
@@ -33,9 +33,7 @@ type UseFormProps<Fields extends FieldValues> = Omit<
   fieldOptions?: {
     enableAsterisk?: boolean;
   };
-  schema:
-    | ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>
-    | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
+  schema: ClassConstructor<Fields>;
 };
 
 export type MultistepFormChildrenProps<Step, Steps> = {
@@ -77,19 +75,17 @@ export function useForm<Fields extends FieldValues>({
   id,
   ...useReactHookFormProps
 }: UseFormProps<Fields>) {
-  type _Fields = Fields | z.infer<typeof schema>;
-
   const _id = useId();
 
   return {
     id: id ?? _id,
     schema,
-    createField: () => (props: FieldProps<_Fields>) => (
+    createField: () => (props: FieldProps<Fields>) => (
       <_ODINKIT_INTERNAL_Field {...fieldOptions} {...props} />
     ),
-    ...useReactHookForm<_Fields>({
+    ...useReactHookForm<Fields>({
       ...useReactHookFormProps,
-      resolver: zodResolver(schema),
+      resolver: classValidatorResolver(schema),
     }),
   };
 }
