@@ -40,7 +40,6 @@ import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
 
 declare module "@tanstack/react-table" {
-  //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
     selectOptions?: Array<{ value: TValue; label: string }>;
     filterVariant?: "text" | "range" | "select";
@@ -110,6 +109,10 @@ export function TableMock({
     </TableContext.Provider>
   );
 }
+
+export const TableFlag = {
+  ENABLE_COLUMN_FILTER: false,
+};
 
 export function Table<Data>({
   bleed = false,
@@ -261,9 +264,9 @@ export function Table<Data>({
                   .slice(0, 3)
                   .join(", ")})`}
               />
-              {dataSetter}
             </Field>
           )}
+          {dataSetter}
           {link && <div className="mt-1.5">{link}</div>}
           {xlsx && (
             <div className="mt-1.5">
@@ -313,7 +316,7 @@ export function Table<Data>({
                                 }[header.column.getIsSorted() as string] ??
                                   null}
                               </div>
-                              {header.column.getCanFilter() && (
+                              {!header.column.getCanFilter() && (
                                 <div className="hidden lg:block">
                                   <Field name={header.column.id}>
                                     <ColumnFilter
