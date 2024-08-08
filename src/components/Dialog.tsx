@@ -117,7 +117,7 @@ export function DialogDescription({
     <HeadlessDescription
       as={Text}
       {...props}
-      className={clsx(className, "mt-2 text-pretty")}
+      className={clsx(className, "mt-1 text-pretty")}
     />
   );
 }

@@ -188,7 +188,12 @@ export const SidebarItem = forwardRef(function SidebarItem(
     className,
     children,
     ...props
-  }: { current?: boolean; className?: string; children: React.ReactNode } & (
+  }: {
+    current?: boolean;
+    className?: string;
+    children: React.ReactNode;
+    disabled?: boolean;
+  } & (
     | Omit<Headless.ButtonProps, "className">
     | Omit<React.ComponentPropsWithoutRef<typeof Link>, "type" | "className">
   ),
@@ -203,17 +208,21 @@ export const SidebarItem = forwardRef(function SidebarItem(
     "data-[slot=icon]:last:*:ml-auto data-[slot=icon]:last:*:size-5 sm:data-[slot=icon]:last:*:size-4",
     // Avatar
     "data-[slot=avatar]:*:-m-0.5 data-[slot=avatar]:*:size-7 data-[slot=avatar]:*:[--ring-opacity:10%] sm:data-[slot=avatar]:*:size-6",
-    // Hover
-    "data-[hover]:bg-zinc-950/5 data-[slot=icon]:*:data-[hover]:fill-zinc-950",
-    // Active
-    "data-[active]:bg-zinc-950/5 data-[slot=icon]:*:data-[active]:fill-zinc-950",
     // Current
     "data-[slot=icon]:*:data-[current]:fill-zinc-950",
     // Dark mode
     "dark:text-white dark:data-[slot=icon]:*:fill-zinc-400",
-    "dark:data-[hover]:bg-white/5 dark:data-[slot=icon]:*:data-[hover]:fill-white",
-    "dark:data-[active]:bg-white/5 dark:data-[slot=icon]:*:data-[active]:fill-white",
-    "dark:data-[slot=icon]:*:data-[current]:fill-white"
+    "dark:data-[slot=icon]:*:data-[current]:fill-white",
+    props.disabled && "opacity-50 pointer-events-none",
+    !props.disabled && [
+      // Hover
+      "data-[hover]:bg-zinc-950/5 data-[slot=icon]:*:data-[hover]:fill-zinc-950",
+      // Active
+      "data-[active]:bg-zinc-950/5 data-[slot=icon]:*:data-[active]:fill-zinc-950",
+      // Dark Mode
+      "dark:data-[hover]:bg-white/5 dark:data-[slot=icon]:*:data-[hover]:fill-white",
+      "dark:data-[active]:bg-white/5 dark:data-[slot=icon]:*:data-[active]:fill-white",
+    ]
   );
 
   return (
