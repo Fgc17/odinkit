@@ -10,7 +10,7 @@ export function Text({
       {...props}
       data-slot="text"
       className={clsx(
-        "text-base/6 sm:text-sm/6",
+        "text-sm",
         !props.color
           ? "text-zinc-500 "
           : `text-${props.color}-500 -${props.color}-400`,
