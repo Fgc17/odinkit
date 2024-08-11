@@ -46,7 +46,7 @@ export function MobileSidebar({
 
   return (
     <Headless.Transition show={open}>
-      <Headless.Dialog onClose={close} className="lg:hidden">
+      <Headless.Dialog onClose={close}>
         <Headless.TransitionChild
           enter="ease-out duration-300"
           enterFrom="opacity-0"
