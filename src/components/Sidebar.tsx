@@ -36,6 +36,14 @@ export function MobileSidebar({
   close: () => void;
   direction?: "left" | "right";
 }>) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [open]);
+
   return (
     <Headless.Transition show={open}>
       <Headless.Dialog onClose={close} className="lg:hidden">
