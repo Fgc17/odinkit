@@ -15,11 +15,7 @@ z.setErrorMap(zodI18nMap);
 export { z };
 
 export type ToZod<T> = Required<{
-  [K in keyof T]: T[K] extends string | number | boolean | null | undefined
-    ? undefined extends T[K]
-      ? z.ZodDefault<z.ZodType<Exclude<T[K], undefined>>>
-      : z.ZodType<T[K]>
-    : z.ZodObject<ToZod<T[K]>>;
+  [K in keyof T]: z.ZodType<T[K]>;
 }>;
 
 export const getZodFields = <T extends z.ZodTypeAny>(schema: T): any => {
