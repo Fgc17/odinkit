@@ -214,7 +214,9 @@ export function OdinInternal_Field<Fields extends FieldValues>({
 
   const zodField = getZodFields(schema)[name];
 
-  const isRequired = Boolean(enableAsterisk) && !zodField?.isOptional();
+  const isRequired =
+    Boolean(enableAsterisk) && zodField && !zodField.isOptional();
+
   const error = getEntryFromPath(errors, name).entryValue?.message;
 
   let fieldContextValue = {
