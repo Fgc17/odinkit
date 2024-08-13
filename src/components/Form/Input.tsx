@@ -123,48 +123,46 @@ export function Input({
         control={form.control}
         render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
           <>
-            <HeadlessInput
-              onChange={(e) => {
-                const value = e.target.value;
-                onChange && onChange(e);
-                fieldOnChange(
-                  mask
-                    ? formatWithMask(value, mask)
-                    : type === "number"
-                      ? Number(value)
-                      : value
-                );
-              }}
-              invalid={Boolean(error)}
-              disabled={loading}
-              value={value || ""}
-              className={clsx([
-                type && dateTypes.includes(type) && webkitCss,
-                icon ? iconInputClasses : inputClasses,
-              ])}
-              type={
-                type === "password"
-                  ? showPassword
-                    ? "text"
-                    : "password"
-                  : type
-              }
-              {...props}
-              {...field}
-            />
+            <div className="relative">
+              <HeadlessInput
+                onChange={(e) => {
+                  const value = e.target.value;
+                  onChange && onChange(e);
+                  fieldOnChange(
+                    mask
+                      ? formatWithMask(value, mask)
+                      : type === "number"
+                        ? Number(value)
+                        : value
+                  );
+                }}
+                invalid={Boolean(error)}
+                disabled={loading}
+                value={value || ""}
+                className={clsx([
+                  type && dateTypes.includes(type) && webkitCss,
+                  icon ? iconInputClasses : inputClasses,
+                ])}
+                type={
+                  type === "password"
+                    ? showPassword
+                      ? "text"
+                      : "password"
+                    : type
+                }
+                {...props}
+                {...field}
+              />
 
-            {type === "password" && (
-              <HeadlessButton
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-[0.75rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600 lg:top-[0.5rem] dark:bg-zinc-800 lg:dark:bg-zinc-900"
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="size-5" />
-                ) : (
-                  <EyeIcon className="size-5" />
-                )}
-              </HeadlessButton>
-            )}
+              {type === "password" && (
+                <HeadlessButton
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute bottom-0 right-0 top-0 z-10 mr-3 cursor-pointer text-gray-400 *:size-5 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                </HeadlessButton>
+              )}
+            </div>
 
             {loading && (
               <div className="absolute right-2 top-2.5 text-gray-400">
