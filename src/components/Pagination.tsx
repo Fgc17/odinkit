@@ -21,13 +21,13 @@ export function Pagination({
 }
 
 export function PaginationPrevious({
-  href = null,
+  href,
   children = "Previous",
   onClick,
   disabled = false,
 }: {
   onClick?: () => void;
-  href?: string | null;
+  href?: string;
   children?: React.ReactNode;
   disabled?: boolean;
 }) {
@@ -35,7 +35,7 @@ export function PaginationPrevious({
     <span className="grow basis-0">
       <Button
         onClick={onClick}
-        /* {...(href === null ? { disabled: true } : { href })} */
+        {...(href ? { href } : {})}
         plain
         disabled={disabled}
         aria-label="Previous page"
@@ -49,21 +49,21 @@ export function PaginationPrevious({
 }
 
 export function PaginationNext({
-  href = null,
+  href,
   children = "Next",
   onClick,
   disabled = false,
 }: {
   onClick?: () => void;
   disabled?: boolean;
-  href?: string | null;
+  href?: string;
   children?: React.ReactNode;
 }) {
   return (
     <span className="flex grow basis-0 justify-end">
       <Button
         onClick={onClick}
-        /* {...(href === null ? { disabled: true } : { href })} */
+        {...(href ? { href } : {})}
         plain
         disabled={disabled}
         aria-label="Next page"
@@ -107,11 +107,12 @@ export function PaginationPage({
     <Button
       plain
       aria-label={`Page ${children}`}
+      {...(href ? { href } : {})}
       aria-current={current ? "page" : undefined}
       onClick={onClick}
       className={clsx(
         "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
-        current && "before:bg-zinc-950/5 ",
+        current && "before:bg-zinc-950/5",
         className
       )}
     >
@@ -124,7 +125,7 @@ export function PaginationGap() {
   return (
     <div
       aria-hidden="true"
-      className="w-[2.25rem] select-none text-center text-sm/6 font-semibold text-zinc-950 "
+      className="w-[2.25rem] select-none text-center text-sm/6 font-semibold text-zinc-950"
     >
       &hellip;
     </div>

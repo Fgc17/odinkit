@@ -191,16 +191,16 @@ export type ButtonProps<T extends FieldValues> = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
-) &
-  (
+) & {
+  className?: string;
+  children: React.ReactNode;
+  loading?: string;
+  hform?: UseFormReturn<T>;
+  disabled?: boolean;
+} & (
     | Omit<HeadlessButtonProps, "className">
     | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
-  ) & {
-    className?: string;
-    children: React.ReactNode;
-    loading?: string;
-    hform?: UseFormReturn<T>;
-  };
+  );
 
 export const Button = React.forwardRef(function Button(
   { color, outline, plain, className, children, ...props }: ButtonProps<any>,
