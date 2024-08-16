@@ -187,20 +187,18 @@ const styles = {
   },
 };
 
-export type ButtonProps<T extends FieldValues> = (
+export type ButtonProps<T extends FieldValues = FieldValues> = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
-) & {
-  className?: string;
-  children: React.ReactNode;
-  loading?: string;
-  hform?: UseFormReturn<T>;
-  disabled?: boolean;
-} & (
-    | Omit<HeadlessButtonProps, "className">
-    | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
-  );
+) &
+  Omit<HeadlessButtonProps, "className"> & {
+    className?: string;
+    children: React.ReactNode;
+    loading?: string;
+    hform?: UseFormReturn<T>;
+    disabled?: boolean;
+  };
 
 export const Button = React.forwardRef(function Button(
   { color, outline, plain, className, children, ...props }: ButtonProps<any>,
@@ -216,15 +214,7 @@ export const Button = React.forwardRef(function Button(
         : clsx(styles.solid, styles.colors[color ?? "dark/zinc"])
   );
 
-  return "href" in props ? (
-    <Link
-      {...props}
-      className={classes}
-      ref={ref as React.ForwardedRef<HTMLAnchorElement>}
-    >
-      <TouchTarget>{children}</TouchTarget>
-    </Link>
-  ) : (
+  return (
     <HeadlessButton
       {...props}
       disabled={!!props.loading || props.disabled}
