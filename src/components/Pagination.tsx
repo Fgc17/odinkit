@@ -5,6 +5,7 @@ import {
   ArrowLongRightIcon,
   ArrowLongLeftIcon,
 } from "@heroicons/react/16/solid";
+import Link from "next/link";
 
 export function Pagination({
   "aria-label": ariaLabel = "Page navigation",
@@ -33,17 +34,18 @@ export function PaginationPrevious({
 }) {
   return (
     <span className="grow basis-0">
-      <Button
-        onClick={onClick}
-        {...(href ? { href } : {})}
-        plain
-        disabled={disabled}
-        aria-label="Previous page"
-        className="text-sm"
-      >
-        <ArrowLongLeftIcon className="w-4" />
-        {children}
-      </Button>
+      <Link href={href ?? ""}>
+        <Button
+          onClick={onClick}
+          plain
+          disabled={disabled}
+          aria-label="Previous page"
+          className="text-sm"
+        >
+          <ArrowLongLeftIcon className="w-4" />
+          {children}
+        </Button>
+      </Link>
     </span>
   );
 }
@@ -61,17 +63,18 @@ export function PaginationNext({
 }) {
   return (
     <span className="flex grow basis-0 justify-end">
-      <Button
-        onClick={onClick}
-        {...(href ? { href } : {})}
-        plain
-        disabled={disabled}
-        aria-label="Next page"
-        className="text-sm"
-      >
-        {children}
-        <ArrowLongRightIcon className="w-4" />
-      </Button>
+      <Link href={href ?? ""}>
+        <Button
+          onClick={onClick}
+          plain
+          disabled={disabled}
+          aria-label="Next page"
+          className="text-sm"
+        >
+          {children}
+          <ArrowLongRightIcon className="w-4" />
+        </Button>
+      </Link>
     </span>
   );
 }
@@ -104,20 +107,21 @@ export function PaginationPage({
   className?: string;
 }) {
   return (
-    <Button
-      plain
-      aria-label={`Page ${children}`}
-      {...(href ? { href } : {})}
-      aria-current={current ? "page" : undefined}
-      onClick={onClick}
-      className={clsx(
-        "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
-        current && "before:bg-zinc-950/5",
-        className
-      )}
-    >
-      <span className="-mx-0.5">{children}</span>
-    </Button>
+    <Link href={href ?? ""}>
+      <Button
+        plain
+        aria-label={`Page ${children}`}
+        aria-current={current ? "page" : undefined}
+        onClick={onClick}
+        className={clsx(
+          "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
+          current && "before:bg-zinc-950/5",
+          className
+        )}
+      >
+        <span className="-mx-0.5">{children}</span>
+      </Button>
+    </Link>
   );
 }
 
