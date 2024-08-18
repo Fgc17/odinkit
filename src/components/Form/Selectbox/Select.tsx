@@ -33,7 +33,7 @@ import {
   fieldTipographyClasses,
 } from "../_shared/styles/field-classes";
 
-const selectClasses = (multiple: boolean) =>
+export const selectClasses = (multiple: boolean) =>
   clsx([
     // Basic layout
     fieldBasicLayoutClasses,

@@ -202,9 +202,6 @@ export function Combobox<Data extends { id: string | number }>({
                   offset: "var(--anchor-offset)",
                   padding: "var(--anchor-padding)",
                 }}
-                style={{
-                  width: "194px",
-                }}
                 className={clsx(!options.length && "hidden", classes.options)}
               >
                 <For each={options}>

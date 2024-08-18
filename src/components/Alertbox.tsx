@@ -65,7 +65,7 @@ export type AlertType = keyof typeof types;
 
 export function Alertbox(props: {
   type: AlertType;
-  children: React.ReactNode;
+  children: any;
   title?: string;
   className?: string;
   dismissible?: boolean;

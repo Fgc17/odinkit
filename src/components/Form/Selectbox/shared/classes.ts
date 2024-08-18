@@ -34,8 +34,11 @@ export const options = clsx(
   // Listbox z index
   "z-[150]",
 
+  // Width
+  "w-[var(--input-width)]",
+
   // Base styles
-  "isolate w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-md",
+  "isolate  select-none scroll-py-1 rounded-md",
 
   // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
   "outline outline-1 outline-transparent focus:outline-none",
