@@ -1,6 +1,7 @@
 // client
 "use client";
 
+import { Exception } from "../api/Exception";
 import { ErrorResponse, SuccessResponse } from "../api/ActionResponse";
 import { useId } from "react";
 import useSWRMutation from "swr/mutation";
@@ -10,15 +11,20 @@ type FetcherResponse<T> = Promise<T>;
 interface UseActionParams<
   ArgumentType,
   DataReturnType,
+  PrepareType,
   RequestParserReturnType,
   ResponseParserReturnType,
 > {
   defaultData?: ResponseParserReturnType;
-  redirect?: boolean;
-  onError?: (error: string) => void;
+  redirect?: boolean | "unknown";
+  formData?: boolean;
+  prepare?: (arg: PrepareType) => Promise<ArgumentType> | ArgumentType;
+  onError?: (error: Exception) => void;
   onSuccess?: (res: SuccessResponse<ResponseParserReturnType>) => void;
   responseParser?: (arg: DataReturnType) => ResponseParserReturnType;
-  requestParser?: (arg: ArgumentType) => RequestParserReturnType;
+  requestParser?: (
+    arg: ArgumentType
+  ) => Promise<RequestParserReturnType> | RequestParserReturnType;
   action: (
     arg: RequestParserReturnType | ArgumentType
   ) => Promise<SuccessResponse<DataReturnType> | ErrorResponse | void>;
@@ -27,12 +33,14 @@ interface UseActionParams<
 export function useAction<
   ArgumentType,
   DataReturnType,
+  PrepareType = ArgumentType,
   RequestParserReturnType = ArgumentType,
   ResponseParserReturnType = DataReturnType,
 >({
   defaultData,
   redirect,
   action,
+  prepare,
   onSuccess,
   onError,
   requestParser,
@@ -40,51 +48,64 @@ export function useAction<
 }: UseActionParams<
   ArgumentType,
   DataReturnType,
+  PrepareType,
   RequestParserReturnType,
   ResponseParserReturnType
 >) {
   const id = useId();
 
-  const fetcher = (
-    arg: ArgumentType
-  ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> => {
-    const formattedArg = requestParser ? requestParser(arg) : arg;
+  async function fetcher(
+    arg: PrepareType
+  ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> {
+    const preparedArg = prepare
+      ? await prepare(arg)
+      : (arg as any as ArgumentType);
 
-    return action(formattedArg)
-      .then((res) => {
-        if (res && "error" in res) throw res.message;
+    const formattedArg = requestParser
+      ? await requestParser(preparedArg)
+      : preparedArg;
 
-        if (redirect)
-          return {
-            data: null as ResponseParserReturnType,
-            message: `Redirecionando...`,
-          };
+    return await action(formattedArg).then((res) => {
+      if (res && "error" in res) {
+        const { error, ...exception } = res;
+        throw exception;
+      }
 
-        if (!res) throw "Resposta indefinida.";
-
-        if (!res.data) throw "Resposta sem dados.";
-
-        const parsedData = (
-          responseParser ? responseParser(res.data) : res.data
-        ) as ResponseParserReturnType;
-
+      if (redirect === true || (redirect === "unknown" && !res))
         return {
-          data: parsedData,
-          pagination: res.pagination,
-          message: res.message,
+          data: null as ResponseParserReturnType,
+          message: `Redirecionando...`,
         };
-      })
-      .catch((error) => {
-        throw error;
-      });
-  };
+
+      if (!res)
+        throw new Exception({
+          message: "Resposta indefinida.",
+        });
+
+      if (!res.data)
+        throw new Exception({
+          message: "Resposta sem dados.",
+        });
+
+      const parsedData = (
+        responseParser ? responseParser(res.data) : res.data
+      ) as ResponseParserReturnType;
+
+      return {
+        data: parsedData,
+        pagination: res.pagination,
+        message: res.message,
+      };
+    });
+  }
 
   const mutation = useSWRMutation<
     SuccessResponse<ResponseParserReturnType>,
+    Exception,
     string,
-    string,
-    ArgumentType
-  >(id, (url: string, { arg }) => fetcher(arg), {
+    PrepareType
+  >(id, async (url: string, { arg }) => await fetcher(arg), {
+    throwOnError: false,
     onSuccess: (data) => onSuccess && onSuccess(data),
     onError: (error) => onError && onError(error),
   });

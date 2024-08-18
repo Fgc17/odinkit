@@ -26,20 +26,21 @@ export function Avatar({
   return (
     <span
       data-slot="avatar"
+      {...props}
       className={clsx(
         className,
-
         // Basic layout
-        "inline-grid align-middle *:col-start-1 *:row-start-1",
-
+        "inline-grid shrink-0 align-middle [--avatar-radius:20%] [--ring-opacity:20%] *:col-start-1 *:row-start-1",
+        "outline outline-1 -outline-offset-1 outline-black/[--ring-opacity] dark:outline-white/[--ring-opacity]",
         // Add the correct border radius
-        square ? "rounded-[20%] *:rounded-[20%]" : "rounded-full *:rounded-full"
+        square
+          ? "rounded-[--avatar-radius] *:rounded-[--avatar-radius]"
+          : "rounded-full *:rounded-full"
       )}
-      {...props}
     >
       {initials && (
         <svg
-          className="select-none fill-current text-[48px] font-medium uppercase"
+          className="size-full select-none fill-current text-[48px] font-medium uppercase"
           viewBox="0 0 100 100"
           aria-hidden={alt ? undefined : "true"}
         >
@@ -56,12 +57,7 @@ export function Avatar({
           </text>
         </svg>
       )}
-      {src && <img src={src} alt={alt} />}
-      {/* Add an inset border that sits on top of the image */}
-      <span
-        className="ring-1 ring-inset ring-black/5  forced-colors:outline"
-        aria-hidden="true"
-      />
+      {src && <img className="size-full" src={src} alt={alt} />}
     </span>
   );
 }
@@ -75,13 +71,16 @@ export const AvatarButton = React.forwardRef(function AvatarButton(
     className,
     ...props
   }: AvatarProps &
-    (HeadlessButtonProps | React.ComponentPropsWithoutRef<typeof Link>),
+    (
+      | Omit<HeadlessButtonProps, "className">
+      | Omit<React.ComponentPropsWithoutRef<typeof Link>, "className">
+    ),
   ref: React.ForwardedRef<HTMLElement>
 ) {
   let classes = clsx(
     className,
-    square ? "rounded-lg" : "rounded-full",
-    "relative focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500"
+    square ? "rounded-[20%]" : "rounded-full",
+    "relative inline-grid focus:outline-none data-[focus]:outline data-[focus]:outline-2 data-[focus]:outline-offset-2 data-[focus]:outline-blue-500"
   );
 
   return "href" in props ? (

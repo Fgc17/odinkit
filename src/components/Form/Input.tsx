@@ -11,15 +11,26 @@ import { useFormContext } from "./Form";
 import { MaskType, formatWithMask } from "./_shared/utils/formatWithMask";
 import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
-import { Span } from "./Span";
+import { Overlay } from "./Overlay";
 import { useField } from "./Field";
 import { Button } from "../Button";
 import { Alert, AlertActions, AlertBody, AlertTitle } from "../Alert";
 import { For } from "../For";
 import React, { Dispatch, useEffect, useState } from "react";
-
-import { EyeIcon, FolderArrowDownIcon } from "@heroicons/react/20/solid";
+import {
+  twColor,
+  twColorPalette,
+  twShade,
+} from "../../constants/twColorPalette";
+import { EyeIcon } from "@heroicons/react/20/solid";
 import { EyeSlashIcon } from "@heroicons/react/24/solid";
+import {
+  fieldBackgroundColorClasses,
+  fieldBasicLayoutClasses,
+  fieldBorderClasses,
+  fieldFocusClasses,
+  fieldTipographyClasses,
+} from "./_shared/styles/field-classes";
 
 const dateTypes = ["date", "datetime-local", "month", "time", "week"];
 type DateType = (typeof dateTypes)[number];
@@ -41,25 +52,42 @@ const webkitCss = [
 
 export const inputClasses = clsx(
   // Basic layout
-  "relative mb-1 mt-[11px] block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:px-[calc(theme(spacing[3])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+  fieldBasicLayoutClasses,
 
   // Typography
-  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
-
-  // Border
-  "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
+  fieldTipographyClasses,
 
   // Background color
-  "bg-transparent ",
+  fieldBackgroundColorClasses,
 
-  // Hide default focus styles
-  "focus:outline-none",
+  // Border
+  fieldBorderClasses,
+
+  fieldFocusClasses,
 
   // Invalid state
-  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
+  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500 ",
 
   // Disabled state
   "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20"
+);
+
+export const iconInputClasses = clsx(
+  // Basic layout
+  "relative mb-1  block w-full appearance-none rounded-lg px-[calc(theme(spacing[3.5])-1px)] py-[calc(theme(spacing[1.5])-1px)] sm:pr-[calc(theme(spacing[3])-1px)] pl-[calc(theme(spacing[10])-1px)] sm:py-[calc(theme(spacing[1.5])-1px)]",
+
+  // Typography
+  "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 dark:text-white",
+  // Border
+  "border border-zinc-950/10 data-[hover]:border-zinc-950/20 dark:border-white/10 dark:data-[hover]:border-white/20",
+  // Background color
+  "bg-transparent dark:bg-white/5",
+  // Hide default focus styles
+  "focus:outline-none",
+  // Invalid state
+  "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500 data-[invalid]:dark:border-red-500 data-[invalid]:data-[hover]:dark:border-red-500",
+  // Disabled state
+  "data-[disabled]:border-zinc-950/20 dark:data-[hover]:data-[disabled]:border-white/15 data-[disabled]:dark:border-white/15 data-[disabled]:dark:bg-white/[2.5%]"
 );
 
 export function Input({
@@ -68,6 +96,7 @@ export function Input({
   onChange,
   loading,
   type = "text",
+  icon,
   ...props
 }: {
   type?:
@@ -81,47 +110,59 @@ export function Input({
     | DateType;
   loading?: boolean;
   mask?: MaskType;
+  icon?: React.ReactNode;
 } & HeadlessInputProps) {
   const form = useFormContext();
-  const { name, error } = useField();
   const [showPassword, setShowPassword] = useState(!(type === "password"));
+  const { name, error } = useField();
 
   return (
-    <Span className={clsx(className)}>
+    <Overlay data-slot="control" className={clsx(className)}>
       <Controller
         name={name}
         control={form.control}
         render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
           <>
-            <HeadlessInput
-              onChange={(e) => {
-                const value = e.target.value;
-                onChange && onChange(e);
-                fieldOnChange(
-                  mask
-                    ? formatWithMask(value, mask)
-                    : type === "number"
-                      ? Number(value)
-                      : value
-                );
-              }}
-              invalid={Boolean(error)}
-              value={value || ""}
-              className={clsx([
-                // Date classes
-                type && dateTypes.includes(type) && webkitCss,
-                inputClasses,
-              ])}
-              type={
-                type === "password"
-                  ? showPassword
-                    ? "text"
-                    : "password"
-                  : type
-              }
-              {...props}
-              {...field}
-            />
+            <div className="relative">
+              <HeadlessInput
+                onChange={(e) => {
+                  const value = e.target.value;
+                  onChange && onChange(e);
+                  fieldOnChange(
+                    mask
+                      ? formatWithMask(value, mask)
+                      : type === "number"
+                        ? Number(value)
+                        : value
+                  );
+                }}
+                invalid={Boolean(error)}
+                disabled={loading}
+                value={value || ""}
+                className={clsx([
+                  type && dateTypes.includes(type) && webkitCss,
+                  icon ? iconInputClasses : inputClasses,
+                ])}
+                type={
+                  type === "password"
+                    ? showPassword
+                      ? "text"
+                      : "password"
+                    : type
+                }
+                {...props}
+                {...field}
+              />
+
+              {type === "password" && (
+                <HeadlessButton
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute bottom-0 right-0 top-0 z-10 mr-3 cursor-pointer text-gray-400 *:size-5 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
+                </HeadlessButton>
+              )}
+            </div>
 
             {type === "password" && (
               <HeadlessButton
@@ -137,14 +178,18 @@ export function Input({
             )}
 
             {loading && (
-              <div className="absolute right-2 top-2.5 text-white">
+              <div className="absolute right-2 top-2.5 text-gray-400">
                 <ButtonSpinner />
               </div>
+            )}
+
+            {icon && (
+              <div className="absolute left-2 top-2 text-gray-400">{icon}</div>
             )}
           </>
         )}
       />
-    </Span>
+    </Overlay>
   );
 }
 
@@ -161,74 +206,141 @@ export function ColorInput({
 } & HeadlessInputProps) {
   const form = useFormContext();
   const { name } = useField();
+  const [isOpen, setIsOpen] = useState(false);
+  const [previewHex, setPreviewHex] = useState("");
+
+  useEffect(() => {
+    const colorToParse = form.watch(name).split("_");
+
+    const color = colorToParse[0] as twColor;
+    const shade = (colorToParse[1] ? "-" + colorToParse[1] : "") as twShade;
+
+    if (!shade) {
+      return setPreviewHex((twColorPalette as any)[color][""]);
+    } else {
+      return setPreviewHex((twColorPalette as any)[color][shade]);
+    }
+  }, [form.watch(name)]);
 
   return (
     <Controller
       name={name}
       control={form.control}
       render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
-        <span
-          data-keyslot="control"
-          className={clsx([
-            className,
-            // Basic layouts
-            "relative block",
+        <>
+          <div className="flex size-16 items-center justify-center rounded-full border border-slate-200">
+            <div
+              style={{ backgroundColor: previewHex }}
+              className={clsx("size-14 rounded-full border")}
+              onClick={() => setIsOpen(true)}
+            />
+          </div>
+          <Alert size="xs" open={isOpen} onClose={setIsOpen}>
+            <AlertTitle>Escolha a cor primária</AlertTitle>
+            <AlertBody>
+              <div className="flex flex-col items-center">
+                <For each={Object.entries(twColorPalette)} identifier="colors">
+                  {([color, shades]) => (
+                    <div className="flex">
+                      <For each={Object.entries(shades)} identifier="tones">
+                        {([shade, hex]) => {
+                          if (
+                            color === "white" ||
+                            color === "dark" ||
+                            color === "dark/white" ||
+                            color === "black" ||
+                            color === "dark/zinc"
+                          )
+                            return <></>;
+                          return (
+                            <div
+                              style={{ backgroundColor: hex }}
+                              className={clsx(
+                                "h-5 w-5",
+                                "hover:scale-150 hover:cursor-pointer",
+                                "duration-300"
+                              )}
+                              onClick={() =>
+                                form.setValue(
+                                  name,
+                                  `${color}_${shade.replace("-", "")}`
+                                )
+                              }
+                            ></div>
+                          );
+                        }}
+                      </For>
+                    </div>
+                  )}
+                </For>
+                <div className="flex">
+                  {" "}
+                  <div
+                    onClick={() => form.setValue(name, `white`)}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
+                      `border border-slate-200 bg-white`,
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, "dark_white")}
+                    style={{
+                      backgroundColor: twColorPalette["dark/white"][""],
+                    }}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, "dark_zinc")}
+                    style={{ backgroundColor: twColorPalette["dark/zinc"][""] }}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
 
-            // Background color + shadow applied to inset pseudo element, so shadow blends with border in light mode
-            "before:absolute before:inset-px before:rounded-[calc(theme(borderRadius.lg)-1px)] before:bg-white",
-
-            // Focus ring
-            "after:pointer-events-none after:absolute after:inset-0 after:rounded-lg  after:ring-transparent sm:after:focus-within:ring-2 ",
-
-            // Disabled state
-            "has-[[data-disabled]]:opacity-50 before:has-[[data-disabled]]:bg-zinc-950/5 before:has-[[data-disabled]]:shadow-none",
-
-            // Invalid state
-            "before:has-[[data-invalid]]:shadow-red-500/10",
-          ])}
-        >
-          <HeadlessInput
-            type="color"
-            onChange={(e) => {
-              onChange && onChange(e);
-              fieldOnChange(e.target.value);
-            }}
-            value={value || ""}
-            className={clsx([
-              // Date classes
-              props.type && dateTypes.includes(props.type) && webkitCss,
-
-              // Basic layout
-              "relative mb-1 mt-[11px] block min-h-16 min-w-16 cursor-pointer appearance-none rounded-full px-1 py-1",
-
-              // Typography
-              "text-base/6 text-zinc-950 placeholder:text-zinc-500 sm:text-sm/6 ",
-
-              // Border
-              "-[hover]:border-white/20 border border-zinc-950/10  data-[hover]:border-zinc-950/20",
-
-              // Background color
-              "bg-transparent ",
-
-              // Hide default focus styles
-              "focus:outline-none",
-
-              // Invalid state
-              "data-[invalid]: data-[invalid]:data-[hover]: data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500",
-
-              // Disabled state
-              "-[hover]:data-[disabled]:border-white/15 data-[disabled]: data-[disabled]:/[2.5%] data-[disabled]:border-zinc-950/20",
-            ])}
-            {...props}
-            {...field}
-          />
-
-          {loading && (
-            <div className="absolute right-2 top-2.5 text-white">
-              <ButtonSpinner />
-            </div>
-          )}
-        </span>
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, "dark")}
+                    style={{ backgroundColor: twColorPalette["dark"][""] }}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                  <div
+                    onClick={() => form.setValue(name, `black`)}
+                    className={clsx(
+                      "h-5 w-5 cursor-pointer",
+                      `bg-black`,
+                      "hover:scale-150",
+                      "duration-300"
+                    )}
+                  >
+                    {" "}
+                  </div>
+                </div>
+              </div>
+            </AlertBody>
+            <AlertActions>
+              <Button onClick={() => setIsOpen(false)}>Salvar</Button>
+            </AlertActions>
+          </Alert>
+        </>
       )}
     />
   );

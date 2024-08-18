@@ -1,6 +1,11 @@
 import clsx from "clsx";
 import type React from "react";
 import { Button } from "./Button";
+import {
+  ArrowLongRightIcon,
+  ArrowLongLeftIcon,
+} from "@heroicons/react/16/solid";
+import Link from "next/link";
 
 export function Pagination({
   "aria-label": ariaLabel = "Page navigation",
@@ -11,87 +16,65 @@ export function Pagination({
     <nav
       aria-label={ariaLabel}
       {...props}
-      className={clsx(className, "flex gap-x-2")}
+      className={clsx(className, "flex items-center")}
     />
   );
 }
 
 export function PaginationPrevious({
-  href = null,
+  href,
   children = "Previous",
   onClick,
   disabled = false,
 }: {
   onClick?: () => void;
-  href?: string | null;
+  href?: string;
   children?: React.ReactNode;
   disabled?: boolean;
 }) {
   return (
     <span className="grow basis-0">
-      <Button
-        onClick={onClick}
-        /* {...(href === null ? { disabled: true } : { href })} */
-        plain
-        disabled={disabled}
-        aria-label="Previous page"
-      >
-        <svg
-          className="stroke-current"
-          data-slot="icon"
-          viewBox="0 0 16 16"
-          fill="none"
-          aria-hidden="true"
+      <Link href={href ?? ""}>
+        <Button
+          onClick={onClick}
+          plain
+          disabled={disabled}
+          aria-label="Previous page"
+          className="text-sm"
         >
-          <path
-            d="M2.75 8H13.25M2.75 8L5.25 5.5M2.75 8L5.25 10.5"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        {children}
-      </Button>
+          <ArrowLongLeftIcon className="w-4" />
+          {children}
+        </Button>
+      </Link>
     </span>
   );
 }
 
 export function PaginationNext({
-  href = null,
+  href,
   children = "Next",
   onClick,
   disabled = false,
 }: {
   onClick?: () => void;
   disabled?: boolean;
-  href?: string | null;
+  href?: string;
   children?: React.ReactNode;
 }) {
   return (
     <span className="flex grow basis-0 justify-end">
-      <Button
-        onClick={onClick}
-        /* {...(href === null ? { disabled: true } : { href })} */
-        plain
-        disabled={disabled}
-        aria-label="Next page"
-      >
-        {children}
-        <svg
-          className="stroke-current"
-          data-slot="icon"
-          viewBox="0 0 16 16"
-          fill="none"
-          aria-hidden="true"
+      <Link href={href ?? ""}>
+        <Button
+          onClick={onClick}
+          plain
+          disabled={disabled}
+          aria-label="Next page"
+          className="text-sm"
         >
-          <path
-            d="M13.25 8L2.75 8M13.25 8L10.75 10.5M13.25 8L10.75 5.5"
-            strokeWidth={1.5}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </Button>
+          {children}
+          <ArrowLongRightIcon className="w-4" />
+        </Button>
+      </Link>
     </span>
   );
 }
@@ -104,7 +87,7 @@ export function PaginationList({
   className?: string;
 }) {
   return (
-    <span className={clsx("hidden items-baseline gap-x-2 sm:flex", className)}>
+    <span className={clsx("flex items-baseline *:text-xs", className)}>
       {children}
     </span>
   );
@@ -124,20 +107,21 @@ export function PaginationPage({
   className?: string;
 }) {
   return (
-    <Button
-      href={href || "#"}
-      plain
-      aria-label={`Page ${children}`}
-      aria-current={current ? "page" : undefined}
-      onClick={onClick}
-      className={clsx(
-        "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
-        current && "before:bg-zinc-950/5 ",
-        className
-      )}
-    >
-      <span className="-mx-0.5">{children}</span>
-    </Button>
+    <Link href={href ?? ""}>
+      <Button
+        plain
+        aria-label={`Page ${children}`}
+        aria-current={current ? "page" : undefined}
+        onClick={onClick}
+        className={clsx(
+          "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
+          current && "before:bg-zinc-950/5",
+          className
+        )}
+      >
+        <span className="-mx-0.5">{children}</span>
+      </Button>
+    </Link>
   );
 }
 
@@ -145,7 +129,7 @@ export function PaginationGap() {
   return (
     <div
       aria-hidden="true"
-      className="w-[2.25rem] select-none text-center text-sm/6 font-semibold text-zinc-950 "
+      className="w-[2.25rem] select-none text-center text-sm/6 font-semibold text-zinc-950"
     >
       &hellip;
     </div>

@@ -4,6 +4,7 @@
 import {
   Description as HeadlessDescription,
   Field as HeadlessField,
+  Radio as HeadlessRadio,
   Fieldset as HeadlessFieldset,
   Label as HeadlessLabel,
   Legend as HeadlessLegend,
@@ -15,11 +16,11 @@ import {
 } from "@headlessui/react";
 import clsx from "clsx";
 import type React from "react";
-import { createContext, useContext, useMemo } from "react";
+import { createContext, useContext } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
 import { useFormContext } from "./Form";
-import { getZodFields } from "../../utils/zod";
+import { getZodFields, z } from "../../utils/zod";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
@@ -33,16 +34,25 @@ export type FieldOptions = {
 
 const fieldVariants = {
   default: clsx(
-    "[&>[data-slot=label]+[data-slot=control]]:mt-3",
+    "[&>[data-slot=label]+[data-slot=control]]:mt-1.5",
     "[&>[data-slot=label]+[data-slot=description]]:mt-1",
-    "[&>[data-slot=description]+[data-slot=control]]:mt-3",
-    "[&>[data-slot=control]+[data-slot=description]]:mt-3",
-    "[&>[data-slot=control]+[data-slot=error]]:mt-3",
+    "[&>[data-slot=description]+[data-slot=control]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=description]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=error]]:mt-1.5",
+    "[&>[data-slot=label]]:font-medium"
+  ),
+  radio: clsx(
+    "[&>[data-slot=label]+[data-slot=control]]:mt-1.5",
+    "[&>[data-slot=label]+[data-slot=description]]:mt-1",
+    "[&>[data-slot=description]+[data-slot=control]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=description]]:mt-1.5",
+    "[&>[data-slot=control]+[data-slot=error]]:mt-1.5",
     "[&>[data-slot=label]]:font-medium"
   ),
   switch: clsx(
     // Base layout
-    "grid grid-cols-[1fr_auto] items-center gap-x-8 gap-y-1 sm:grid-cols-[1fr_auto]",
+    "grid grid-cols-[1fr_auto]",
+    "items-center gap-x-8 gap-y-1 sm:grid-cols-[1fr_auto]",
 
     // Control layout
     "[&>[data-slot=control]]:col-start-2 [&>[data-slot=control]]:self-center",
@@ -56,26 +66,10 @@ const fieldVariants = {
     // With description
     "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
   ),
-  radio: clsx(
-    // Base layout
-    "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
-
-    // Control layout
-    "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
-
-    // Label layout
-    "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
-
-    // Description layout
-    "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
-
-    // With description
-    "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
-  ),
 };
 
 const fieldGroupVariants = {
-  default: "",
+  default: "has-[[data-slot=description]]:space-y-6",
   switch: clsx(
     // Basic groups
     "space-y-3 [&_[data-slot=label]]:font-normal",
@@ -88,7 +82,7 @@ const fieldGroupVariants = {
 export function Fieldset({
   className,
   ...props
-}: { disabled?: boolean } & HeadlessFieldsetProps) {
+}: { className?: string } & Omit<HeadlessFieldsetProps, "className">) {
   return (
     <HeadlessFieldset
       {...props}
@@ -100,14 +94,17 @@ export function Fieldset({
   );
 }
 
-export function Legend({ ...props }: HeadlessLegendProps) {
+export function Legend({
+  className,
+  ...props
+}: { className?: string } & Omit<HeadlessLegendProps, "className">) {
   return (
     <HeadlessLegend
-      {...props}
       data-slot="legend"
+      {...props}
       className={clsx(
-        props.className,
-        "text-base/6 font-semibold text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 "
+        className,
+        "text-base font-semibold leading-7 text-gray-900 data-[disabled]:opacity-50"
       )}
     />
   );
@@ -115,38 +112,41 @@ export function Legend({ ...props }: HeadlessLegendProps) {
 
 export function FieldGroup({
   className,
-  variant = "default",
   ...props
-}: React.ComponentPropsWithoutRef<"div"> & {
-  variant?: keyof typeof fieldGroupVariants;
-}) {
+}: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div
-      {...props}
       data-slot="control"
-      className={clsx(className, fieldGroupVariants[variant])}
+      {...props}
+      className={clsx(className, "space-y-8")}
     />
   );
 }
 
 export function Label({
   className,
-  children,
+  enableAsterisk = true,
   ...props
-}: { className?: string } & HeadlessLabelProps) {
-  const { isRequired, name } = useField();
-
+}: { className?: string; enableAsterisk?: boolean } & Omit<
+  HeadlessLabelProps,
+  "className"
+>) {
+  const { isRequired } = useField();
   return (
     <HeadlessLabel
-      {...props}
       data-slot="label"
-      className={clsx(
-        className,
-        "select-none text-base/6 text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6"
-      )}
+      onClick={(e) => {
+        console.log(e);
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      className={clsx(className, "block text-sm font-medium text-gray-700")}
     >
       <>
-        {children} {isRequired && <span className="text-red-600">*</span>}
+        {props.children}{" "}
+        {enableAsterisk && isRequired && (
+          <span className="text-red-600">*</span>
+        )}
       </>
     </HeadlessLabel>
   );
@@ -154,16 +154,15 @@ export function Label({
 
 export function Description({
   className,
-  disabled,
   ...props
-}: { className?: string; disabled?: boolean } & HeadlessDescriptionProps) {
+}: { className?: string } & Omit<HeadlessDescriptionProps, "className">) {
   return (
     <HeadlessDescription
-      {...props}
       data-slot="description"
+      {...props}
       className={clsx(
         className,
-        "text-base/6 text-zinc-500 data-[disabled]:opacity-50 sm:text-sm/6 "
+        "mt-1 text-sm leading-6 text-gray-600 sm:text-left"
       )}
     />
   );
@@ -171,26 +170,24 @@ export function Description({
 
 export function ErrorMessage({
   className,
-  disabled,
   ...props
-}: { className?: string; disabled?: boolean } & HeadlessDescriptionProps) {
-  const { error } = useField()!;
-
+}: { className?: string } & Omit<HeadlessDescriptionProps, "className">) {
+  const { error } = useField();
   return (
     <HeadlessDescription
-      {...props}
       data-slot="error"
+      {...props}
       className={clsx(
         className,
-        "text-xs text-red-600 data-[disabled]:opacity-50"
+        "text-base/6 text-red-600 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-red-500"
       )}
     >
-      {error}
+      {error ? error : " "}
     </HeadlessDescription>
   );
 }
 
-const FieldContext = createContext<{
+export const FieldContext = createContext<{
   error: string;
   name: string;
   isRequired: boolean;
@@ -200,9 +197,9 @@ export function useField() {
   return useContext(FieldContext);
 }
 
-export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
+export function OdinInternal_Field<Fields extends FieldValues>({
   className,
-  enableAsterisk,
+  enableAsterisk = true,
   variant = "default",
   ...props
 }: FieldProps<Fields>) {
@@ -214,21 +211,29 @@ export function _ODINKIT_INTERNAL_Field<Fields extends FieldValues>({
   } = form;
 
   const name = props["name"];
+
   const zodField = getZodFields(schema)[name];
-  const isRequired = enableAsterisk ?? !zodField?.isOptional();
+
+  const isRequired =
+    Boolean(enableAsterisk) && zodField && !zodField.isOptional();
+
   const error = getEntryFromPath(errors, name).entryValue?.message;
 
-  const fieldContextValue = {
+  let fieldContextValue = {
     name,
     isRequired,
     error: error,
   };
 
+  if (variant === "radio") {
+    fieldContextValue.isRequired = false;
+  }
+
   return (
     <FieldContext.Provider value={fieldContextValue}>
       <HeadlessField
-        className={clsx(className, fieldVariants[variant])}
         {...props}
+        className={clsx(fieldVariants[variant], className)}
       />
     </FieldContext.Provider>
   );

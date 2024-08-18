@@ -2,13 +2,7 @@
 
 import { clsx } from "clsx";
 import React, { useCallback, useMemo } from "react";
-import {
-  Dispatch,
-  SetStateAction,
-  createContext,
-  useContext,
-  useState,
-} from "react";
+import { createContext, useContext, useState } from "react";
 import { Link } from "../Link";
 import {
   useReactTable,
@@ -26,6 +20,7 @@ import {
   RowData,
   Table as TableType,
   ColumnFiltersState,
+  ColumnFilter as ColumnFilterType,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { For } from "../For";
@@ -37,8 +32,7 @@ import {
   PaginationPage,
   PaginationPrevious,
 } from "../Pagination";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import { Form, useForm, useFormContext } from "../Form/Form";
+import { Form, useForm } from "../Form/Form";
 import { z } from "../../utils/zod";
 import { DebouncedInput, Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
@@ -46,10 +40,10 @@ import { random } from "lodash";
 import { Select } from "../Form/Selectbox/Select";
 
 declare module "@tanstack/react-table" {
-  //allows us to define custom properties for our columns
   interface ColumnMeta<TData extends RowData, TValue> {
+    selectOptions?: Array<{ value: TValue; label: string }>;
     filterVariant?: "text" | "range" | "select";
-    selectOptions?: { id: string; name: string }[];
+    className?: string;
   }
 }
 
@@ -67,6 +61,7 @@ const TableContext = createContext<{
 
 const tableSearchSchema = z.object({
   globalFilter: z.string().optional(),
+  itemsPerPage: z.number(),
 });
 
 type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
@@ -115,6 +110,10 @@ export function TableMock({
   );
 }
 
+export const TableFlag = {
+  ENABLE_COLUMN_FILTER: false,
+};
+
 export function Table<Data>({
   bleed = false,
   dense = false,
@@ -124,12 +123,14 @@ export function Table<Data>({
   pagination = true,
   className,
   dataSetter,
+  disableMobileFilters,
   defaultColumnFilters,
   data,
   columns,
   xlsx,
   link,
   div,
+  children,
 }: {
   disableMobileFilters?: boolean;
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
@@ -222,7 +223,6 @@ export function Table<Data>({
     },
     onGlobalFilterChange: setGlobalFilter,
     globalFilterFn: fuzzyFilter,
-    autoResetPageIndex: false,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -235,8 +235,11 @@ export function Table<Data>({
   const Field = useMemo(() => form.createField(), []);
 
   const tablePageCount = useMemo(
-    () => Math.ceil(table.getFilteredRowModel().rows.length / 10),
-    [table.getFilteredRowModel()]
+    () =>
+      Math.ceil(
+        table.getFilteredRowModel().rows.length / form.watch("itemsPerPage")
+      ),
+    [table.getFilteredRowModel(), form.watch("itemsPerPage")]
   );
 
   return (
@@ -261,9 +264,9 @@ export function Table<Data>({
                   .slice(0, 3)
                   .join(", ")})`}
               />
-              {dataSetter}
             </Field>
           )}
+          {dataSetter}
           {link && <div className="mt-1.5">{link}</div>}
           {xlsx && (
             <div className="mt-1.5">
@@ -280,102 +283,91 @@ export function Table<Data>({
               "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
             )}
           >
-            <div className="flex items-center justify-between gap-3">
-              {/* {search && (
-                  <Field name="globalFilter">
-                    <Input
-                      onChange={(e) => {
-                        setGlobalFilter &&
-                          setGlobalFilter(String(e.target.value));
-                      }}
-                      placeholder={`Procurar (ex: ${cols
-                        .filter((c) => c.enableGlobalFilter)
-                        .map((c) => c.header)
-                        .slice(0, 3)
-                        .join(", ")})`}
-                    />
-                    {dataSetter}
-                  </Field>
-                )} */}
-            </div>
-
-            <table className="min-w-full text-left text-sm/6">
-              <TableHead>
-                <For each={table.getHeaderGroups()} identifier="thead">
-                  {(headerGroup) => (
-                    <TableRow>
-                      <For each={headerGroup.headers} identifier="header">
-                        {(header) => (
-                          <TableHeader>
-                            <div
-                              {...{
-                                className: header.column.getCanSort()
-                                  ? "cursor-pointer select-none"
-                                  : "",
-                                onClick:
-                                  header.column.getToggleSortingHandler(),
-                              }}
-                            >
-                              {flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                              {{
-                                asc: " ↑",
-                                desc: " ↓",
-                              }[header.column.getIsSorted() as string] ?? null}
-                            </div>
-                            {header.column.getCanFilter() && (
-                              <div>
-                                <Field name={header.column.id}>
-                                  <ColumnFilter
-                                    table={table}
-                                    column={header.column}
-                                  />
-                                </Field>
+            <div
+              className={clsx(
+                "inline-block min-w-full align-middle",
+                !bleed && "sm:px-[--gutter]"
+              )}
+            >
+              <table className="min-w-full text-left text-sm/6 text-zinc-950 dark:text-white">
+                <TableHead>
+                  <For each={table.getHeaderGroups()} identifier="thead">
+                    {(headerGroup) => (
+                      <TableRow>
+                        <For each={headerGroup.headers} identifier="header">
+                          {(header) => (
+                            <TableHeader>
+                              <div
+                                {...{
+                                  className: header.column.getCanSort()
+                                    ? "cursor-pointer select-none"
+                                    : "",
+                                  onClick:
+                                    header.column.getToggleSortingHandler(),
+                                }}
+                              >
+                                {flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
+                                {{
+                                  asc: " ↑",
+                                  desc: " ↓",
+                                }[header.column.getIsSorted() as string] ??
+                                  null}
                               </div>
-                            )}
-                          </TableHeader>
-                        )}
-                      </For>
-                    </TableRow>
-                  )}
-                </For>
-              </TableHead>
+                              {!header.column.getCanFilter() && (
+                                <div className="hidden lg:block">
+                                  <Field name={header.column.id}>
+                                    <ColumnFilter
+                                      table={table}
+                                      column={header.column}
+                                    />
+                                  </Field>
+                                </div>
+                              )}
+                            </TableHeader>
+                          )}
+                        </For>
+                      </TableRow>
+                    )}
+                  </For>
+                </TableHead>
 
-              <TableBody>
-                <For
-                  each={table.getRowModel().rows}
-                  identifier="row"
-                  fallback={
-                    <TableRow>
-                      <For each={table.getAllColumns()}>
-                        {(column, index) => (
-                          <TableCell>
-                            {index === 0 ? <>Nada por aqui.</> : null}
-                          </TableCell>
-                        )}
-                      </For>
-                    </TableRow>
-                  }
-                >
-                  {(row) => (
-                    <TableRow>
-                      <For each={row.getVisibleCells()} identifier="cell">
-                        {(cell) => (
-                          <TableCell>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        )}
-                      </For>
-                    </TableRow>
-                  )}
-                </For>
-              </TableBody>
-            </table>
+                <TableBody>
+                  <For
+                    each={table.getRowModel().rows}
+                    identifier="row"
+                    fallback={
+                      <TableRow>
+                        <For each={table.getAllColumns()}>
+                          {(column, index) => (
+                            <TableCell>
+                              {index === 0 ? <>Nada por aqui.</> : null}
+                            </TableCell>
+                          )}
+                        </For>
+                      </TableRow>
+                    }
+                  >
+                    {(row) => (
+                      <TableRow>
+                        <For each={row.getVisibleCells()} identifier="cell">
+                          {(cell) => (
+                            <TableCell>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )}
+                            </TableCell>
+                          )}
+                        </For>
+                      </TableRow>
+                    )}
+                  </For>
+                </TableBody>
+              </table>
+            </div>
           </div>
         </div>
 
@@ -435,6 +427,25 @@ export function Table<Data>({
                   </For>
                 }
               </PaginationList>
+              <Field name="itemsPerPage">
+                <Select
+                  className={"mb-0 mt-0 text-xs"}
+                  data={[
+                    { id: 10, name: "10" },
+                    { id: 20, name: "20" },
+                    { id: 30, name: "30" },
+                    { id: 50, name: "50" },
+                  ]}
+                  displayValueKey="name"
+                  onChange={(e) =>
+                    table.setPageSize(
+                      Number(
+                        (e as React.ChangeEvent<HTMLSelectElement>).target.value
+                      )
+                    )
+                  }
+                />
+              </Field>
             </div>
             <PaginationNext
               disabled={
@@ -452,23 +463,16 @@ export function Table<Data>({
   );
 }
 
-{
-  /* <PaginationPage href="?page=1">1</PaginationPage>
-              <PaginationPage href="?page=2">2</PaginationPage>
-              <PaginationPage href="?page=3" current>
-                3
-              </PaginationPage>
-              <PaginationPage href="?page=4">4</PaginationPage>
-              <PaginationGap />
-              <PaginationPage href="?page=65">65</PaginationPage>
-              <PaginationPage href="?page=66">66</PaginationPage> */
-}
-
 export function TableHead({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"thead">) {
-  return <thead className={clsx(className, "text-zinc-500 ")} {...props} />;
+  return (
+    <thead
+      {...props}
+      className={clsx(className, "text-zinc-500 dark:text-zinc-400")}
+    />
+  );
 }
 
 export function TableBody(props: React.ComponentPropsWithoutRef<"tbody">) {
@@ -490,7 +494,6 @@ export function TableRow({
   target,
   title,
   className,
-  children,
   ...props
 }: {
   href?: string;
@@ -510,14 +513,14 @@ export function TableRow({
         className={clsx(
           className,
           href &&
-            "/[2.5%] has-[[data-row-link][data-focus]]:outline has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500",
-          striped && "/[2.5%] even:bg-zinc-950/[2.5%]",
-          href && striped && "hover:bg-zinc-950/5 ",
-          href && !striped && "/[2.5%] hover:bg-zinc-950/[2.5%]"
+            "has-[[data-row-link][data-focus]]:outline has-[[data-row-link][data-focus]]:outline-2 has-[[data-row-link][data-focus]]:-outline-offset-2 has-[[data-row-link][data-focus]]:outline-blue-500 dark:focus-within:bg-white/[2.5%]",
+          striped && "even:bg-zinc-950/[2.5%] dark:even:bg-white/[2.5%]",
+          href && striped && "hover:bg-zinc-950/5 dark:hover:bg-white/5",
+          href &&
+            !striped &&
+            "hover:bg-zinc-950/[2.5%] dark:hover:bg-white/[2.5%]"
         )}
-      >
-        {children}
-      </tr>
+      />
     </TableRowContext.Provider>
   );
 }
@@ -533,9 +536,10 @@ export function TableHeader({
       {...props}
       className={clsx(
         className,
-        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] ",
-        grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
-        !bleed && "sm:first:pl-2 sm:last:pr-2"
+        "border-b border-b-zinc-950/10 px-4 py-2 font-medium first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))] dark:border-b-white/10",
+        grid &&
+          "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
+        !bleed && "sm:first:pl-1 sm:last:pr-1"
       )}
     />
   );
@@ -556,11 +560,12 @@ export function TableCell({
       {...props}
       className={clsx(
         className,
-        "relative px-4 first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
-        !striped && "border-b border-zinc-950/5 ",
-        grid && "border-l border-l-zinc-950/5 first:border-l-0 ",
+        "relative px-4 text-sm first:pl-[var(--gutter,theme(spacing.2))] last:pr-[var(--gutter,theme(spacing.2))]",
+        !striped && "border-b border-zinc-950/5 dark:border-white/5",
+        grid &&
+          "border-l border-l-zinc-950/5 first:border-l-0 dark:border-l-white/5",
         dense ? "py-2.5" : "py-4",
-        !bleed && "sm:first:pl-2 sm:last:pr-2"
+        !bleed && "sm:first:pl-1 sm:last:pr-1"
       )}
     >
       {href && (
@@ -586,22 +591,20 @@ export function ColumnFilter({
   table: TableType<any>;
 }) {
   const columnFilterValue = column.getFilterValue();
-  const { filterVariant } = column.columnDef.meta ?? {};
+  const { filterVariant, selectOptions } = column.columnDef.meta ?? {};
   const [_, setIsLoading] = useState(false);
 
   return filterVariant === "select" ? (
     <Select
       displayValueKey="name"
-      data={
-        column.columnDef.meta?.selectOptions?.filter((value) => value.id) ??
-        Array.from(column.getFacetedUniqueValues())
-          .sort((a, b) => String(a[0])?.localeCompare(String(b[0])))
-          .filter((value) => value[0])
-          .map((value) => ({
-            id: value[0],
-            name: value[0],
-          }))
-      }
+      data={Array.from(column.getFacetedUniqueValues())
+        .sort((a, b) => a[0]?.localeCompare(b[0]))
+        .filter((value) => value[0] !== undefined)
+        .map((value) => ({
+          id: value[0],
+          name:
+            selectOptions?.find((v) => v.value === value[0])?.label ?? value[0],
+        }))}
       onChange={(e) => {
         if (!e) return;
         table.resetPageIndex();

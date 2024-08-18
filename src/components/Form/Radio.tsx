@@ -2,7 +2,7 @@
 "use client";
 
 import {
-  Field as HeadlessField,
+  Field as HeadlessRadioField,
   Radio as HeadlessRadio,
   RadioGroup as HeadlessRadioGroup,
   type FieldProps as HeadlessFieldProps,
@@ -12,25 +12,7 @@ import {
 import { clsx } from "clsx";
 import { Controller } from "react-hook-form";
 import { useFormContext } from "./Form";
-import { useField } from "./Field";
-
-export function RadioGroup({ className, ...props }: HeadlessRadioGroupProps) {
-  return (
-    <HeadlessRadioGroup
-      data-slot="control"
-      {...props}
-      className={clsx(
-        className,
-
-        // Basic groups
-        "space-y-3 [&_[data-slot=label]]:font-normal",
-
-        // With descriptions
-        "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
-      )}
-    />
-  );
-}
+import { FieldContext, Label, useField } from "./Field";
 
 let base = [
   // Basic layout
@@ -80,6 +62,8 @@ let colors = {
   white:
     "[--radio-checked-bg:theme(colors.white)] [--radio-checked-border:theme(colors.zinc.950/15%)] [--radio-checked-indicator:theme(colors.zinc.900)]",
   dark: "[--radio-checked-bg:theme(colors.zinc.900)] [--radio-checked-border:theme(colors.zinc.950/90%)] [--radio-checked-indicator:theme(colors.white)]",
+  black:
+    "[--radio-checked-bg:theme(colors.zinc.900)] [--radio-checked-border:theme(colors.zinc.950/90%)] [--radio-checked-indicator:theme(colors.white)]",
   zinc: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.zinc.600)] [--radio-checked-border:theme(colors.zinc.700/90%)]",
   red: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.red.600)] [--radio-checked-border:theme(colors.red.700/90%)]",
   orange:
@@ -106,44 +90,109 @@ let colors = {
   fuchsia:
     "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.fuchsia.500)] [--radio-checked-border:theme(colors.fuchsia.600/90%)]",
   pink: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.pink.500)] [--radio-checked-border:theme(colors.pink.600/90%)]",
+  gray: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.gray.500)] [--radio-checked-border:theme(colors.gray.600/90%)]",
   rose: "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.rose.500)] [--radio-checked-border:theme(colors.rose.600/90%)]",
+  slate:
+    "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.slate.500)] [--radio-checked-border:theme(colors.slate.600/90%)]",
+  neutral:
+    "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.neutral.500)] [--radio-checked-border:theme(colors.neutral.600/90%)]",
+  stone:
+    "[--radio-checked-indicator:theme(colors.white)] [--radio-checked-bg:theme(colors.stone.500)] [--radio-checked-border:theme(colors.stone.600/90%)]",
 };
 
 type Color = keyof typeof colors;
+
+export function RadioGroup({ onChange, ...props }: HeadlessRadioGroupProps) {
+  const { control } = useFormContext();
+  const { name } = useField();
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
+        <HeadlessRadioGroup
+          data-slot="control"
+          value={value || ""}
+          onChange={(v) => {
+            onChange && onChange(v);
+            fieldOnChange(v);
+          }}
+          {...props}
+          {..._field}
+        />
+      )}
+    />
+  );
+}
+
+export function RadioSlot({
+  children,
+  custom,
+  className,
+}: {
+  children: React.ReactNode;
+  custom?: boolean;
+  className?: string;
+}) {
+  return (
+    <HeadlessRadioField
+      className={clsx(
+        // Base layout
+        !custom &&
+          "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
+
+        // Control layout
+        !custom &&
+          "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
+
+        // Label layout
+        !custom &&
+          "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
+
+        // Description layout
+        !custom &&
+          "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
+
+        // With description
+        !custom &&
+          "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
+
+        // Basic groups
+        "[&_[data-slot=label]]:font-normal",
+
+        // With descriptions
+        "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
+
+        className
+      )}
+    >
+      {children}
+    </HeadlessRadioField>
+  );
+}
 
 export function Radio({
   color = "dark/zinc",
   className,
   ...props
 }: { color?: Color; className?: string } & HeadlessRadioProps) {
-  const form = useFormContext();
-  const { name } = useField();
   return (
-    <Controller
-      name={name}
-      control={form.control}
-      render={({ field: { onChange: fieldOnChange, value, ...field } }) => (
-        <HeadlessRadio
-          onChange={(e) => {
-            props.onChange && props.onChange(e);
-            fieldOnChange(e.target);
-          }}
-          data-slot="control"
-          {...props}
-          className={clsx(className, "group inline-flex focus:outline-none")}
-        >
-          <span className={clsx([base, colors[color]])}>
-            <span
-              className={clsx(
-                "size-full rounded-full border-[4.5px] border-transparent bg-[--radio-indicator] bg-clip-padding",
+    <HeadlessRadio
+      data-slot="control"
+      {...props}
+      className={clsx(className, "group inline-flex focus:outline-none")}
+    >
+      <span className={clsx([base, colors[color]])}>
+        <span
+          className={clsx(
+            "size-full rounded-full border-[4.5px] border-transparent bg-[--radio-indicator] bg-clip-padding",
 
-                // Forced colors mode
-                "forced-colors:border-[Canvas] forced-colors:group-data-[checked]:border-[Highlight]"
-              )}
-            />
-          </span>
-        </HeadlessRadio>
-      )}
-    />
+            // Forced colors mode
+            "forced-colors:border-[Canvas] forced-colors:group-data-[checked]:border-[Highlight]"
+          )}
+        />
+      </span>
+    </HeadlessRadio>
   );
 }

@@ -1,5 +1,5 @@
 import i18next from "i18next";
-import { z } from "zod";
+import { ZodType, ZodTypeAny, z } from "zod";
 import { zodI18nMap } from "zod-i18n-map";
 // Import your language translation files
 import translation from "zod-i18n-map/locales/pt/zod.json";
@@ -13,6 +13,10 @@ i18next.init({
 z.setErrorMap(zodI18nMap);
 
 export { z };
+
+export type ToZod<T> = Required<{
+  [K in keyof T]: z.ZodType<T[K]>;
+}>;
 
 export const getZodFields = <T extends z.ZodTypeAny>(schema: T): any => {
   // make sure schema is not null or undefined

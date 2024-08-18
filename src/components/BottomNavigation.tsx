@@ -11,7 +11,7 @@ export function BottomNavigation(props: BottomNavigationProps) {
   return (
     <nav
       className={clsx(
-        "w-100 fixed bottom-0 left-0 right-0 items-center border-t border-gray-200 bg-white shadow-sm",
+        "w-100 fixed bottom-0 left-0 right-0 z-10 items-center border-t border-gray-200 bg-white shadow-sm",
         className
       )}
     >

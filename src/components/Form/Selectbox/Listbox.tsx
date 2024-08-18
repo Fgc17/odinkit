@@ -6,164 +6,139 @@ import {
   ListboxButton as HeadlessListboxButton,
   ListboxOption as HeadlessListboxOption,
   ListboxOptions as HeadlessListboxOptions,
-  ListboxSelectedOption as HeadlessListboxSelectedOption,
-  Transition as HeadlessTransition,
+  ListboxSelectedOption,
   type ListboxOptionProps as HeadlessListboxOptionProps,
   type ListboxProps as HeadlessListboxProps,
-  ComboboxInput,
-  ComboboxButton,
-  ComboboxOptions,
-  ComboboxOption as HeadlessComboboxOption,
-  Combobox as HeadlessCombobox,
-  type SelectProps as HeadlessSelectProps,
-  type ComboboxProps as HeadlessComboboxProps,
-  Select as HeadlessSelect,
-  ComboboxOptionProps,
 } from "@headlessui/react";
 import { useFormContext } from "../Form";
-import {
-  CheckIcon,
-  ChevronUpDownIcon,
-  MagnifyingGlassIcon,
-  XCircleIcon,
-} from "@heroicons/react/20/solid";
+import { CheckIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import {
-  useState,
-  useMemo,
-  useRef,
-  useEffect,
-  Fragment,
-  useCallback,
-} from "react";
-import { Path, Controller } from "react-hook-form";
-import { For } from "../../For";
-import { inputClasses } from "../Input";
-import { getEntryFromPath } from "../_shared/utils/getEntryFromPath";
-import { Span } from "../Span";
+import { Fragment } from "react";
+import { Controller } from "react-hook-form";
+import { Overlay } from "../Overlay";
 import { useField } from "../Field";
-import { SelectOption, SelectProps } from "./types";
-import * as classes from "./classes";
+import {
+  fieldBackgroundColorClasses,
+  fieldBasicLayoutClasses,
+  fieldBorderClasses,
+  fieldFocusClasses,
+  fieldTipographyClasses,
+} from "../_shared/styles/field-classes";
 
-export function Listbox<Data extends { id: string | number }>({
+export function Listbox<T>({
   className,
   placeholder,
   autoFocus,
-  data,
-  valueKey,
-  displayValueKey,
   "aria-label": ariaLabel,
   onChange,
-  children,
+  children: options,
   ...props
-}: SelectProps<Data> &
-  Omit<
-    HeadlessListboxProps<typeof Fragment, Data>,
-    "multiple" | "children" | "name" | "onChange"
-  > & {
-    placeholder?: React.ReactNode;
-    autoFocus?: boolean;
-    "aria-label"?: string;
-  }) {
+}: {
+  className?: string;
+  placeholder?: React.ReactNode;
+  autoFocus?: boolean;
+  "aria-label"?: string;
+  children?: React.ReactNode;
+} & Omit<HeadlessListboxProps<typeof Fragment, T>, "multiple">) {
   const form = useFormContext();
 
-  const { name } = useField();
-
-  const options = useMemo(
-    () =>
-      (data || []).map((item) => ({
-        _: item,
-        id: String(item.id),
-        displayValue: getEntryFromPath(item, displayValueKey).entryValue,
-        value: valueKey ? getEntryFromPath(item, valueKey).entryValue : item.id,
-      })),
-    [data]
-  );
-
-  const Options = useMemo(
-    () => (
-      <For each={options}>
-        {(i) => (
-          <ListboxOption key={i.id} value={i}>
-            {children(i._)}
-          </ListboxOption>
-        )}
-      </For>
-    ),
-    [data]
-  );
-
-  // note: value of headlesslistbox must be the same as the listbox option for it to count as selected option
+  const { name, error } = useField();
 
   return (
-    <Controller
-      name={name}
-      control={form.control}
-      render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
-        <Span>
+    <Overlay data-slot="control" variant="default">
+      <Controller
+        name={name}
+        control={form.control}
+        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
           <HeadlessListbox
             as={"div"}
-            onChange={(_: any) => {
-              const data: SelectOption<Data> = _;
-              onChange && onChange(data?._);
-              fieldOnChange(data.value);
+            onChange={(value: any) => {
+              onChange && onChange(value);
+              fieldOnChange(value);
             }}
             multiple={false}
-            value={options.find((i) => i.value === value) || ""}
+            value={value || ""}
             {..._field}
             {...props}
           >
-            <Span>
-              <HeadlessListboxButton
-                autoFocus={autoFocus}
-                data-slot="control"
-                aria-label={ariaLabel}
-                className={clsx(inputClasses, "w-full")}
-              >
-                {value ? (
-                  <HeadlessListboxSelectedOption
-                    as={Fragment}
-                    options={Options}
-                    placeholder={
-                      placeholder && (
-                        <span className="block truncate text-zinc-500">
-                          {placeholder}
-                        </span>
-                      )
-                    }
-                  />
-                ) : (
-                  <span className="text-transparent">default</span>
-                )}
+            <HeadlessListboxButton
+              data-slot="control"
+              as="div"
+              className={clsx([
+                // Form style
+                "form-select",
 
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                  <ChevronUpDownIcon className="size-4 text-black text-zinc-500" />
-                </span>
-              </HeadlessListboxButton>
-            </Span>
-            <HeadlessTransition
-              as={Fragment}
-              afterLeave={() => {}}
-              leave="transition-opacity duration-100 ease-in pointer-events-none"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
+                // Custom styles
+                className,
+
+                // Basic layout
+                fieldBasicLayoutClasses,
+
+                // Typography
+                fieldTipographyClasses,
+
+                // Background color
+                fieldBackgroundColorClasses,
+
+                // Border
+                fieldBorderClasses,
+
+                // Hide default focus styles
+                fieldFocusClasses,
+
+                // Options (multi-select)
+                "[&_optgroup]:font-semibold",
+
+                // Invalid state
+                "data-[invalid]:border-red-500 data-[invalid]:data-[hover]:border-red-500 data-[invalid]:dark:border-red-600 data-[invalid]:data-[hover]:dark:border-red-600",
+
+                // Disabled state
+                "data-[disabled]:border-zinc-950/20 data-[disabled]:opacity-100 dark:data-[hover]:data-[disabled]:border-white/15 data-[disabled]:dark:border-white/15 data-[disabled]:dark:bg-white/[2.5%]",
+              ])}
+              autoFocus={autoFocus}
+              aria-label={ariaLabel}
+              onMouseDown={(e) => e.preventDefault()}
+              {...(error ? { "data-invalid": true } : {})}
+              {...(props.disabled
+                ? {
+                    "data-disabled": true,
+                  }
+                : {})}
             >
-              <HeadlessListboxOptions
-                as="div"
-                anchor={{
-                  to: "selection start",
-                  offset: "var(--anchor-offset)",
-                  padding: "var(--anchor-padding)",
-                }}
-                className={classes.options}
-              >
-                {Options}
-              </HeadlessListboxOptions>
-            </HeadlessTransition>
+              {value ? (
+                <ListboxSelectedOption options={options} />
+              ) : (
+                <div className="select-none text-transparent">placeholder</div>
+              )}
+            </HeadlessListboxButton>
+
+            <HeadlessListboxOptions
+              transition
+              as="div"
+              anchor="selection start"
+              className={clsx(
+                // Anchor positioning
+                "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:-1.375rem]",
+                // Base styles
+                "isolate w-max min-w-[calc(var(--button-width)+1.75rem)] select-none scroll-py-1 rounded-xl p-1",
+                // Invisible border that is only visible in `forced-colors` mode for accessibility purposes
+                "outline outline-1 outline-transparent focus:outline-none",
+                // Handle scrolling when menu won't fit in viewport
+                "overflow-y-scroll overscroll-contain",
+                // Popover background
+                "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
+                // Shadows
+                "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
+                // Transitions
+                "transition-opacity duration-100 ease-in data-[transition]:pointer-events-none data-[closed]:data-[leave]:opacity-0"
+              )}
+            >
+              {options}
+            </HeadlessListboxOptions>
           </HeadlessListbox>
-        </Span>
-      )}
-    />
+        )}
+      />
+    </Overlay>
   );
 }
 
@@ -172,63 +147,40 @@ export function ListboxOption<Data>({
   className,
   ...props
 }: { children?: React.ReactNode } & HeadlessListboxOptionProps<"div", Data>) {
+  let sharedClasses = clsx(
+    "flex min-w-0 items-center",
+    "[&>[data-slot=icon]]:size-5 [&>[data-slot=icon]]:shrink-0 sm:[&>[data-slot=icon]]:size-4",
+    "[&>[data-slot=icon]]:text-zinc-500 [&>[data-slot=icon]]:group-data-[focus]/option:text-white [&>[data-slot=icon]]:dark:text-zinc-400",
+    "forced-colors:[&>[data-slot=icon]]:text-[CanvasText] forced-colors:[&>[data-slot=icon]]:group-data-[focus]/option:text-[HighlightText]",
+    "[&>[data-slot=avatar]]:-mx-0.5 [&>[data-slot=avatar]]:size-6 sm:[&>[data-slot=avatar]]:size-5"
+  );
+
   return (
     <HeadlessListboxOption as={Fragment} {...props}>
-      {({ selectedOption, selected }) =>
-        selectedOption ? (
-          <div className={clsx("flex w-full justify-start")}>{children}</div>
-        ) : (
-          <div className={classes.option}>
-            <div className="flex gap-1.5">
-              {selected ? (
-                <>
-                  <CheckIcon className="relative size-4 self-center stroke-current" />
-                  <span className={clsx(className, classes.optionChildren)}>
-                    {children}
-                  </span>
-                </>
-              ) : (
-                <>
-                  {" "}
-                  <div className="size-4" />
-                  <span className={clsx(className, classes.optionChildren)}>
-                    {children}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-        )
-      }
-      {/* {({ selectedOption }) => {
+      {({ selectedOption }) => {
         if (selectedOption) {
-          return <div className={clsx(className)}>{children}</div>;
+          return (
+            <div className={clsx(className, sharedClasses)}>{children}</div>
+          );
         }
 
         return (
           <div
             className={clsx(
-              // Basic layout
-              "group/option grid cursor-default grid-cols-[theme(spacing.4),1fr] items-baseline gap-x-1.5 rounded-lg py-1.5 pl-2 pr-3",
-
-              // Typography
-              "text-base/6 text-zinc-950 sm:text-sm/6 forced-colors:text-[CanvasText]",
-
-              // Focus
+              "group/option grid cursor-default grid-cols-[theme(spacing.5),1fr] items-baseline gap-x-2 rounded-lg py-2.5 pl-2 pr-3.5 sm:grid-cols-[theme(spacing.4),1fr] sm:py-1.5 sm:pl-1.5 sm:pr-3",
+              "text-base/6 text-zinc-950 sm:text-sm/6 dark:text-white forced-colors:text-[CanvasText]",
               "outline-none data-[focus]:bg-blue-500 data-[focus]:text-white",
-
-              // Forced colors mode
               "forced-color-adjust-none forced-colors:data-[focus]:bg-[Highlight] forced-colors:data-[focus]:text-[HighlightText]",
-
-              // Disabled
               "data-[disabled]:opacity-50"
             )}
           >
-            <CheckIcon className="relative hidden size-5 self-center stroke-current group-data-[selected]/option:inline sm:size-4 " />
-            <span className={clsx(className, "col-start-2")}>{children}</span>
+            <CheckIcon className="relative hidden size-5 self-center stroke-current group-data-[selected]/option:inline sm:size-4" />
+            <span className={clsx(className, sharedClasses, "col-start-2")}>
+              {children}
+            </span>
           </div>
         );
-      }} */}
+      }}
     </HeadlessListboxOption>
   );
 }
@@ -257,7 +209,7 @@ export function ListboxDescription({
     <span
       className={clsx(
         className,
-        "flex flex-1 overflow-hidden text-zinc-500 before:w-2 before:min-w-0 before:shrink group-data-[focus]/option:text-white"
+        "flex flex-1 overflow-hidden text-zinc-500 before:w-2 before:min-w-0 before:shrink group-data-[focus]/option:text-white dark:text-zinc-400"
       )}
       {...props}
     >

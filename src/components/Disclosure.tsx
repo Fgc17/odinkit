@@ -11,19 +11,23 @@ import { useEffect, useRef, useState } from "react";
 import { scrollToElement } from "../utils/scroll";
 import clsx from "clsx";
 
-export default function DisclosureAccordion({
+export function DisclosureAccordion({
   children,
   title,
   scrollToContent,
   defaultOpen,
   disabled,
   className,
+  color,
+  border = true,
 }: {
   children: React.ReactNode;
-  title: string;
+  color?: string;
+  title: string | React.ReactNode;
   scrollToContent?: boolean;
   defaultOpen?: boolean;
   disabled?: boolean;
+  border?: boolean;
   className?: string;
 }) {
   const contentRef = useRef(null);
@@ -33,9 +37,10 @@ export default function DisclosureAccordion({
       defaultOpen={defaultOpen}
       as="div"
       className={clsx(
-        "border-t border-gray-200 p-4 pe-2",
+        "border-gray-200 p-4 pe-2",
         disabled ? "bg-gray-100" : "bg-transparent",
-        className
+        className,
+        border && "border-t"
       )}
     >
       {({ open }) => {
@@ -50,7 +55,7 @@ export default function DisclosureAccordion({
                   "flex w-full items-center justify-between text-left text-gray-900"
                 )}
               >
-                <span className="text-sm font-medium text-gray-900">
+                <span style={{ color }} className={clsx("text-sm font-medium")}>
                   {title}
                 </span>
                 <span className="ml-6 flex h-7 items-center">
