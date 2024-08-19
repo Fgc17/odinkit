@@ -35,7 +35,7 @@ export const options = clsx(
   "z-[150]",
 
   // Width
-  "w-[var(--input-width)]",
+  "w-[calc(var(--input-width) - 25px)]",
 
   // Base styles
   "isolate  select-none scroll-py-1 rounded-md",

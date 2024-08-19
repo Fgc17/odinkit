@@ -45,11 +45,13 @@ import { useField } from "../Field";
 import { SelectOption, SelectProps } from "./shared/types";
 
 import * as classes from "./shared/classes";
+import { ButtonSpinner } from "../../Spinners";
 
 export function Combobox<Data extends { id: string | number }>({
   className,
   data,
   setData,
+  loading,
   debounce = 500,
   displayValueKey,
   valueKey,
@@ -59,6 +61,7 @@ export function Combobox<Data extends { id: string | number }>({
   inputMode,
   ...props
 }: {
+  loading?: boolean;
   children: (item: Data) => React.ReactNode;
   debounce?: number;
   setData?: (query: string | undefined) => void;
@@ -119,6 +122,7 @@ export function Combobox<Data extends { id: string | number }>({
             as={"div"}
             onChange={(_: any) => {
               const data: SelectOption<Data> = _;
+              if (!data) return;
               onChange && onChange(data?._);
               fieldOnChange(data.value);
             }}
@@ -169,12 +173,13 @@ export function Combobox<Data extends { id: string | number }>({
                     setData ? debounce : 200
                   );
                 }}
-                displayValue={(item: SelectOption) => item.displayValue}
+                displayValue={(item: SelectOption) => item?.displayValue}
               />
             </Overlay>
 
             <div className="absolute inset-y-0 right-1 flex space-x-2 ">
               <ComboboxButton
+                disabled={loading}
                 className="flex items-center rounded-r-md focus:outline-none"
                 onClick={() => {
                   if (setData) {
@@ -184,7 +189,11 @@ export function Combobox<Data extends { id: string | number }>({
                   }
                 }}
               >
-                <MagnifyingGlassIcon className="size-5 text-zinc-500" />
+                {loading ? (
+                  <ButtonSpinner />
+                ) : (
+                  <MagnifyingGlassIcon className="size-5 text-zinc-500" />
+                )}
               </ComboboxButton>
             </div>
 
@@ -202,7 +211,10 @@ export function Combobox<Data extends { id: string | number }>({
                   offset: "var(--anchor-offset)",
                   padding: "var(--anchor-padding)",
                 }}
-                className={clsx(!options.length && "hidden", classes.options)}
+                className={clsx(
+                  (!options.length || loading) && "h-0",
+                  classes.options
+                )}
               >
                 <For each={options}>
                   {(i) => (
@@ -234,7 +246,7 @@ export function ComboboxOption<Data>({
   return (
     <HeadlessComboboxOption as={"div"} className={classes.option} {...props}>
       {({ selected }) => (
-        <div className="flex gap-1.5">
+        <div className="flex max-w-[350px] gap-1.5">
           {selected ? (
             <>
               <CheckIcon className="relative size-4 self-center stroke-current" />
