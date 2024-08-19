@@ -136,7 +136,6 @@ export function Label({
     <HeadlessLabel
       data-slot="label"
       onClick={(e) => {
-        console.log(e);
         e.preventDefault();
         e.stopPropagation();
       }}

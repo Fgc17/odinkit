@@ -164,19 +164,6 @@ export function Input({
               )}
             </div>
 
-            {type === "password" && (
-              <HeadlessButton
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-[0.75rem] z-10 cursor-pointer bg-white text-gray-400 hover:text-gray-600 lg:top-[0.5rem]"
-              >
-                {showPassword ? (
-                  <EyeSlashIcon className="size-5" />
-                ) : (
-                  <EyeIcon className="size-5" />
-                )}
-              </HeadlessButton>
-            )}
-
             {loading && (
               <div className="absolute right-2 top-2.5 text-gray-400">
                 <ButtonSpinner />
