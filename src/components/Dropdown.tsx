@@ -40,8 +40,12 @@ export function DropdownButton<T extends React.ElementType = typeof Button>({
 export function DropdownMenu({
   anchor = { to: "bottom" },
   className,
+  grid = true,
   ...props
-}: { className?: string } & Omit<HeadlessMenuItemsProps, "className">) {
+}: { className?: string; grid?: boolean } & Omit<
+  HeadlessMenuItemsProps,
+  "className"
+>) {
   return (
     <HeadlessTransition leave="duration-100 ease-in" leaveTo="opacity-0">
       <HeadlessMenuItems
@@ -61,8 +65,8 @@ export function DropdownMenu({
           "bg-white/75 backdrop-blur-xl dark:bg-zinc-800/75",
           // Shadows
           "shadow-lg ring-1 ring-zinc-950/10 dark:ring-inset dark:ring-white/10",
-          // Define grid at the menu level if subgrid is supported
-          "supports-[grid-template-columns:subgrid]:grid supports-[grid-template-columns:subgrid]:grid-cols-[auto_1fr_1.5rem_0.5rem_auto]"
+          grid && // Define grid at the menu level if subgrid is supported
+            "supports-[grid-template-columns:subgrid]:grid supports-[grid-template-columns:subgrid]:grid-cols-[auto_1fr_1.5rem_0.5rem_auto]"
         )}
       />
     </HeadlessTransition>

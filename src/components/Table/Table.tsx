@@ -16,38 +16,31 @@ import {
   FilterFn,
   flexRender,
   createColumnHelper,
-  Column,
   RowData,
-  Table as TableType,
   ColumnFiltersState,
-  ColumnFilter as ColumnFilterType,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { For } from "../For";
-import {
-  Pagination,
-  PaginationGap,
-  PaginationList,
-  PaginationNext,
-  PaginationPage,
-  PaginationPrevious,
-} from "../Pagination";
 import { Form, useForm } from "../Form/Form";
 import { z } from "../../utils/zod";
-import { DebouncedInput, Input } from "../Form/Input";
+import { Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
 import { random } from "lodash";
-import { Select } from "../Form/Selectbox/Select";
+import { Dropdown, DropdownButton, DropdownMenu } from "../Dropdown";
+import { FunnelIcon } from "@heroicons/react/24/outline";
+import { ColumnFilter } from "./ColumnFilter";
+import TablePagination from "./Pagination";
+import TableGlobalFilter from "./GlobalFilter";
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
-    selectOptions?: Array<{ value: TValue; label: string }>;
+    selectOptions?: Array<{ value?: TValue; label: string }>;
     filterVariant?: "text" | "range" | "select";
     className?: string;
   }
 }
 
-const TableContext = createContext<{
+export const TableContext = createContext<{
   bleed: boolean;
   dense: boolean;
   grid: boolean;
@@ -65,50 +58,6 @@ const tableSearchSchema = z.object({
 });
 
 type ColumnHelper<Data> = ReturnType<typeof createColumnHelper<Data>>;
-
-export function TableMock({
-  bleed = false,
-  dense = false,
-  grid = false,
-  striped = false,
-  className,
-  children,
-  ...props
-}: {
-  bleed?: boolean;
-  dense?: boolean;
-  grid?: boolean;
-  striped?: boolean;
-} & React.ComponentPropsWithoutRef<"div">) {
-  return (
-    <TableContext.Provider
-      value={
-        { bleed, dense, grid, striped } as React.ContextType<
-          typeof TableContext
-        >
-      }
-    >
-      <div className="flow-root">
-        <div
-          {...props}
-          className={clsx(
-            className,
-            "-mx-[--gutter] overflow-x-auto whitespace-nowrap"
-          )}
-        >
-          <div
-            className={clsx(
-              "inline-block min-w-full align-middle",
-              !bleed && "sm:px-[--gutter]"
-            )}
-          >
-            <table className="min-w-full text-left text-sm/6">{children}</table>
-          </div>
-        </div>
-      </div>
-    </TableContext.Provider>
-  );
-}
 
 export const TableFlag = {
   ENABLE_COLUMN_FILTER: false,
@@ -234,14 +183,6 @@ export function Table<Data>({
 
   const Field = useMemo(() => form.createField(), []);
 
-  const tablePageCount = useMemo(
-    () =>
-      Math.ceil(
-        table.getFilteredRowModel().rows.length / form.watch("itemsPerPage")
-      ),
-    [table.getFilteredRowModel(), form.watch("itemsPerPage")]
-  );
-
   return (
     <TableContext.Provider
       value={
@@ -253,18 +194,11 @@ export function Table<Data>({
       <Form hform={form} className={clsx(pagination && "pb-4 lg:pb-0")}>
         <div className="flex items-center justify-between gap-3">
           {search && (
-            <Field name="globalFilter" className="flex-grow">
-              <Input
-                onChange={(e) => {
-                  setGlobalFilter && setGlobalFilter(String(e.target.value));
-                }}
-                placeholder={`Procurar (ex: ${cols
-                  .filter((c) => c.enableGlobalFilter)
-                  .map((c) => c.header)
-                  .slice(0, 3)
-                  .join(", ")})`}
-              />
-            </Field>
+            <TableGlobalFilter
+              cols={cols}
+              globalFilter={globalFilter}
+              setGlobalFilter={setGlobalFilter}
+            />
           )}
           {dataSetter}
           {link && <div className="mt-1.5">{link}</div>}
@@ -297,35 +231,49 @@ export function Table<Data>({
                         <For each={headerGroup.headers} identifier="header">
                           {(header) => (
                             <TableHeader>
-                              <div
-                                {...{
-                                  className: header.column.getCanSort()
-                                    ? "cursor-pointer select-none"
-                                    : "",
-                                  onClick:
-                                    header.column.getToggleSortingHandler(),
-                                }}
-                              >
-                                {flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
-                                {{
-                                  asc: " ↑",
-                                  desc: " ↓",
-                                }[header.column.getIsSorted() as string] ??
-                                  null}
-                              </div>
-                              {!header.column.getCanFilter() && (
-                                <div className="hidden lg:block">
-                                  <Field name={header.column.id}>
-                                    <ColumnFilter
-                                      table={table}
-                                      column={header.column}
-                                    />
-                                  </Field>
+                              <div className="flex items-center gap-1">
+                                <div
+                                  {...{
+                                    className: header.column.getCanSort()
+                                      ? "cursor-pointer select-none"
+                                      : "",
+                                    onClick:
+                                      header.column.getToggleSortingHandler(),
+                                  }}
+                                >
+                                  {flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
+                                  {{
+                                    asc: " ↑",
+                                    desc: " ↓",
+                                  }[header.column.getIsSorted() as string] ??
+                                    null}
                                 </div>
-                              )}
+                                {!header.column.getCanFilter() && (
+                                  <Dropdown>
+                                    <DropdownButton plain>
+                                      <FunnelIcon
+                                        className="text-zinc-500 dark:text-zinc-400"
+                                        height={16}
+                                        width={16}
+                                      />
+                                    </DropdownButton>
+                                    <DropdownMenu
+                                      grid={false}
+                                      className="border-0"
+                                    >
+                                      <Field name={header.column.id}>
+                                        <ColumnFilter
+                                          table={table}
+                                          column={header.column}
+                                        />
+                                      </Field>
+                                    </DropdownMenu>
+                                  </Dropdown>
+                                )}
+                              </div>
                             </TableHeader>
                           )}
                         </For>
@@ -371,93 +319,7 @@ export function Table<Data>({
           </div>
         </div>
 
-        {pagination && (
-          <Pagination className="my-2">
-            <PaginationPrevious
-              disabled={!table.getCanPreviousPage()}
-              onClick={() => table.previousPage()}
-            >
-              Anterior
-            </PaginationPrevious>
-            <div className="flex items-center gap-2">
-              <PaginationList>
-                {
-                  <For
-                    each={Array.from(
-                      {
-                        length: tablePageCount,
-                      },
-                      (_, index) => index + 1
-                    )}
-                  >
-                    {(page, index) => {
-                      const pageIndex = table.getState().pagination.pageIndex;
-
-                      const isCurrent = pageIndex === index;
-                      const isFirstPage = index === 0;
-                      const isLastPage = index === tablePageCount - 1;
-                      const isNearCurrent = Math.abs(index - pageIndex) <= 2;
-
-                      const shouldShow =
-                        isCurrent || isFirstPage || isLastPage || isNearCurrent;
-
-                      const shouldShowGapBeforeCurrent =
-                        index === pageIndex - 3 && pageIndex > 3;
-                      const shouldShowGapBeforeLast =
-                        index === tablePageCount - 4 &&
-                        pageIndex < tablePageCount - 4 &&
-                        pageIndex < tablePageCount - 1;
-
-                      return (
-                        <>
-                          {shouldShowGapBeforeCurrent && <PaginationGap />}
-                          {index === 1 && pageIndex > 3 && <PaginationGap />}
-                          {shouldShow && (
-                            <PaginationPage
-                              current={isCurrent}
-                              onClick={() => table.setPageIndex(index)}
-                            >
-                              {String(page)}
-                            </PaginationPage>
-                          )}
-                          {shouldShowGapBeforeLast && <PaginationGap />}
-                        </>
-                      );
-                    }}
-                  </For>
-                }
-              </PaginationList>
-              <Field name="itemsPerPage">
-                <Select
-                  className={"mb-0 mt-0 text-xs"}
-                  data={[
-                    { id: 10, name: "10" },
-                    { id: 20, name: "20" },
-                    { id: 30, name: "30" },
-                    { id: 50, name: "50" },
-                  ]}
-                  displayValueKey="name"
-                  onChange={(e) =>
-                    table.setPageSize(
-                      Number(
-                        (e as React.ChangeEvent<HTMLSelectElement>).target.value
-                      )
-                    )
-                  }
-                />
-              </Field>
-            </div>
-            <PaginationNext
-              disabled={
-                !table.getCanNextPage() ||
-                table.getState().pagination.pageIndex + 1 >= tablePageCount
-              }
-              onClick={() => table.nextPage()}
-            >
-              Próxima
-            </PaginationNext>
-          </Pagination>
-        )}
+        {pagination && <TablePagination table={table} />}
       </Form>
     </TableContext.Provider>
   );
@@ -580,53 +442,5 @@ export function TableCell({
       )}
       {children}
     </td>
-  );
-}
-
-export function ColumnFilter({
-  table,
-  column,
-}: {
-  column: Column<any, unknown>;
-  table: TableType<any>;
-}) {
-  const columnFilterValue = column.getFilterValue();
-  const { filterVariant, selectOptions } = column.columnDef.meta ?? {};
-  const [_, setIsLoading] = useState(false);
-
-  return filterVariant === "select" ? (
-    <Select
-      displayValueKey="name"
-      data={Array.from(column.getFacetedUniqueValues())
-        .sort((a, b) => a[0]?.localeCompare(b[0]))
-        .filter((value) => value[0] !== undefined)
-        .map((value) => ({
-          id: value[0],
-          name:
-            selectOptions?.find((v) => v.value === value[0])?.label ?? value[0],
-        }))}
-      onChange={(e) => {
-        if (!e) return;
-        table.resetPageIndex();
-        if ("target" in e) {
-          column.setFilterValue(e.target.value);
-        } else {
-          column.setFilterValue(e.id);
-        }
-      }}
-      value={columnFilterValue?.toString()}
-    />
-  ) : (
-    <DebouncedInput
-      setIsLoading={setIsLoading}
-      onChange={(e) => {
-        table.resetPageIndex();
-        column.setFilterValue(e);
-      }}
-      placeholder={`Buscar...`}
-      type="text"
-      value={(columnFilterValue ?? "") as string}
-    />
-    // See faceted column filters example for datalist search suggestions
   );
 }
