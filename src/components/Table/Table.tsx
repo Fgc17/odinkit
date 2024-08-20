@@ -28,6 +28,7 @@ import Xlsx from "./Xlsx";
 import { random } from "lodash";
 import { Dropdown, DropdownButton, DropdownMenu } from "../Dropdown";
 import { FunnelIcon } from "@heroicons/react/24/outline";
+import { FunnelIcon as FilledFunnelIcon } from "@heroicons/react/24/solid";
 import { ColumnFilter } from "./ColumnFilter";
 import TablePagination from "./Pagination";
 import TableGlobalFilter from "./GlobalFilter";
@@ -253,24 +254,37 @@ export function Table<Data>({
                                 </div>
                                 {!header.column.getCanFilter() && (
                                   <Dropdown>
-                                    <DropdownButton plain>
-                                      <FunnelIcon
-                                        className="text-zinc-500 dark:text-zinc-400"
-                                        height={16}
-                                        width={16}
-                                      />
-                                    </DropdownButton>
-                                    <DropdownMenu
-                                      grid={false}
-                                      className="border-0"
-                                    >
-                                      <Field name={header.column.id}>
-                                        <ColumnFilter
-                                          table={table}
-                                          column={header.column}
-                                        />
-                                      </Field>
-                                    </DropdownMenu>
+                                    {({ open, close }) => (
+                                      <>
+                                        <DropdownButton plain>
+                                          {header.column.getIsFiltered() ? (
+                                            <FilledFunnelIcon
+                                              className="text-zinc-500 dark:text-zinc-400"
+                                              height={16}
+                                              width={16}
+                                            />
+                                          ) : (
+                                            <FunnelIcon
+                                              className="text-zinc-500 dark:text-zinc-400"
+                                              height={16}
+                                              width={16}
+                                            />
+                                          )}
+                                        </DropdownButton>
+                                        <DropdownMenu
+                                          grid={false}
+                                          className="border-0"
+                                        >
+                                          <Field name={header.column.id}>
+                                            <ColumnFilter
+                                              table={table}
+                                              column={header.column}
+                                              setDropdownOpen={close}
+                                            />
+                                          </Field>
+                                        </DropdownMenu>
+                                      </>
+                                    )}
                                   </Dropdown>
                                 )}
                               </div>

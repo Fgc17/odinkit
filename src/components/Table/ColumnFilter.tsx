@@ -7,9 +7,11 @@ import { Select } from "../Form/Selectbox/Select";
 export function ColumnFilter({
   table,
   column,
+  setDropdownOpen,
 }: {
   column: Column<any, unknown>;
   table: TableType<any>;
+  setDropdownOpen: (value: boolean) => void;
 }) {
   const columnFilterValue = column.getFilterValue();
   const { filterVariant, selectOptions } = column.columnDef.meta ?? {};
@@ -26,6 +28,7 @@ export function ColumnFilter({
           name: selectOptions?.find((v) => v.value === value[0])?.label,
         }))}
       onChange={(e) => {
+        setDropdownOpen(false);
         if (!e) return;
         table.resetPageIndex();
         if ("target" in e) {
