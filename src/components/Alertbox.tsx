@@ -100,7 +100,7 @@ export function Alertbox(props: {
                   router.replace(pathname);
                 }}
                 className={clsx(
-                  "inline-flex rounded-md  p-1.5   focus:outline-none focus:ring-2  focus:ring-offset-2 ",
+                  "inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2",
                   type["dismiss-classes"]
                 )}
               >

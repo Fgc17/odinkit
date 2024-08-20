@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function FacebookIcon({
   className,
   color = "#0866ff",

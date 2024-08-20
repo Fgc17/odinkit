@@ -1,5 +1,3 @@
-import { SVGProps } from "react";
-
 export function BiFileEarmarkPdf({
   className,
   size = 24,
