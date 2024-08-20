@@ -55,7 +55,7 @@ export function MobileSidebar({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black/30" />
+          <div className="fixed inset-0 z-[20] bg-black/30" />
         </Headless.TransitionChild>
         <Headless.TransitionChild
           enter="ease-in-out duration-300"
@@ -71,7 +71,7 @@ export function MobileSidebar({
         >
           <Headless.DialogPanel
             className={clsx(
-              "fixed inset-y-0 w-full max-w-80 p-2 transition",
+              "fixed inset-y-0 z-[20] w-full max-w-80 p-2 transition",
               direction === "right" && "right-0"
             )}
           >
