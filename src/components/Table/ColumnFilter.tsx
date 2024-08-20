@@ -20,13 +20,14 @@ export function ColumnFilter({
   return filterVariant === "select" ? (
     <Select
       displayValueKey="name"
-      data={Array.from(column.getFacetedUniqueValues())
-        .sort((a, b) => String(a[0])?.localeCompare(String(b[0])))
-        .filter((v) => v[0])
-        .map((value) => ({
-          id: value[0] ?? "N/D",
-          name: selectOptions?.find((v) => v.value === value[0])?.label,
-        }))}
+      data={
+        selectOptions
+          ? selectOptions?.map((a) => ({ name: a.label, id: a.value }))
+          : Array.from(column.getFacetedUniqueValues())
+              .sort((a, b) => String(a[0])?.localeCompare(String(b[0])))
+              .filter((v) => v[0])
+              .map((a) => ({ name: a[0], id: a[0] }))
+      }
       onChange={(e) => {
         setDropdownOpen(false);
         if (!e) return;
