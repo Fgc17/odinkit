@@ -114,7 +114,7 @@ export function PaginationPage({
         aria-current={current ? "page" : undefined}
         onClick={onClick}
         className={clsx(
-          "min-w-[2.25rem] before:absolute before:-inset-px before:rounded-lg",
+          "min-w-[2.25rem] text-sm before:absolute before:-inset-px before:rounded-lg",
           current && "before:bg-zinc-950/5",
           className
         )}
