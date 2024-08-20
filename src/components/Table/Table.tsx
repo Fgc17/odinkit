@@ -191,7 +191,7 @@ export function Table<Data>({
         >
       }
     >
-      <Form hform={form} className={clsx(pagination && "pb-4 lg:pb-0")}>
+      <Form hform={form} className={clsx(pagination && "pb-2 lg:pb-0")}>
         <div className="flex items-center justify-between gap-3">
           {search && (
             <TableGlobalFilter
@@ -317,9 +317,8 @@ export function Table<Data>({
               </table>
             </div>
           </div>
+          {pagination && <TablePagination table={table} />}
         </div>
-
-        {pagination && <TablePagination table={table} />}
       </Form>
     </TableContext.Provider>
   );

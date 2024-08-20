@@ -25,14 +25,14 @@ export default function TablePagination({ table }: { table: TableType<any> }) {
 
   const Field = useMemo(() => form.createField(), [form]);
   return (
-    <Pagination className="my-2">
+    <Pagination className="my-2 max-w-full">
       <PaginationPrevious
         disabled={!table.getCanPreviousPage()}
         onClick={() => table.previousPage()}
       >
-        Anterior
+        <span className="hidden lg:block">Anterior</span>
       </PaginationPrevious>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 lg:gap-2">
         <PaginationList>
           {
             <For
@@ -105,7 +105,7 @@ export default function TablePagination({ table }: { table: TableType<any> }) {
         }
         onClick={() => table.nextPage()}
       >
-        Próxima
+        <span className="hidden lg:block">Próxima</span>
       </PaginationNext>
     </Pagination>
   );

@@ -57,6 +57,7 @@ export function useAction<
   async function fetcher(
     arg: PrepareType
   ): FetcherResponse<SuccessResponse<ResponseParserReturnType>> {
+    console.time("doSomething");
     const preparedArg = prepare
       ? await prepare(arg)
       : (arg as any as ArgumentType);
@@ -90,7 +91,7 @@ export function useAction<
       const parsedData = (
         responseParser ? responseParser(res.data) : res.data
       ) as ResponseParserReturnType;
-
+      console.timeEnd("doSomething");
       return {
         data: parsedData,
         pagination: res.pagination,
