@@ -12,7 +12,7 @@ export default function TableGlobalFilter({
   cols: any[];
 }) {
   const form = useFormContext();
-  const Field = useMemo(() => form.createField(), [form]);
+  const Field = useMemo(() => form.createField(), []);
 
   return (
     <Field name="globalFilter" className="flex-grow">
