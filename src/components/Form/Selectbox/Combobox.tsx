@@ -96,8 +96,8 @@ export function Combobox<Data extends { id: string | number }>({
   }, [data, setData ? undefined : query]);
 
   useEffect(() => {
-    if (query && !options.length) {
-      form.setValue(name, "invalid");
+    if (query && !options.length && !form.watch(name)) {
+      form.setValue(name, null);
       form.trigger(name);
     } else {
       form.clearErrors(name);
@@ -146,9 +146,12 @@ export function Combobox<Data extends { id: string | number }>({
 
                   if (!allow.find((i) => blurSource?.includes(i))) return;
 
-                  if (query && options.length) {
+                  console.log(query);
+
+                  if (query && options.length && !form.watch(name)) {
                     const data = options[0];
                     if (data) {
+                      setQuery(data.displayValue);
                       onChange && onChange(data as any);
                       fieldOnChange(data.value);
                     }
@@ -168,6 +171,7 @@ export function Combobox<Data extends { id: string | number }>({
                   timeout.current = setTimeout(
                     () => {
                       setQuery(event.target.value);
+
                       setData && setData(event.target.value);
                     },
                     setData ? debounce : 200
