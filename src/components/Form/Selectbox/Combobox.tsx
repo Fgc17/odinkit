@@ -146,8 +146,6 @@ export function Combobox<Data extends { id: string | number }>({
 
                   if (!allow.find((i) => blurSource?.includes(i))) return;
 
-                  console.log(query);
-
                   if (query && options.length && !form.watch(name)) {
                     const data = options[0];
                     if (data) {
