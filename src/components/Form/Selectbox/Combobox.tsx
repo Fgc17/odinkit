@@ -28,14 +28,7 @@ import {
   XCircleIcon,
 } from "@heroicons/react/20/solid";
 import clsx from "clsx";
-import {
-  useState,
-  useMemo,
-  useRef,
-  useEffect,
-  Fragment,
-  useCallback,
-} from "react";
+import { useState, useMemo, useRef, useEffect, Fragment } from "react";
 import { Path, Controller } from "react-hook-form";
 import { For } from "../../For";
 import { inputClasses } from "../Input";
@@ -46,6 +39,7 @@ import { SelectOption, SelectProps } from "./shared/types";
 
 import * as classes from "./shared/classes";
 import { ButtonSpinner } from "../../Spinners";
+import { set } from "lodash";
 
 export function Combobox<Data extends { id: string | number }>({
   className,
@@ -70,6 +64,8 @@ export function Combobox<Data extends { id: string | number }>({
 } & SelectProps<Data> &
   Omit<HeadlessComboboxProps<Data, any, any>, "children">) {
   const form = useFormContext();
+
+  const [isInputCleared, setIsInputCleared] = useState(false);
 
   const { name, error } = useField();
 
@@ -115,126 +111,138 @@ export function Combobox<Data extends { id: string | number }>({
       <Controller
         name={name}
         control={form.control}
-        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
-          <HeadlessCombobox
-            {..._field}
-            {...rest}
-            as={"div"}
-            onChange={(_: any) => {
-              const data: SelectOption<Data> = _;
-              if (!data) return;
-              onChange && onChange(data?._);
-              fieldOnChange(data.value);
-            }}
-            ref={(el) => {
-              comboboxRef.current = el;
-            }}
-          >
-            <Overlay>
-              <ComboboxInput
-                autoComplete="off"
-                data-invalid={error ? "" : undefined}
-                className={clsx(inputClasses)}
-                onBlur={(e) => {
-                  const allow = [
-                    "unknown",
-                    "headlessui-control",
-                    "headlessui-dialog",
-                  ];
-
-                  const blurSource = e.relatedTarget?.id || "unknown";
-
-                  if (!allow.find((i) => blurSource?.includes(i))) return;
-
-                  if (query && options.length && !form.watch(name)) {
-                    const data = options[0];
-                    if (data) {
-                      setQuery(data.displayValue);
-                      onChange && onChange(data as any);
-                      fieldOnChange(data.value);
-                    }
-                  }
-                }}
-                inputMode={inputMode}
-                onKeyDown={(e) => {
-                  const ignore = ["Control", "Shift", "Alt", "Tab"];
-
-                  if (ignore.includes(e.key)) {
-                    e.preventDefault();
-                  }
-                }}
-                onChange={async (event) => {
-                  clearTimeout(timeout.current);
-
-                  timeout.current = setTimeout(
-                    () => {
-                      setQuery(event.target.value);
-
-                      setData && setData(event.target.value);
-                    },
-                    setData ? debounce : 200
-                  );
-                }}
-                displayValue={(item: SelectOption) => item?.displayValue}
-              />
-            </Overlay>
-
-            <div className="absolute inset-y-0 right-1 flex space-x-2 ">
-              <ComboboxButton
-                disabled={loading}
-                className="flex items-center rounded-r-md focus:outline-none"
-                onClick={() => {
-                  if (setData) {
-                    setData("");
-                  } else {
-                    setQuery("");
-                  }
-                }}
-              >
-                {loading ? (
-                  <ButtonSpinner />
-                ) : (
-                  <MagnifyingGlassIcon className="size-5 text-zinc-500" />
-                )}
-              </ComboboxButton>
-            </div>
-
-            <HeadlessTransition
-              as={Fragment}
-              beforeLeave={() => {}}
-              leave="transition-opacity duration-100 ease-in pointer-events-none"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
+        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => {
+          return (
+            <HeadlessCombobox
+              {..._field}
+              {...rest}
+              as={"div"}
+              onChange={(_: any) => {
+                const data: SelectOption<Data> = _;
+                if (!data) return;
+                setIsInputCleared(false);
+                setQuery(data.displayValue);
+                onChange && onChange(data?._);
+                fieldOnChange(data.value);
+              }}
+              ref={(el) => {
+                comboboxRef.current = el;
+              }}
             >
-              <ComboboxOptions
-                as="div"
-                anchor={{
-                  to: "bottom start",
-                  offset: "var(--anchor-offset)",
-                  padding: "var(--anchor-padding)",
-                }}
-                className={clsx(
-                  (!options.length || loading) && "h-0",
-                  classes.options
-                )}
-              >
-                <For each={options}>
-                  {(i) => (
-                    <ComboboxOption
-                      key={i.id}
-                      value={i}
-                      style={{
-                        width: comboboxRef.current?.offsetWidth,
-                      }}
-                    >
-                      {children(i._)}
-                    </ComboboxOption>
+              <Overlay>
+                <ComboboxInput
+                  autoComplete="off"
+                  data-invalid={error ? "" : undefined}
+                  className={clsx(inputClasses)}
+                  value={
+                    isInputCleared
+                      ? ""
+                      : value.displayValue ||
+                        query ||
+                        options.find((i) => i.value === value)?.displayValue ||
+                        ""
+                  }
+                  onBlur={(e) => {
+                    const allow = [
+                      "unknown",
+                      "headlessui-control",
+                      "headlessui-dialog",
+                    ];
+
+                    const blurSource = e.relatedTarget?.id || "unknown";
+
+                    if (!allow.find((i) => blurSource?.includes(i))) return;
+
+                    if (query && options.length && !form.watch(name)) {
+                      const data = options[0];
+                      if (data) {
+                        setQuery(data.displayValue);
+                        onChange && onChange(data as any);
+                        fieldOnChange(data.value);
+                      }
+                    }
+                  }}
+                  inputMode={inputMode}
+                  onKeyDown={(e) => {
+                    const ignore = ["Control", "Shift", "Alt", "Tab"];
+
+                    if (ignore.includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={async (event) => {
+                    clearTimeout(timeout.current);
+                    setIsInputCleared(!event.target.value);
+                    setQuery(event.target.value);
+
+                    timeout.current = setTimeout(
+                      () => {
+                        setData && setData(event.target.value);
+                      },
+                      setData ? debounce : 200
+                    );
+                  }}
+                  displayValue={(item: SelectOption) => item?.displayValue}
+                />
+              </Overlay>
+
+              <div className="absolute inset-y-0 right-1 flex space-x-2 ">
+                <ComboboxButton
+                  disabled={loading}
+                  className="flex items-center rounded-r-md focus:outline-none"
+                  onClick={() => {
+                    if (setData) {
+                      setData("");
+                    } else {
+                      setQuery("");
+                    }
+                  }}
+                >
+                  {loading ? (
+                    <ButtonSpinner />
+                  ) : (
+                    <MagnifyingGlassIcon className="size-5 text-zinc-500" />
                   )}
-                </For>
-              </ComboboxOptions>
-            </HeadlessTransition>
-          </HeadlessCombobox>
-        )}
+                </ComboboxButton>
+              </div>
+
+              <HeadlessTransition
+                as={Fragment}
+                beforeLeave={() => {}}
+                leave="transition-opacity duration-100 ease-in pointer-events-none"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <ComboboxOptions
+                  as="div"
+                  anchor={{
+                    to: "bottom start",
+                    offset: "var(--anchor-offset)",
+                    padding: "var(--anchor-padding)",
+                  }}
+                  className={clsx(
+                    (!options.length || loading) && "h-0",
+                    classes.options
+                  )}
+                >
+                  <For each={options}>
+                    {(i) => (
+                      <ComboboxOption
+                        key={i.id}
+                        value={i}
+                        style={{
+                          width: comboboxRef.current?.offsetWidth,
+                        }}
+                      >
+                        {children(i._)}
+                      </ComboboxOption>
+                    )}
+                  </For>
+                </ComboboxOptions>
+              </HeadlessTransition>
+            </HeadlessCombobox>
+          );
+        }}
       />
     </Overlay>
   );
