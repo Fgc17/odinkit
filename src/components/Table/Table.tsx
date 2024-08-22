@@ -27,8 +27,9 @@ import { Input } from "../Form/Input";
 import Xlsx from "./Xlsx";
 import { random } from "lodash";
 import { Dropdown, DropdownButton, DropdownMenu } from "../Dropdown";
-import { FunnelIcon } from "@heroicons/react/24/outline";
+import { CheckIcon, FunnelIcon } from "@heroicons/react/24/outline";
 import {
+  CheckBadgeIcon,
   FunnelIcon as FilledFunnelIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
@@ -286,6 +287,15 @@ export function Table<Data>({
                                             />
                                           </Field>
                                           <XMarkIcon
+                                            className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
+                                            onClick={() => {
+                                              close();
+                                              header.column.setFilterValue("");
+                                            }}
+                                            height={24}
+                                            width={24}
+                                          />
+                                          <CheckIcon
                                             className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
                                             onClick={close}
                                             height={24}
