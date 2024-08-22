@@ -137,7 +137,7 @@ export function Combobox<Data extends { id: string | number }>({
                   value={
                     isInputCleared
                       ? ""
-                      : value.displayValue ||
+                      : value?.displayValue ||
                         query ||
                         options.find((i) => i.value === value)?.displayValue ||
                         ""
