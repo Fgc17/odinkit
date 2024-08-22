@@ -28,7 +28,10 @@ import Xlsx from "./Xlsx";
 import { random } from "lodash";
 import { Dropdown, DropdownButton, DropdownMenu } from "../Dropdown";
 import { FunnelIcon } from "@heroicons/react/24/outline";
-import { FunnelIcon as FilledFunnelIcon } from "@heroicons/react/24/solid";
+import {
+  FunnelIcon as FilledFunnelIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/solid";
 import { ColumnFilter } from "./ColumnFilter";
 import TablePagination from "./Pagination";
 import TableGlobalFilter from "./GlobalFilter";
@@ -273,7 +276,7 @@ export function Table<Data>({
                                         </DropdownButton>
                                         <DropdownMenu
                                           grid={false}
-                                          className="border-0"
+                                          className="flex items-center gap-1 border-0"
                                         >
                                           <Field name={header.column.id}>
                                             <ColumnFilter
@@ -282,6 +285,12 @@ export function Table<Data>({
                                               setDropdownOpen={close}
                                             />
                                           </Field>
+                                          <XMarkIcon
+                                            className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
+                                            onClick={close}
+                                            height={24}
+                                            width={24}
+                                          />
                                         </DropdownMenu>
                                       </>
                                     )}
