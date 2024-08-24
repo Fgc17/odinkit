@@ -36,6 +36,8 @@ import {
 import { ColumnFilter } from "./ColumnFilter";
 import TablePagination from "./Pagination";
 import TableGlobalFilter from "./GlobalFilter";
+import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
+import { Label } from "../Form/Field";
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
@@ -132,15 +134,33 @@ export function Table<Data>({
     let zodObject = z.object({});
 
     cols.forEach((col) => {
-      zodObject = zodObject.merge(
-        z.object({
-          [col.id || random()]: defaultColumnFilters?.find(
-            (f) => f.id === col.id
-          )?.value
-            ? z.string()
-            : z.string().optional(),
-        })
-      );
+      if (col.meta?.filterVariant === "range") {
+        const columnId = col.id || random();
+        zodObject = zodObject.merge(
+          z.object({
+            [`${columnId}-0`]: defaultColumnFilters?.find(
+              (f) => f.id === col.id
+            )?.value
+              ? z.string()
+              : z.string().optional(),
+            [`${columnId}-1`]: defaultColumnFilters?.find(
+              (f) => f.id === col.id
+            )?.value
+              ? z.string()
+              : z.string().optional(),
+          })
+        );
+      } else {
+        zodObject = zodObject.merge(
+          z.object({
+            [col.id || random()]: defaultColumnFilters?.find(
+              (f) => f.id === col.id
+            )?.value
+              ? z.string()
+              : z.string().optional(),
+          })
+        );
+      }
     });
 
     return zodObject;
@@ -257,10 +277,14 @@ export function Table<Data>({
                                     null}
                                 </div>
                                 {!header.column.getCanFilter() && (
-                                  <Dropdown>
+                                  <Popover>
                                     {({ open, close }) => (
                                       <>
-                                        <DropdownButton plain>
+                                        <PopoverButton
+                                          className={
+                                            "flex flex-col items-center"
+                                          }
+                                        >
                                           {header.column.getIsFiltered() ? (
                                             <FilledFunnelIcon
                                               className="text-zinc-500 dark:text-zinc-400"
@@ -274,37 +298,75 @@ export function Table<Data>({
                                               width={16}
                                             />
                                           )}
-                                        </DropdownButton>
-                                        <DropdownMenu
-                                          grid={false}
-                                          className="flex items-center gap-1 border-0"
+                                        </PopoverButton>
+                                        <PopoverPanel
+                                          anchor="bottom"
+                                          className="z-[20] flex min-w-[180px] flex-col items-center gap-2 rounded-lg border border-zinc-300 bg-white bg-opacity-90 p-1 lg:flex-row"
                                         >
-                                          <Field name={header.column.id}>
-                                            <ColumnFilter
-                                              table={table}
-                                              column={header.column}
-                                              setDropdownOpen={close}
+                                          {header.column.columnDef.meta
+                                            ?.filterVariant === "range" ? (
+                                            <>
+                                              <Field
+                                                className={"w-full"}
+                                                name={`${header.column.id}-0`}
+                                              >
+                                                <Label>De</Label>
+                                                <ColumnFilter
+                                                  table={table}
+                                                  column={header.column}
+                                                />
+                                              </Field>
+                                              <Field
+                                                className={"w-full"}
+                                                name={`${header.column.id}-1`}
+                                              >
+                                                <Label>Até</Label>
+                                                <ColumnFilter
+                                                  table={table}
+                                                  column={header.column}
+                                                />
+                                              </Field>
+                                            </>
+                                          ) : (
+                                            <Field name={header.column.id}>
+                                              <ColumnFilter
+                                                table={table}
+                                                column={header.column}
+                                              />
+                                            </Field>
+                                          )}
+                                          <div
+                                            className={clsx(
+                                              "flex justify-center gap-2",
+                                              header.column.columnDef.meta
+                                                ?.filterVariant === "range" &&
+                                                "lg:mt-[20px]"
+                                            )}
+                                          >
+                                            <XMarkIcon
+                                              className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
+                                              onClick={() => {
+                                                close();
+                                                header.column.setFilterValue(
+                                                  ""
+                                                );
+                                              }}
+                                              height={24}
+                                              width={24}
                                             />
-                                          </Field>
-                                          <XMarkIcon
-                                            className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
-                                            onClick={() => {
-                                              close();
-                                              header.column.setFilterValue("");
-                                            }}
-                                            height={24}
-                                            width={24}
-                                          />
-                                          <CheckIcon
-                                            className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
-                                            onClick={close}
-                                            height={24}
-                                            width={24}
-                                          />
-                                        </DropdownMenu>
+                                            <CheckIcon
+                                              onClick={() => {
+                                                close();
+                                              }}
+                                              className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
+                                              height={24}
+                                              width={24}
+                                            />
+                                          </div>
+                                        </PopoverPanel>
                                       </>
                                     )}
-                                  </Dropdown>
+                                  </Popover>
                                 )}
                               </div>
                             </TableHeader>
