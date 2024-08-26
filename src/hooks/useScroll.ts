@@ -4,25 +4,47 @@ import { useEffect, useState } from "react";
 
 export function useScroll({
   elementRef,
+  keepSticky = false,
+  captureMode = true,
 }: {
   elementRef: React.RefObject<HTMLElement>;
+  keepSticky?: boolean;
+  captureMode?: boolean;
 }) {
   const [isSticky, setIsSticky] = useState(false);
 
-  const handleScroll = () => {
-    if (!elementRef.current) return;
-    const { top } = elementRef.current.getBoundingClientRect();
-    const sticky = top <= 0; // Adjust this condition based on your requirements
-    setIsSticky(sticky);
-  };
-
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    const initialRefTop = elementRef.current?.offsetTop || 0;
+
+    const handleScroll = () => {
+      if (elementRef.current) {
+        const currentScroll = window.pageYOffset;
+
+        console.log(currentScroll, initialRefTop);
+
+        if (currentScroll > initialRefTop) {
+          setIsSticky(true);
+        } else if (!keepSticky) {
+          setIsSticky(false);
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, captureMode);
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll, captureMode);
     };
-  }, []);
+  }, [elementRef.current]);
 
-  return { isSticky };
+  const scrollTo = () => {
+    if (elementRef.current) {
+      window.scrollTo({
+        top: elementRef.current.offsetTop,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  return { isSticky, scrollTo };
 }
