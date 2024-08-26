@@ -90,7 +90,7 @@ export function useForm<Fields extends FieldValues>({
     ),
     ...useReactHookForm<_Fields>({
       ...useReactHookFormProps,
-      resolver: zodResolver(schema),
+      resolver: zodResolver(schema as any),
     }),
   };
 }
