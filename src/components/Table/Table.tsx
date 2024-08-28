@@ -33,7 +33,7 @@ import {
   FunnelIcon as FilledFunnelIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
-import { ColumnFilter } from "./ColumnFilter";
+import { ColumnFilter, ColumnFilterPopover } from "./ColumnFilter";
 import TablePagination from "./Pagination";
 import TableGlobalFilter from "./GlobalFilter";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
@@ -277,96 +277,10 @@ export function Table<Data>({
                                     null}
                                 </div>
                                 {!header.column.getCanFilter() && (
-                                  <Popover>
-                                    {({ open, close }) => (
-                                      <>
-                                        <PopoverButton
-                                          className={
-                                            "flex flex-col items-center"
-                                          }
-                                        >
-                                          {header.column.getIsFiltered() ? (
-                                            <FilledFunnelIcon
-                                              className="text-zinc-500 dark:text-zinc-400"
-                                              height={16}
-                                              width={16}
-                                            />
-                                          ) : (
-                                            <FunnelIcon
-                                              className="text-zinc-500 dark:text-zinc-400"
-                                              height={16}
-                                              width={16}
-                                            />
-                                          )}
-                                        </PopoverButton>
-                                        <PopoverPanel
-                                          anchor="bottom"
-                                          className="z-[20] flex min-w-[180px] flex-col items-center gap-2 rounded-lg border border-zinc-300 bg-white bg-opacity-90 p-1 lg:flex-row"
-                                        >
-                                          {header.column.columnDef.meta
-                                            ?.filterVariant === "range" ? (
-                                            <>
-                                              <Field
-                                                className={"w-full"}
-                                                name={`${header.column.id}-0`}
-                                              >
-                                                <Label>De</Label>
-                                                <ColumnFilter
-                                                  table={table}
-                                                  column={header.column}
-                                                />
-                                              </Field>
-                                              <Field
-                                                className={"w-full"}
-                                                name={`${header.column.id}-1`}
-                                              >
-                                                <Label>Até</Label>
-                                                <ColumnFilter
-                                                  table={table}
-                                                  column={header.column}
-                                                />
-                                              </Field>
-                                            </>
-                                          ) : (
-                                            <Field name={header.column.id}>
-                                              <ColumnFilter
-                                                table={table}
-                                                column={header.column}
-                                              />
-                                            </Field>
-                                          )}
-                                          <div
-                                            className={clsx(
-                                              "flex justify-center gap-2",
-                                              header.column.columnDef.meta
-                                                ?.filterVariant === "range" &&
-                                                "lg:mt-[20px]"
-                                            )}
-                                          >
-                                            <XMarkIcon
-                                              className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
-                                              onClick={() => {
-                                                close();
-                                                header.column.setFilterValue(
-                                                  ""
-                                                );
-                                              }}
-                                              height={24}
-                                              width={24}
-                                            />
-                                            <CheckIcon
-                                              onClick={() => {
-                                                close();
-                                              }}
-                                              className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
-                                              height={24}
-                                              width={24}
-                                            />
-                                          </div>
-                                        </PopoverPanel>
-                                      </>
-                                    )}
-                                  </Popover>
+                                  <ColumnFilterPopover
+                                    header={header}
+                                    table={table}
+                                  />
                                 )}
                               </div>
                             </TableHeader>
