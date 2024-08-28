@@ -117,6 +117,7 @@ export function Listbox<T>({
               as="div"
               anchor="selection start"
               className={clsx(
+                "z-[100]",
                 // Anchor positioning
                 "[--anchor-offset:-1.625rem] [--anchor-padding:theme(spacing.4)] sm:[--anchor-offset:-1.375rem]",
                 // Base styles
