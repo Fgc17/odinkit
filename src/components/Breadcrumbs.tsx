@@ -15,7 +15,7 @@ export function BreadCrumbs({
 }) {
   return (
     <nav aria-label="Breadcrumb" className="flex">
-      <ol role="list" className="flex items-center space-x-4">
+      <ol role="list" className="flex items-center space-x-0 lg:space-x-4">
         {showHome && (
           <li>
             <div>
@@ -43,7 +43,7 @@ export function BreadCrumbs({
               <a
                 href={href}
                 aria-current={current ? "page" : undefined}
-                className="ml-4 text-sm font-medium text-gray-500 hover:text-gray-700"
+                className="ml-1 text-sm font-medium text-gray-500 hover:text-gray-700 lg:ml-4"
               >
                 {label}
               </a>
