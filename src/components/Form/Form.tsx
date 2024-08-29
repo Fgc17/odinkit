@@ -2,26 +2,15 @@
 "use client";
 
 import type React from "react";
-import {
-  ReactNode,
-  createContext,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-} from "react";
+import { ReactNode, useEffect, useId } from "react";
 import {
   useForm as useReactHookForm,
   FieldValues,
   UseFormProps as useReactHookFormProps,
-  Path,
 } from "react-hook-form";
 import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
-
 import { z } from "../../utils/zod";
-
-import { atom, Provider, useAtom } from "jotai";
-
+import { atom, Provider, useAtom, useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, OdinInternal_Field } from "./Field";
 import { StepContext, useSteps } from "../../hooks/useSteps";
@@ -31,6 +20,7 @@ type UseFormProps<Fields extends FieldValues> = Omit<
   "resolver"
 > & {
   id?: string;
+  onSubmit?: (data: Fields) => void;
   fieldOptions?: {
     enableAsterisk?: boolean;
   };
@@ -54,22 +44,67 @@ export type FormGroupChildrenProps = {
   currentStep: number;
   walk: StepContext["walk"];
   dryWalk: StepContext["dryWalk"];
-  form: ReactNode;
+  hform: UseFormReturn;
+  Form: JSX.ElementType;
 };
 
 export type FormGroupProps = {
-  forms: ReactNode[];
+  forms: JSX.ElementType[];
   children: (props: FormGroupChildrenProps) => ReactNode;
 };
 
 export type UseFormReturn<Fields extends FieldValues = FieldValues> =
   ReturnType<typeof useForm<Fields>>;
 
-const FormContext = createContext<UseFormReturn>(null!);
+const FormGroupAtom = atom();
+
+export function useFormGroup<Fields extends FieldValues>() {
+  return useAtom<UseFormReturn<Fields>[]>(FormGroupAtom as any);
+}
+
+export function FormGroup({ forms, children }: FormGroupProps) {
+  const { currentStep, getNextStep, getPrevStep, walk, dryWalk } = useSteps({
+    currentStep: 0,
+    stepCount: forms.length,
+  });
+
+  const hasNextStep = getNextStep() === currentStep + 1;
+
+  const hasPrevStep = getPrevStep() === currentStep - 1;
+
+  return (
+    <Provider>
+      {(() => {
+        const [formGroup] = useFormGroup();
+
+        const currentForm = formGroup[currentStep]!;
+
+        return children({
+          hasNextStep,
+          hasPrevStep,
+          currentStep,
+          walk,
+          dryWalk,
+          hform: currentForm,
+          Form: forms[currentStep]!,
+        });
+      })()}
+    </Provider>
+  );
+}
+
+const FormAtom = atom();
+
+export function useParentForm<Fields extends FieldValues>() {
+  const { form } = useAtomValue<Fields>(FormAtom as any);
+
+  return form;
+}
 
 export function useForm<F extends FieldValues>({
   schema,
   fieldOptions,
+  onSubmit,
   ...useReactHookFormProps
 }: UseFormProps<F>) {
   type Fields = F | z.infer<typeof schema>;
@@ -89,57 +124,19 @@ export function useForm<F extends FieldValues>({
     id: useReactHookFormProps.id ?? id,
     schema,
     createField,
+    onSubmit,
     ...hookform,
   };
 
-  const [formGroup, setFormGroup] = useAtom(FormGroupAtom);
+  const [formGroup, setFormGroup] = useFormGroup<F>();
 
   useEffect(() => {
-    setFormGroup([...formGroup, form]);
+    if (formGroup) {
+      setFormGroup([...formGroup, form]);
+    }
   }, []);
 
   return form;
-}
-
-export function useFormContext<Fields extends FieldValues>() {
-  return useContext(FormContext) as unknown as UseFormReturn<Fields>;
-}
-
-export function FormProvider<Fields extends FieldValues>({
-  children,
-  ...data
-}: UseFormReturn<Fields> & { children: React.ReactNode }) {
-  return (
-    <FormContext.Provider value={data as unknown as UseFormReturn}>
-      {children}
-    </FormContext.Provider>
-  );
-}
-
-export const FormGroupAtom = atom<UseFormReturn[]>([]);
-
-export function FormGroup({ forms, children }: FormGroupProps) {
-  const { currentStep, getNextStep, getPrevStep, walk, dryWalk } = useSteps({
-    currentStep: 0,
-    stepCount: forms.length,
-  });
-
-  const hasNextStep = getNextStep() === currentStep + 1;
-
-  const hasPrevStep = getPrevStep() === currentStep - 1;
-
-  return (
-    <Provider>
-      {children({
-        hasNextStep,
-        hasPrevStep,
-        currentStep,
-        walk,
-        dryWalk,
-        form: forms[currentStep],
-      })}
-    </Provider>
-  );
 }
 
 export function Form<Fields extends FieldValues>({
@@ -149,19 +146,19 @@ export function Form<Fields extends FieldValues>({
   ...props
 }: FormProps<Fields>) {
   return (
-    <FormProvider {...hform}>
+    <Provider>
       <form
         onSubmit={
           onSubmit &&
           hform?.handleSubmit((data) => {
             hform.trigger();
-            return onSubmit(data);
+            return onSubmit ? onSubmit(data) : hform.onSubmit?.(data);
           })
         }
         ref={innerRef}
         id={hform.id}
         {...props}
       />
-    </FormProvider>
+    </Provider>
   );
 }
