@@ -9,7 +9,6 @@ import {
   useEffect,
   useId,
   useMemo,
-  useState,
 } from "react";
 import {
   useForm as useReactHookForm,
@@ -20,6 +19,8 @@ import {
 import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
 
 import { z } from "../../utils/zod";
+
+import { atom, Provider, useAtom } from "jotai";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, OdinInternal_Field } from "./Field";
@@ -38,17 +39,6 @@ type UseFormProps<Fields extends FieldValues> = Omit<
     | ZodEffects<ZodObject<ZodRawShape, "strip", ZodTypeAny, Fields, Fields>>;
 };
 
-export type MultistepFormChildrenProps<Step, Steps> = {
-  hasNextStep: boolean;
-  hasPrevStep: boolean;
-  currentStep: number;
-  walk: StepContext["walk"];
-  dryWalk: StepContext["dryWalk"];
-  steps: Steps;
-  order: Step[];
-  isCurrentStepValid: boolean;
-};
-
 export type FormProps<Fields extends FieldValues> = Omit<
   React.ComponentProps<"form">,
   "onSubmit" | "id" | "ref"
@@ -58,13 +48,18 @@ export type FormProps<Fields extends FieldValues> = Omit<
   onSubmit?: (data: Fields) => void;
 };
 
-export type MultistepFormProps<Fields extends FieldValues, Steps, Step> = Omit<
-  FormProps<Fields>,
-  "children"
-> & {
-  steps: Steps;
-  order: Step[];
-  children: (props: MultistepFormChildrenProps<Step, Steps>) => ReactNode;
+export type FormGroupChildrenProps = {
+  hasNextStep: boolean;
+  hasPrevStep: boolean;
+  currentStep: number;
+  walk: StepContext["walk"];
+  dryWalk: StepContext["dryWalk"];
+  form: ReactNode;
+};
+
+export type FormGroupProps = {
+  forms: ReactNode[];
+  children: (props: FormGroupChildrenProps) => ReactNode;
 };
 
 export type UseFormReturn<Fields extends FieldValues = FieldValues> =
@@ -72,27 +67,38 @@ export type UseFormReturn<Fields extends FieldValues = FieldValues> =
 
 const FormContext = createContext<UseFormReturn>(null!);
 
-export function useForm<Fields extends FieldValues>({
+export function useForm<F extends FieldValues>({
   schema,
   fieldOptions,
-  id,
   ...useReactHookFormProps
-}: UseFormProps<Fields>) {
-  type _Fields = Fields | z.infer<typeof schema>;
+}: UseFormProps<F>) {
+  type Fields = F | z.infer<typeof schema>;
 
-  const _id = useId();
+  const id = useId();
 
-  return {
-    id: id ?? _id,
+  const hookform = useReactHookForm<Fields>({
+    ...useReactHookFormProps,
+    resolver: zodResolver(schema as any),
+  });
+
+  const createField = () => (props: FieldProps<Fields>) => (
+    <OdinInternal_Field {...fieldOptions} {...props} />
+  );
+
+  const form = {
+    id: useReactHookFormProps.id ?? id,
     schema,
-    createField: () => (props: FieldProps<_Fields>) => (
-      <OdinInternal_Field {...fieldOptions} {...props} />
-    ),
-    ...useReactHookForm<_Fields>({
-      ...useReactHookFormProps,
-      resolver: zodResolver(schema as any),
-    }),
+    createField,
+    ...hookform,
   };
+
+  const [formGroup, setFormGroup] = useAtom(FormGroupAtom);
+
+  useEffect(() => {
+    setFormGroup([...formGroup, form]);
+  }, []);
+
+  return form;
 }
 
 export function useFormContext<Fields extends FieldValues>() {
@@ -110,91 +116,29 @@ export function FormProvider<Fields extends FieldValues>({
   );
 }
 
-export function MultistepForm<
-  Fields extends FieldValues,
-  Step extends string,
-  Steps extends Record<
-    Step,
-    {
-      fields: Path<Fields>[];
-      conditions?: any[];
-      form: ReactNode;
-      refine?: (data: Fields) => boolean;
-    }
-  >,
->({
-  onSubmit,
-  hform,
-  steps,
-  order,
-  children,
-  ...props
-}: MultistepFormProps<Fields, Steps, Step>) {
-  const {
-    currentStep,
-    getNextStep,
-    getPrevStep,
-    walk,
-    dryWalk,
-    stepCount,
-    setStepCount,
-  } = useSteps({
+export const FormGroupAtom = atom<UseFormReturn[]>([]);
+
+export function FormGroup({ forms, children }: FormGroupProps) {
+  const { currentStep, getNextStep, getPrevStep, walk, dryWalk } = useSteps({
     currentStep: 0,
-    stepCount: Object.values(steps).filter((s: any) => s.form).length,
+    stepCount: forms.length,
   });
-
-  const isCurrentStepValid = useMemo(() => {
-    const currentStepKey = order[currentStep] as keyof typeof steps;
-
-    const fields = steps[currentStepKey].fields;
-
-    const formFields = fields.map((field) => ({
-      ...hform.getFieldState(field),
-      name: field,
-    }));
-
-    const preRefineValidationResult = formFields.every(
-      (field) => !field.invalid && hform.getValues(field.name)
-    );
-
-    const serverError = hform.formState.errors.root?.serverError;
-
-    if (serverError) {
-      return false;
-    }
-
-    const refineFn = steps[currentStepKey].refine;
-    if (refineFn) {
-      const refineValidationResult = refineFn(hform.getValues());
-
-      return preRefineValidationResult && refineValidationResult;
-    }
-
-    return preRefineValidationResult;
-  }, [hform.watch()]);
-
-  useEffect(
-    () => setStepCount(Object.values(steps).filter((s: any) => s.form).length),
-    [steps]
-  );
 
   const hasNextStep = getNextStep() === currentStep + 1;
 
   const hasPrevStep = getPrevStep() === currentStep - 1;
 
   return (
-    <Form hform={hform} onSubmit={onSubmit} {...props}>
+    <Provider>
       {children({
         hasNextStep,
         hasPrevStep,
         currentStep,
         walk,
         dryWalk,
-        steps,
-        order,
-        isCurrentStepValid,
+        form: forms[currentStep],
       })}
-    </Form>
+    </Provider>
   );
 }
 
