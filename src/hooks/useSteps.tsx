@@ -42,6 +42,15 @@ export function useSteps({
     cyclic,
   });
 
+  useEffect(() => {
+    if (stepState.stepCount !== stepCount) {
+      setStepState((prevState) => ({
+        ...prevState,
+        stepCount,
+      }));
+    }
+  }, [stepCount, stepState.stepCount]);
+
   const setStepCount = (stepCount: number) =>
     setStepState((prevState) => ({ ...prevState, stepCount }));
 
@@ -57,7 +66,7 @@ export function useSteps({
         (stepState.currentStep + vector + maxIndex + 1) % (maxIndex + 1);
     } else {
       newIndex = stepState.currentStep + vector;
-      if (newIndex < 0) newIndex = 0;
+      if (newIndex < 0) newIndex = -1;
       else if (newIndex > maxIndex) newIndex = maxIndex;
     }
 

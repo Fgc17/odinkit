@@ -2,7 +2,7 @@
 "use client";
 
 import type React from "react";
-import { ReactNode, useEffect, useId } from "react";
+import { createContext, useContext, useEffect, useId } from "react";
 import {
   useForm as useReactHookForm,
   FieldValues,
@@ -10,10 +10,9 @@ import {
 } from "react-hook-form";
 import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
 import { z } from "../../utils/zod";
-import { atom, Provider, useAtom, useAtomValue } from "jotai";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldProps, OdinInternal_Field } from "./Field";
-import { StepContext, useSteps } from "../../hooks/useSteps";
+import { useParentFormGroup } from "./FormGroup";
 
 type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
@@ -38,68 +37,8 @@ export type FormProps<Fields extends FieldValues> = Omit<
   onSubmit?: (data: Fields) => void;
 };
 
-export type FormGroupChildrenProps = {
-  hasNextStep: boolean;
-  hasPrevStep: boolean;
-  currentStep: number;
-  walk: StepContext["walk"];
-  dryWalk: StepContext["dryWalk"];
-  hform: UseFormReturn;
-  Form: JSX.ElementType;
-};
-
-export type FormGroupProps = {
-  forms: JSX.ElementType[];
-  children: (props: FormGroupChildrenProps) => ReactNode;
-};
-
 export type UseFormReturn<Fields extends FieldValues = FieldValues> =
   ReturnType<typeof useForm<Fields>>;
-
-const FormGroupAtom = atom();
-
-export function useFormGroup<Fields extends FieldValues>() {
-  return useAtom<UseFormReturn<Fields>[]>(FormGroupAtom as any);
-}
-
-export function FormGroup({ forms, children }: FormGroupProps) {
-  const { currentStep, getNextStep, getPrevStep, walk, dryWalk } = useSteps({
-    currentStep: 0,
-    stepCount: forms.length,
-  });
-
-  const hasNextStep = getNextStep() === currentStep + 1;
-
-  const hasPrevStep = getPrevStep() === currentStep - 1;
-
-  return (
-    <Provider>
-      {(() => {
-        const [formGroup] = useFormGroup();
-
-        const currentForm = formGroup[currentStep]!;
-
-        return children({
-          hasNextStep,
-          hasPrevStep,
-          currentStep,
-          walk,
-          dryWalk,
-          hform: currentForm,
-          Form: forms[currentStep]!,
-        });
-      })()}
-    </Provider>
-  );
-}
-
-const FormAtom = atom();
-
-export function useParentForm<Fields extends FieldValues>() {
-  const { form } = useAtomValue<Fields>(FormAtom as any);
-
-  return form;
-}
 
 export function useForm<F extends FieldValues>({
   schema,
@@ -128,16 +67,35 @@ export function useForm<F extends FieldValues>({
     ...hookform,
   };
 
-  const [formGroup, setFormGroup] = useFormGroup<F>();
+  const parentFormGroup = useParentFormGroup();
 
   useEffect(() => {
-    if (formGroup) {
-      setFormGroup([...formGroup, form]);
+    if (parentFormGroup) {
+      if (!useReactHookFormProps.id) {
+        throw new Error("A form inside a FormGroup must have a fixed id");
+      }
+
+      const { forms, setForms } = parentFormGroup;
+      const formId = useReactHookFormProps.id;
+
+      const isFormAlreadyAdded = forms.some((f) => f.id === formId);
+
+      if (!isFormAlreadyAdded) {
+        setForms((prev) => [...prev, form as any]);
+      }
+
+      return () => {
+        setForms((prev) => prev.filter((f) => f.id !== formId));
+      };
     }
   }, []);
 
   return form;
 }
+
+const FormContext = createContext<UseFormReturn>(null!);
+
+export const useParentForm = () => useContext(FormContext);
 
 export function Form<Fields extends FieldValues>({
   onSubmit,
@@ -145,8 +103,12 @@ export function Form<Fields extends FieldValues>({
   innerRef,
   ...props
 }: FormProps<Fields>) {
+  const formGroup = useParentFormGroup();
+
+  if (formGroup && formGroup.currentForm.id !== hform.id) return;
+
   return (
-    <Provider>
+    <FormContext.Provider value={hform as any as UseFormReturn}>
       <form
         onSubmit={
           onSubmit &&
@@ -159,6 +121,6 @@ export function Form<Fields extends FieldValues>({
         id={hform.id}
         {...props}
       />
-    </Provider>
+    </FormContext.Provider>
   );
 }

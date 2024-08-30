@@ -2,10 +2,10 @@
 "use client";
 import { FieldValues } from "react-hook-form";
 import { Button, ButtonProps } from "../Button";
-import { UseFormReturn, useFormContext } from "./Form";
+import { UseFormReturn, useParentForm } from "./Form";
 
 export function SubmitButton<T extends FieldValues>(props: ButtonProps<T>) {
-  const _form = useFormContext();
+  const _form = useParentForm();
 
   const form = props.hform ?? _form;
 

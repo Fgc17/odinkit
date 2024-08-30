@@ -4,7 +4,7 @@ import {
   Input as HeadlessInput,
   type InputProps as HeadlessInputProps,
 } from "@headlessui/react";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { useField } from "../Field";
 import clsx from "clsx";
 import { Overlay } from "../Overlay";
@@ -87,7 +87,7 @@ export default function _Internal_Editor({
   }) => any;
   fileUploadPath?: string;
 } & HeadlessInputProps) {
-  const form = useFormContext();
+  const form = useParentForm();
   const { name, error } = useField();
   const editorRef = useRef(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);

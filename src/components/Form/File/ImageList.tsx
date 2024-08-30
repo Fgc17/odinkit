@@ -3,12 +3,12 @@
 import { useField } from "../Field";
 import { useMemo } from "react";
 import { For } from "../../../components/For";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { fileFormats } from "./FileFormat";
 import { getFileExtension, getFileMime } from "./utils";
 
 export function ImageList() {
-  const form = useFormContext();
+  const form = useParentForm();
 
   const field = useField();
 
@@ -21,7 +21,7 @@ export function ImageList() {
       images.map((file: any) => {
         return getFileMime(file) === "image"
           ? URL.createObjectURL(file)
-          : fileFormats[getFileExtension(file)] ?? "";
+          : (fileFormats[getFileExtension(file)] ?? "");
       }),
     [images]
   );

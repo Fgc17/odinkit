@@ -3,7 +3,7 @@
 import { FolderIcon } from "@heroicons/react/20/solid";
 import { ReactNode, useContext } from "react";
 import { FileInputContext } from "./FileInput";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { useField } from "../Field";
 import { getFileExtension } from "./utils";
 
@@ -16,7 +16,7 @@ import { getFileExtension } from "./utils";
 }) {
   const fileInput = useContext(FileInputContext);
 
-  const form = useFormContext();
+  const form = useParentForm();
 
   const { name } = useField();
 

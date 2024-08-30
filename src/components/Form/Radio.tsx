@@ -11,7 +11,7 @@ import {
 } from "@headlessui/react";
 import { clsx } from "clsx";
 import { Controller } from "react-hook-form";
-import { useFormContext } from "./Form";
+import { useParentForm } from "./Form";
 import { FieldContext, Label, useField } from "./Field";
 
 let base = [
@@ -103,7 +103,7 @@ let colors = {
 type Color = keyof typeof colors;
 
 export function RadioGroup({ onChange, ...props }: HeadlessRadioGroupProps) {
-  const { control } = useFormContext();
+  const { control } = useParentForm();
   const { name } = useField();
 
   return (

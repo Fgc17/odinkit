@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useField } from "../Field";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { getFileExtension, getFileMime } from "./utils";
 import { fileFormats } from "./FileFormat";
 import Image from "next/image";
@@ -13,7 +13,7 @@ export function FileImagePreview({
   defaultValue?: string;
   className?: string;
 }) {
-  const form = useFormContext();
+  const form = useParentForm();
 
   const field = useField();
 
@@ -24,7 +24,7 @@ export function FileImagePreview({
     return images.map((file: any) => {
       return getFileMime(file) === "image"
         ? URL.createObjectURL(file)
-        : fileFormats[getFileExtension(file)] ?? "";
+        : (fileFormats[getFileExtension(file)] ?? "");
     });
   }, [images]);
 

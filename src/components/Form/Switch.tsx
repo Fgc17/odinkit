@@ -10,7 +10,7 @@ import {
 import { clsx } from "clsx";
 import type React from "react";
 import { useField } from "./Field";
-import { useFormContext } from "./Form";
+import { useParentForm } from "./Form";
 import { Controller } from "react-hook-form";
 
 let colors = {
@@ -136,7 +136,7 @@ export function Switch({
   className?: string;
   children?: React.ReactNode;
 } & Omit<HeadlessSwitchProps, "children">) {
-  const form = useFormContext();
+  const form = useParentForm();
   const { name } = useField();
   return (
     <Controller
@@ -161,7 +161,7 @@ export function Switch({
             ":[--switch-bg:Highlight] forced-colors:outline forced-colors:[--switch-bg:Highlight]",
 
             // Unchecked
-            "bg-zinc-200 ring-1 ring-inset ring-black/5  ",
+            "bg-zinc-200 ring-1 ring-inset ring-black/5",
 
             // Checked
             "-[checked]:bg-[--switch-bg] -[checked]:ring-[--switch-bg-ring] data-[checked]:bg-[--switch-bg] data-[checked]:ring-[--switch-bg-ring]",

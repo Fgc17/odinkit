@@ -8,7 +8,7 @@ import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Controller } from "react-hook-form";
 import clsx from "clsx";
 import { useField } from "../Field";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { FileFormat } from "./FileFormat";
 import { getFileExtension } from "./utils";
 import { LoadingSpinner } from "../../Spinners";
@@ -60,7 +60,7 @@ export function FileInput({
   onError?: (error: string[] | string) => void;
   validate?: (file: File) => boolean | Promise<boolean>;
 } & Omit<HeadlessInputProps, "onChange" | "onError">) {
-  const form = useFormContext();
+  const form = useParentForm();
   const { name } = useField();
   const [isLoading, setIsLoading] = useState(false);
 

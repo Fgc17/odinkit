@@ -10,7 +10,7 @@ import {
 import { clsx } from "clsx";
 import type React from "react";
 import { Controller } from "react-hook-form";
-import { useFormContext } from "./Form";
+import { useParentForm } from "./Form";
 import { useField } from "./Field";
 
 export function CheckboxGroup({
@@ -145,7 +145,7 @@ export function Checkbox({
   color?: Color;
   className?: string;
 } & HeadlessCheckboxProps) {
-  const form = useFormContext();
+  const form = useParentForm();
   const { name, error } = useField();
   return (
     <Controller
@@ -165,7 +165,7 @@ export function Checkbox({
         >
           <span className={clsx([base, colors[color], className])}>
             <svg
-              className="size-4 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100 "
+              className="size-4 stroke-[--checkbox-check] opacity-0 group-data-[checked]:opacity-100"
               viewBox="0 0 14 14"
               fill="none"
             >

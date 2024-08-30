@@ -16,7 +16,7 @@ import {
   type ComboboxProps as HeadlessComboboxProps,
   Select as HeadlessSelect,
 } from "@headlessui/react";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import clsx from "clsx";
 import { useMemo } from "react";
 import { Path, Controller } from "react-hook-form";
@@ -80,7 +80,7 @@ export function Select<
   SelectProps<Data> & {
     placeholder?: string;
   }) {
-  const form = useFormContext();
+  const form = useParentForm();
 
   const { name, error, isRequired } = useField();
 

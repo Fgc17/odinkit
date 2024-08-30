@@ -20,7 +20,7 @@ import {
   Select as HeadlessSelect,
   ComboboxOptionProps,
 } from "@headlessui/react";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import {
   CheckIcon,
   ChevronUpDownIcon,
@@ -66,7 +66,7 @@ export function Combobox<Data extends { id: string | number }>({
   inputMode?: React.InputHTMLAttributes<HTMLInputElement>["inputMode"];
 } & SelectProps<Data> &
   Omit<HeadlessComboboxProps<Data, any, any>, "children">) {
-  const form = useFormContext();
+  const form = useParentForm();
 
   const { name, error } = useField();
 
@@ -173,7 +173,7 @@ export function Combobox<Data extends { id: string | number }>({
               />
             </Overlay>
 
-            <div className="absolute inset-y-0 right-1 flex space-x-2 ">
+            <div className="absolute inset-y-0 right-1 flex space-x-2">
               <ComboboxButton
                 className="flex items-center rounded-r-md focus:outline-none"
                 onClick={() => {

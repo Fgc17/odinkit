@@ -3,7 +3,7 @@
 import { FolderIcon } from "@heroicons/react/20/solid";
 import { ReactNode, useContext, useState } from "react";
 import { FileInputContext } from "./FileInput";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { useField } from "../Field";
 import { getFileExtension } from "./utils";
 import clsx from "clsx";
@@ -73,7 +73,7 @@ export function FileDropArea({
                     htmlFor={fileInput.inputId}
                     style={{ color }}
                     className={clsx(
-                      "relative cursor-pointer rounded-md font-semibold  focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2 "
+                      "relative cursor-pointer rounded-md font-semibold focus-within:outline-none focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2"
                     )}
                   >
                     <span>

@@ -19,7 +19,7 @@ import type React from "react";
 import { createContext, useContext } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
-import { useFormContext } from "./Form";
+import { useParentForm } from "./Form";
 import { getZodFields, z } from "../../utils/zod";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
@@ -203,7 +203,7 @@ export function OdinInternal_Field<Fields extends FieldValues>({
   variant = "default",
   ...props
 }: FieldProps<Fields>) {
-  const form = useFormContext();
+  const form = useParentForm();
 
   const {
     formState: { errors },

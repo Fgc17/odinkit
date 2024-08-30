@@ -7,7 +7,7 @@ import {
 import { clsx } from "clsx";
 import { Overlay } from "./Overlay";
 import { Controller } from "react-hook-form";
-import { useFormContext } from "./Form";
+import { useParentForm } from "./Form";
 import { useField } from "./Field";
 
 export function Textarea(
@@ -21,7 +21,7 @@ export function Textarea(
   >,
   ref: React.ForwardedRef<HTMLTextAreaElement>
 ) {
-  const form = useFormContext();
+  const form = useParentForm();
   const { name } = useField();
   return (
     <Overlay>

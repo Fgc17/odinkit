@@ -10,7 +10,7 @@ import {
   type ListboxOptionProps as HeadlessListboxOptionProps,
   type ListboxProps as HeadlessListboxProps,
 } from "@headlessui/react";
-import { useFormContext } from "../Form";
+import { useParentForm } from "../Form";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import { Fragment } from "react";
@@ -40,7 +40,7 @@ export function Listbox<T>({
   "aria-label"?: string;
   children?: React.ReactNode;
 } & Omit<HeadlessListboxProps<typeof Fragment, T>, "multiple">) {
-  const form = useFormContext();
+  const form = useParentForm();
 
   const { name, error } = useField();
 

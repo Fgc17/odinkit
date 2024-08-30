@@ -6,7 +6,7 @@ import {
   type InputProps as HeadlessInputProps,
 } from "@headlessui/react";
 import { clsx } from "clsx";
-import { useFormContext } from "./Form";
+import { useParentForm } from "./Form";
 import { MaskType, formatWithMask } from "./_shared/utils/formatWithMask";
 import { ButtonSpinner, LoadingSpinner } from "../Spinners";
 import { Controller } from "react-hook-form";
@@ -112,7 +112,7 @@ export function Input({
   mask?: MaskType;
   icon?: React.ReactNode;
 } & HeadlessInputProps) {
-  const form = useFormContext();
+  const form = useParentForm();
   const [showPassword, setShowPassword] = useState(!(type === "password"));
   const { name, error } = useField();
 
@@ -191,7 +191,7 @@ export function ColorInput({
   loading?: boolean;
   mask?: MaskType;
 } & HeadlessInputProps) {
-  const form = useFormContext();
+  const form = useParentForm();
   const { name } = useField();
   const [isOpen, setIsOpen] = useState(false);
   const [previewHex, setPreviewHex] = useState("");
