@@ -12,7 +12,9 @@ import {
 import { clsx } from "clsx";
 import { Controller } from "react-hook-form";
 import { useParentForm } from "./Form";
-import { FieldContext, Label, useField } from "./Field";
+import { useField } from "./Field";
+import { Fragment } from "react";
+import { Overlay } from "./Overlay";
 
 let base = [
   // Basic layout
@@ -102,27 +104,40 @@ let colors = {
 
 type Color = keyof typeof colors;
 
-export function RadioGroup({ onChange, ...props }: HeadlessRadioGroupProps) {
+export function RadioGroup({
+  onChange,
+  className,
+  ...props
+}: HeadlessRadioGroupProps) {
   const { control } = useParentForm();
   const { name } = useField();
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
-        <HeadlessRadioGroup
-          data-slot="control"
-          value={value || ""}
-          onChange={(v) => {
-            onChange && onChange(v);
-            fieldOnChange(v);
-          }}
-          {...props}
-          {..._field}
-        />
-      )}
-    />
+    <Overlay data-slot="control" variant="default">
+      <Controller
+        name={name}
+        control={control}
+        render={({ field: { onChange: fieldOnChange, value, ..._field } }) => (
+          <HeadlessRadioGroup
+            value={value || ""}
+            onChange={(v) => {
+              onChange && onChange(v);
+              fieldOnChange(v);
+            }}
+            as="div"
+            className={clsx(
+              className,
+              // Basic groups
+              "mt-3 space-y-3 [&_[data-slot=label]]:font-normal",
+              // With descriptions
+              "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
+            )}
+            {...props}
+            {..._field}
+          />
+        )}
+      />
+    </Overlay>
   );
 }
 
@@ -137,33 +152,25 @@ export function RadioSlot({
 }) {
   return (
     <HeadlessRadioField
+      data-slot="field"
       className={clsx(
-        // Base layout
         !custom &&
-          "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
+          clsx(
+            // Base layout
+            "grid grid-cols-[1.125rem_1fr] items-center gap-x-4 gap-y-1 sm:grid-cols-[1rem_1fr]",
 
-        // Control layout
-        !custom &&
-          "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
+            // Control layout
+            "[&>[data-slot=control]]:col-start-1 [&>[data-slot=control]]:row-start-1 [&>[data-slot=control]]:justify-self-center",
 
-        // Label layout
-        !custom &&
-          "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
+            // Label layout
+            "[&>[data-slot=label]]:col-start-2 [&>[data-slot=label]]:row-start-1 [&>[data-slot=label]]:justify-self-start",
 
-        // Description layout
-        !custom &&
-          "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
+            // Description layout
+            "[&>[data-slot=description]]:col-start-2 [&>[data-slot=description]]:row-start-2",
 
-        // With description
-        !custom &&
-          "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
-
-        // Basic groups
-        "[&_[data-slot=label]]:font-normal",
-
-        // With descriptions
-        "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium",
-
+            // With description
+            "[&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
+          ),
         className
       )}
     >

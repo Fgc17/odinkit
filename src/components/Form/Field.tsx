@@ -68,17 +68,6 @@ const fieldVariants = {
   ),
 };
 
-const fieldGroupVariants = {
-  default: "has-[[data-slot=description]]:space-y-6",
-  switch: clsx(
-    // Basic groups
-    "space-y-3 [&_[data-slot=label]]:font-normal",
-
-    // With descriptions
-    "has-[[data-slot=description]]:space-y-6 [&_[data-slot=label]]:has-[[data-slot=description]]:font-medium"
-  ),
-};
-
 export function Fieldset({
   className,
   ...props
@@ -104,7 +93,7 @@ export function Legend({
       {...props}
       className={clsx(
         className,
-        "text-base font-semibold leading-7 text-gray-900 data-[disabled]:opacity-50"
+        "text-base/6 font-semibold text-zinc-950 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-white"
       )}
     />
   );
@@ -136,7 +125,6 @@ export function Label({
     <HeadlessLabel
       data-slot="label"
       onClick={(e) => {
-        console.log(e);
         e.preventDefault();
         e.stopPropagation();
       }}
@@ -215,7 +203,10 @@ export function OdinInternal_Field<Fields extends FieldValues>({
   const zodField = getZodFields(schema)[name];
 
   const isRequired =
-    Boolean(enableAsterisk) && zodField && !zodField.isOptional();
+    variant != "radio" &&
+    Boolean(enableAsterisk) &&
+    zodField &&
+    !zodField.isOptional();
 
   const error = getEntryFromPath(errors, name).entryValue?.message;
 
@@ -225,14 +216,11 @@ export function OdinInternal_Field<Fields extends FieldValues>({
     error: error,
   };
 
-  if (variant === "radio") {
-    fieldContextValue.isRequired = false;
-  }
-
   return (
     <FieldContext.Provider value={fieldContextValue}>
       <HeadlessField
         {...props}
+        data-slot="field"
         className={clsx(fieldVariants[variant], className)}
       />
     </FieldContext.Provider>
