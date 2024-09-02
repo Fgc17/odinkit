@@ -1,27 +1,70 @@
 // client
-import { useSteps } from "../../hooks/useSteps";
-import { createContext, useContext, useState, useEffect, useId } from "react";
-import { z } from "zod";
-import { useForm, UseFormReturn } from "./Form";
+"use client";
 
-const FormGroupContext = createContext<ReturnType<typeof useFormGroup>>(null!);
+import { useSteps } from "../../hooks/useSteps";
+import { createContext, useContext, useState } from "react";
+import { UseFormReturn } from "./Form";
+
+export type FormGroupFormData = {
+  id: string;
+  onSubmit: () => void;
+  handleSubmit: UseFormReturn["handleSubmit"];
+  reset: UseFormReturn["reset"];
+  formState: {
+    errors: Record<string, any>;
+    isValid: boolean;
+    isSubmitting: boolean;
+  };
+  values: Record<string, any>;
+};
+
+export const FormGroupContext = createContext<ReturnType<typeof useFormGroup>>(
+  null!
+);
 
 export const useParentFormGroup = () => useContext(FormGroupContext);
 
+const defaultForm: Record<keyof FormGroupFormData, any> = {
+  id: "xxxxxxx",
+  onSubmit: () => {},
+  handleSubmit: () => {},
+  reset: () => {},
+  formState: {
+    errors: {},
+    isValid: false,
+  },
+  values: {},
+};
+
 export function useFormGroup() {
-  const starterFormId = useId();
+  const [forms, setForms] = useState<Map<string, FormGroupFormData>>(new Map());
 
-  const starterForm = useForm({
-    id: starterFormId,
-    schema: z.object({}) as any,
-  });
-
-  const [forms, setForms] = useState<UseFormReturn[]>([]);
+  const updateForm = (form: UseFormReturn) => {
+    setForms((prevForms) => {
+      const newForms = new Map(prevForms);
+      return newForms.set(form.id, {
+        id: form.id,
+        values: form.getValues(),
+        handleSubmit: form.handleSubmit,
+        reset: form.reset,
+        onSubmit: form.onSubmit as any,
+        formState: {
+          errors: form.formState.errors,
+          isValid: form.formState.isValid,
+          isSubmitting: form.formState.isSubmitting,
+        },
+      });
+    });
+  };
 
   const { currentStep, getNextStep, getPrevStep, walk } = useSteps({
     currentStep: 0,
-    stepCount: forms.length,
+    stepCount: forms.size,
   });
+
+  const formIds = Array.from(forms.keys());
+
+  const currentFormId = formIds[currentStep]!;
 
   const nextForm = () => walk(1);
 
@@ -31,8 +74,10 @@ export function useFormGroup() {
 
   const hasPreviousForm = getPrevStep() > -1;
 
+  const isCurrent = (id: string) => currentFormId === id;
+
   const submitFormGroup = () => {
-    const lastForm = forms[forms.length - 1];
+    const lastForm = forms.get(formIds[formIds.length - 1]!);
     if (lastForm?.onSubmit) {
       lastForm.handleSubmit(lastForm.onSubmit)();
     }
@@ -40,8 +85,10 @@ export function useFormGroup() {
 
   return {
     forms,
-    setForms,
-    currentForm: forms[currentStep] ?? starterForm,
+    updateForm,
+    isCurrent,
+    currentStep,
+    currentForm: forms.get(currentFormId) ?? (defaultForm as FormGroupFormData),
     nextForm,
     previousForm,
     submitFormGroup,

@@ -1,20 +1,19 @@
 // client
 "use client";
 
-import type React from "react";
 import { createContext, useContext, useEffect, useId } from "react";
+import { useParentFormGroup } from "./FormGroup";
 import {
   useForm as useReactHookForm,
-  FieldValues,
   UseFormProps as useReactHookFormProps,
+  FieldValues,
 } from "react-hook-form";
-import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
-import { z } from "../../utils/zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "../../utils/zod";
 import { FieldProps, OdinInternal_Field } from "./Field";
-import { useParentFormGroup } from "./FormGroup";
+import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
 
-type UseFormProps<Fields extends FieldValues> = Omit<
+export type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
   "resolver"
 > & {
@@ -39,6 +38,10 @@ export type FormProps<Fields extends FieldValues> = Omit<
 
 export type UseFormReturn<Fields extends FieldValues = FieldValues> =
   ReturnType<typeof useForm<Fields>>;
+
+export const FormContext = createContext<UseFormReturn>(null!);
+
+export const useParentForm = () => useContext(FormContext);
 
 export function useForm<F extends FieldValues>({
   schema,
@@ -70,32 +73,27 @@ export function useForm<F extends FieldValues>({
   const parentFormGroup = useParentFormGroup();
 
   useEffect(() => {
-    if (parentFormGroup) {
-      if (!useReactHookFormProps.id) {
-        throw new Error("A form inside a FormGroup must have a fixed id");
-      }
+    if (!parentFormGroup) return;
 
-      const { forms, setForms } = parentFormGroup;
-      const formId = useReactHookFormProps.id;
+    if (!useReactHookFormProps.id) throw new Error("useForm must have an id");
 
-      const isFormAlreadyAdded = forms.some((f) => f.id === formId);
+    parentFormGroup.updateForm(form as any);
+  }, [form.formState.errors, form.formState.isValid]);
 
-      if (!isFormAlreadyAdded) {
-        setForms((prev) => [...prev, form as any]);
-      }
+  useEffect(() => {
+    if (!parentFormGroup) return;
 
-      return () => {
-        setForms((prev) => prev.filter((f) => f.id !== formId));
-      };
-    }
+    if (!useReactHookFormProps.id) throw new Error("useForm must have an id");
+
+    const { unsubscribe } = form.watch(() =>
+      parentFormGroup.updateForm(form as any)
+    );
+
+    return () => unsubscribe();
   }, []);
 
   return form;
 }
-
-const FormContext = createContext<UseFormReturn>(null!);
-
-export const useParentForm = () => useContext(FormContext);
 
 export function Form<Fields extends FieldValues>({
   onSubmit,

@@ -187,7 +187,7 @@ const styles = {
   },
 };
 
-export type ButtonProps<T extends FieldValues = FieldValues> = (
+export type ButtonProps = (
   | { color?: keyof typeof styles.colors; outline?: never; plain?: never }
   | { color?: never; outline: true; plain?: never }
   | { color?: never; outline?: never; plain: true }
@@ -196,12 +196,12 @@ export type ButtonProps<T extends FieldValues = FieldValues> = (
     className?: string;
     children: React.ReactNode;
     loading?: string;
-    hform?: UseFormReturn<T>;
+    hform?: { formState: { isSubmitting: boolean }; id: string };
     disabled?: boolean;
   };
 
 export const Button = React.forwardRef(function Button(
-  { color, outline, plain, className, children, ...props }: ButtonProps<any>,
+  { color, outline, plain, className, children, ...props }: ButtonProps,
   ref: React.ForwardedRef<HTMLElement>
 ) {
   let classes = clsx(
