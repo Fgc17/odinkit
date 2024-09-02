@@ -19,8 +19,8 @@ import type React from "react";
 import { createContext, useContext } from "react";
 import { Path, FieldValues } from "react-hook-form";
 import { getEntryFromPath } from "./_shared/utils/getEntryFromPath";
-import { useParentForm } from "./Form";
 import { getZodFields, z } from "../../utils/zod";
+import { useParentForm } from "./Form";
 
 export type FieldProps<Fields extends FieldValues> = HeadlessFieldProps &
   FieldOptions & {
@@ -167,7 +167,7 @@ export function ErrorMessage({
       {...props}
       className={clsx(
         className,
-        "text-base/6 text-red-600 data-[disabled]:opacity-50 sm:text-sm/6 dark:text-red-500"
+        "text-base/6 text-sm/6 text-red-600 data-[disabled]:opacity-50 dark:text-red-500"
       )}
     >
       {error ? error : " "}
