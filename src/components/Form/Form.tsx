@@ -13,12 +13,14 @@ import { z } from "../../utils/zod";
 import { FieldProps, OdinInternal_Field } from "./Field";
 import { ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
 
+export type OnSubmitFn<Fields extends FieldValues> = (data: Fields) => void;
+
 export type UseFormProps<Fields extends FieldValues> = Omit<
   useReactHookFormProps<Fields>,
   "resolver"
 > & {
   id?: string;
-  onSubmit?: (data: Fields) => void;
+  onSubmit?: OnSubmitFn<Fields>;
   fieldOptions?: {
     enableAsterisk?: boolean;
   };

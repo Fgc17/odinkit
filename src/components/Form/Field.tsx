@@ -121,14 +121,18 @@ export function Label({
   "className"
 >) {
   const { isRequired } = useField();
+
   return (
     <HeadlessLabel
       data-slot="label"
-      onClick={(e) => {
+      /* onClick={(e) => {
         e.preventDefault();
         e.stopPropagation();
-      }}
-      className={clsx(className, "block text-sm font-medium text-gray-700")}
+      }} */
+      className={clsx(
+        className,
+        "block select-none text-sm/6 text-gray-700 data-[disabled]:opacity-50 dark:text-white"
+      )}
     >
       <>
         {props.children}{" "}

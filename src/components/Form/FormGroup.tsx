@@ -4,6 +4,7 @@
 import { useSteps } from "../../hooks/useSteps";
 import { createContext, useContext, useState } from "react";
 import { UseFormReturn } from "./Form";
+import _ from "lodash";
 
 export type FormGroupFormData = {
   id: string;
@@ -50,7 +51,7 @@ export function useFormGroup() {
         onSubmit: form.onSubmit as any,
         formState: {
           errors: form.formState.errors,
-          isValid: form.formState.isValid,
+          isValid: _.isEmpty(form.formState.errors),
           isSubmitting: form.formState.isSubmitting,
         },
       });
