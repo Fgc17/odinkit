@@ -52,11 +52,11 @@ export function ColumnFilterPopover({
           >
             {header.column.columnDef.meta?.filterVariant === "range" ? (
               <>
-                <Field className={"w-full"} name={`${header.column.id}-0`}>
+                <Field className={"w-full"} name={`${header.column.id}.0`}>
                   <Label>De</Label>
                   <ColumnFilter table={table} column={header.column} />
                 </Field>
-                <Field className={"w-full"} name={`${header.column.id}-1`}>
+                <Field className={"w-full"} name={`${header.column.id}.1`}>
                   <Label>Até</Label>
                   <ColumnFilter table={table} column={header.column} />
                 </Field>
@@ -77,6 +77,7 @@ export function ColumnFilterPopover({
                 className="cursor-pointer rounded-lg text-gray-700 hover:bg-zinc-300"
                 onClick={() => {
                   close();
+                  table.resetPageIndex();
                   header.column.setFilterValue("");
                 }}
                 height={24}
@@ -143,7 +144,6 @@ export function ColumnFilter({
           autoComplete="off"
           setIsLoading={setIsLoading}
           onChange={(e) => {
-            if (!e) return column.setFilterValue("");
             const rangeFilterValue = column.getFilterValue() as string[];
             table.resetPageIndex();
             const newFilterValue =

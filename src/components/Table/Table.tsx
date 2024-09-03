@@ -18,6 +18,7 @@ import {
   createColumnHelper,
   RowData,
   ColumnFiltersState,
+  Table as TableType,
 } from "@tanstack/react-table";
 import { rankItem } from "@tanstack/match-sorter-utils";
 import { For } from "../For";
@@ -52,11 +53,13 @@ export const TableContext = createContext<{
   dense: boolean;
   grid: boolean;
   striped: boolean;
+  table?: TableType<any>;
 }>({
   bleed: false,
   dense: false,
   grid: false,
   striped: false,
+  table: undefined,
 });
 
 const tableSearchSchema = z.object({
@@ -138,12 +141,12 @@ export function Table<Data>({
         const columnId = col.id || random();
         zodObject = zodObject.merge(
           z.object({
-            [`${columnId}-0`]: defaultColumnFilters?.find(
+            [`${columnId}.0`]: defaultColumnFilters?.find(
               (f) => f.id === col.id
             )?.value
               ? z.string()
               : z.string().optional(),
-            [`${columnId}-1`]: defaultColumnFilters?.find(
+            [`${columnId}.1`]: defaultColumnFilters?.find(
               (f) => f.id === col.id
             )?.value
               ? z.string()
@@ -188,6 +191,7 @@ export function Table<Data>({
     state: {
       globalFilter,
     },
+    autoResetPageIndex: false,
     initialState: {
       columnFilters: defaultColumnFilters ?? [],
       pagination: {
@@ -206,16 +210,15 @@ export function Table<Data>({
     getFacetedMinMaxValues: getFacetedMinMaxValues(),
   });
 
-  const Field = useMemo(() => form.createField(), []);
-
   return (
     <TableContext.Provider
       value={
-        { bleed, dense, grid, striped } as React.ContextType<
+        { bleed, dense, grid, striped, table } as React.ContextType<
           typeof TableContext
         >
       }
     >
+      {children}
       <Form hform={form} className={clsx(pagination && "pb-2 lg:pb-0")}>
         <div className="flex items-center justify-between gap-3">
           {search && (

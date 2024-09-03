@@ -32,7 +32,7 @@ export default function TablePagination({ table }: { table: TableType<any> }) {
       >
         <span className="hidden lg:block">Anterior</span>
       </PaginationPrevious>
-      <div className="flex items-center gap-1 lg:gap-2">
+      <div className="flex items-center gap-2 lg:gap-2">
         <PaginationList>
           {
             <For
@@ -97,6 +97,10 @@ export default function TablePagination({ table }: { table: TableType<any> }) {
             }
           />
         </Field>
+        <div className="hidden text-xs text-gray-500 md:block">
+          {table.getPaginationRowModel().rows.length} /{" "}
+          {table.getFilteredRowModel().rows.length} resultados
+        </div>
       </div>
       <PaginationNext
         disabled={
