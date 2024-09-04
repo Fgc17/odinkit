@@ -88,7 +88,7 @@ export function useForm<F extends FieldValues>({
     if (!useReactHookFormProps.id) throw new Error("useForm must have an id");
 
     const { unsubscribe } = form.watch(() =>
-      parentFormGroup.updateForm(form as any)
+      parentFormGroup.updateFormValues(form as any)
     );
 
     return () => unsubscribe();
@@ -105,7 +105,7 @@ export function Form<Fields extends FieldValues>({
 }: FormProps<Fields>) {
   const formGroup = useParentFormGroup();
 
-  if (formGroup && formGroup.currentForm.id !== hform.id) return;
+  if (formGroup && !formGroup?.formControl.isCurrent(hform.id)) return;
 
   return (
     <FormContext.Provider value={hform as any as UseFormReturn}>

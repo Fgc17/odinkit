@@ -5,6 +5,7 @@ import { useSteps } from "../../hooks/useSteps";
 import { createContext, useContext, useState } from "react";
 import { UseFormReturn } from "./Form";
 import _ from "lodash";
+import { usePaginationUtils } from "../../hooks/usePaginationUtils";
 
 export type FormGroupFormData = {
   id: string;
@@ -51,10 +52,26 @@ export function useFormGroup() {
         onSubmit: form.onSubmit as any,
         formState: {
           errors: form.formState.errors,
-          isValid: _.isEmpty(form.formState.errors),
+          isValid: form.formState.isValid,
           isSubmitting: form.formState.isSubmitting,
         },
       });
+    });
+  };
+
+  const updateFormValues = (form: UseFormReturn) => {
+    setForms((prevForms) => {
+      const newForms = new Map(prevForms);
+      const formId = form.id;
+      const formValues = form.getValues();
+      const currentForm = newForms.get(formId);
+      if (currentForm) {
+        newForms.set(formId, {
+          ...currentForm,
+          values: formValues,
+        });
+      }
+      return newForms;
     });
   };
 
@@ -67,15 +84,19 @@ export function useFormGroup() {
 
   const currentFormId = formIds[currentStep]!;
 
-  const nextForm = () => walk(1);
+  const next = () => walk(1);
 
-  const previousForm = () => walk(-1);
+  const previous = () => walk(-1);
 
-  const hasNextForm = getNextStep() != 0;
-
-  const hasPreviousForm = getPrevStep() > -1;
-
-  const isCurrent = (id: string) => currentFormId === id;
+  const {
+    isCurrent,
+    isFirstPage: isFirst,
+    isLastPage: isLast,
+    shouldShow,
+  } = usePaginationUtils({
+    currentPageIndex: currentStep,
+    pageCount: forms.size,
+  });
 
   const submitFormGroup = () => {
     const lastForm = forms.get(formIds[formIds.length - 1]!);
@@ -86,15 +107,19 @@ export function useFormGroup() {
 
   return {
     forms,
+    submitFormGroup,
     updateForm,
-    isCurrent,
+    updateFormValues,
     currentStep,
     currentForm: forms.get(currentFormId) ?? (defaultForm as FormGroupFormData),
-    nextForm,
-    previousForm,
-    submitFormGroup,
-    hasNextForm,
-    hasPreviousForm,
+    formControl: {
+      next,
+      previous,
+      isCurrent: (id: string) => isCurrent(formIds.indexOf(id)),
+      shouldShow: shouldShow(currentStep),
+      isLast: isLast(currentStep),
+      isFirst: isFirst(currentStep),
+    },
   };
 }
 
