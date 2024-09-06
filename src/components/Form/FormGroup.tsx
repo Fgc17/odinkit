@@ -2,12 +2,14 @@
 "use client";
 
 import { useSteps } from "../../hooks/useSteps";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { UseFormReturn } from "./Form";
 import _ from "lodash";
 import { usePaginationUtils } from "../../hooks/usePaginationUtils";
+import { FieldValues } from "react-hook-form";
+import { MapObject } from "../../utils/types";
 
-export type FormGroupFormData = {
+export type FormGroupFormData<T extends FieldValues> = {
   id: string;
   onSubmit: () => void;
   handleSubmit: UseFormReturn["handleSubmit"];
@@ -17,16 +19,20 @@ export type FormGroupFormData = {
     isValid: boolean;
     isSubmitting: boolean;
   };
-  values: Record<string, any>;
+  values: T;
 };
 
 export const FormGroupContext = createContext<ReturnType<typeof useFormGroup>>(
   null!
 );
 
-export const useParentFormGroup = () => useContext(FormGroupContext);
+export function useParentFormGroup<T extends Record<string, FieldValues>>() {
+  return useContext(FormGroupContext) as any as ReturnType<
+    typeof useFormGroup<T>
+  >;
+}
 
-const defaultForm: Record<keyof FormGroupFormData, any> = {
+const defaultForm: Record<keyof FormGroupFormData<FieldValues>, any> = {
   id: "xxxxxxx",
   onSubmit: () => {},
   handleSubmit: () => {},
@@ -38,10 +44,23 @@ const defaultForm: Record<keyof FormGroupFormData, any> = {
   values: {},
 };
 
-export function useFormGroup() {
-  const [forms, setForms] = useState<Map<string, FormGroupFormData>>(new Map());
+export function useFormGroup<Forms extends Record<string, FieldValues>>() {
+  const [forms, setForms] = useState<
+    MapObject<{
+      [K in keyof Forms]: FormGroupFormData<Forms[K]>;
+    }>
+  >(new Map());
+
+  const insertForm = (id: string) => {
+    // @ts-ignore - I don't know why this is not working
+    setForms((prevForms) => {
+      const newForms = new Map(prevForms);
+      return newForms.set(id, defaultForm);
+    });
+  };
 
   const updateForm = (form: UseFormReturn) => {
+    // @ts-ignore - I don't know why this is not working
     setForms((prevForms) => {
       const newForms = new Map(prevForms);
       return newForms.set(form.id, {
@@ -55,11 +74,12 @@ export function useFormGroup() {
           isValid: form.formState.isValid,
           isSubmitting: form.formState.isSubmitting,
         },
-      });
+      } as any);
     });
   };
 
   const updateFormValues = (form: UseFormReturn) => {
+    // @ts-ignore - I don't know why this is not working
     setForms((prevForms) => {
       const newForms = new Map(prevForms);
       const formId = form.id;
@@ -75,7 +95,7 @@ export function useFormGroup() {
     });
   };
 
-  const { currentStep, getNextStep, getPrevStep, walk } = useSteps({
+  const { currentStep, walk } = useSteps({
     currentStep: 0,
     stepCount: forms.size,
   });
@@ -92,31 +112,39 @@ export function useFormGroup() {
     isCurrent,
     isFirstPage: isFirst,
     isLastPage: isLast,
-    shouldShow,
   } = usePaginationUtils({
     currentPageIndex: currentStep,
     pageCount: forms.size,
   });
 
-  const submitFormGroup = () => {
-    const lastForm = forms.get(formIds[formIds.length - 1]!);
-    if (lastForm?.onSubmit) {
-      lastForm.handleSubmit(lastForm.onSubmit)();
-    }
+  const getValues = (options?: { groupById?: boolean }) => {
+    const formsArray = Array.from(forms.values());
+
+    return formsArray.reduce(
+      (acc, form) => ({
+        ...acc,
+        ...(options?.groupById
+          ? { ...form.values }
+          : { [form.id]: form.values }),
+      }),
+      {}
+    );
   };
 
   return {
     forms,
-    submitFormGroup,
+    insertForm,
+    getValues,
     updateForm,
     updateFormValues,
     currentStep,
-    currentForm: forms.get(currentFormId) ?? (defaultForm as FormGroupFormData),
+    currentForm:
+      forms.get(currentFormId) ??
+      (defaultForm as FormGroupFormData<FieldValues>),
     formControl: {
       next,
       previous,
       isCurrent: (id: string) => isCurrent(formIds.indexOf(id)),
-      shouldShow: shouldShow(currentStep),
       isLast: isLast(currentStep),
       isFirst: isFirst(currentStep),
     },
@@ -128,11 +156,29 @@ export function FormGroup({
   formGroup,
 }: {
   children: React.ReactNode;
-  formGroup: ReturnType<typeof useFormGroup>;
+  formGroup: any; // I don't know how to type this
 }) {
   return (
     <FormGroupContext.Provider value={formGroup}>
       {children}
     </FormGroupContext.Provider>
   );
+}
+
+export function FormSlot({
+  id,
+  children,
+}: {
+  id: string;
+  children: React.ReactNode;
+}) {
+  const formGroup = useParentFormGroup();
+
+  useEffect(() => {
+    formGroup.insertForm(id);
+  }, []);
+
+  const shouldShow = formGroup.formControl.isCurrent(id);
+
+  return shouldShow ? <>{children}</> : null;
 }

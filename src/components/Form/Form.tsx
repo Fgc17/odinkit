@@ -103,10 +103,6 @@ export function Form<Fields extends FieldValues>({
   innerRef,
   ...props
 }: FormProps<Fields>) {
-  const formGroup = useParentFormGroup();
-
-  if (formGroup && !formGroup?.formControl.isCurrent(hform.id)) return;
-
   return (
     <FormContext.Provider value={hform as any as UseFormReturn}>
       <form
