@@ -125,10 +125,6 @@ export function Label({
   return (
     <HeadlessLabel
       data-slot="label"
-      /* onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      }} */
       className={clsx(
         className,
         "block select-none text-sm/6 text-gray-700 data-[disabled]:opacity-50 dark:text-white"
