@@ -14,7 +14,7 @@ export function Date({
   format = "DD/MM/YYYY HH:mm:ss",
   localTime = false,
 }: {
-  date: Date;
+  date?: Date | null;
   format?: string;
   localTime?: boolean;
 }) {
@@ -23,5 +23,7 @@ export function Date({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  if (!date) return "Sem Data";
   return isClient ? dayjs(date).local().format(format) : "";
 }
