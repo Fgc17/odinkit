@@ -137,7 +137,9 @@ export function Table<Data>({
   link,
   div,
   children,
+  itemsPerPage
 }: {
+  itemsPerPage?: number;
   disableMobileFilters?: boolean;
   div?: Omit<React.ComponentPropsWithoutRef<"div">, "children" | "className">;
   search?: boolean;
@@ -207,7 +209,7 @@ export function Table<Data>({
             ...defaultColumnFilters.map((f) => ({ [f.id]: f.value }))
           )
         : undefined),
-      itemsPerPage: 10,
+      itemsPerPage: itemsPerPage ?? 10,
     },
   });
 
