@@ -226,7 +226,7 @@ export function Table<Data>({
       columnFilters: defaultColumnFilters ?? [],
       pagination: {
         pageIndex: 0,
-        pageSize: 10,
+        pageSize: itemsPerPage ?? 10,
       },
     },
     onGlobalFilterChange: setGlobalFilter,
