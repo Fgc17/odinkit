@@ -170,7 +170,7 @@ export function Checkbox({
         <HeadlessCheckbox
           {...props}
           {...field}
-          defaultChecked={value}
+          checked={value}
           data-slot="control"
           className={clsx("group inline-flex rounded focus:outline-none")}
           onChange={(checked) => {
